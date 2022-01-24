@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Enqueuer.Persistence.Models
@@ -42,5 +43,10 @@ namespace Enqueuer.Persistence.Models
         /// </summary>
         [ForeignKey(nameof(CreatorId))]
         public User Creator { get; set; }
+
+        /// <summary>
+        /// Gets or sets users in this queue.
+        /// </summary>
+        public ICollection<User> Users { get; set; }
     }
 }
