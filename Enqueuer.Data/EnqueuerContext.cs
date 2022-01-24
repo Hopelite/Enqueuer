@@ -1,7 +1,7 @@
-﻿using Enqueuer.Data.Models;
+﻿using Enqueuer.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Enqueuer.Data
+namespace Enqueuer.Persistence 
 {
     /// <summary>
     /// A <see cref="DbContext"/> to work with Enqueuer Bot entities.

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Enqueuer.Data.Models
+namespace Enqueuer.Persistence.Models
 {
     /// <summary>
     /// Represents queue.
@@ -18,6 +18,7 @@ namespace Enqueuer.Data.Models
         /// Gets or sets queue name.
         /// </summary>
         [Required]
+        [StringLength(100)]
         public string Name { get; set; }
 
         /// <summary>

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Enqueuer.Data.Models
+namespace Enqueuer.Persistence.Models
 {
     /// <summary>
     /// Represents Telegram user.
@@ -24,16 +24,19 @@ namespace Enqueuer.Data.Models
         /// Gets or sets user first name.
         /// </summary>
         [Required]
+        [StringLength(64)]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Gets or sets user last name.
         /// </summary>
+        [StringLength(64)]
         public string LastName { get; set; }
 
         /// <summary>
         /// Gets or sets Telegram user username.
         /// </summary>
+        [StringLength(32)]
         public string UserName { get; set; }
 
         /// <summary>
