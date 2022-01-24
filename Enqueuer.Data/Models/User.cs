@@ -42,11 +42,11 @@ namespace Enqueuer.Persistence.Models
         /// <summary>
         /// Gets or sets chats in which user participates.
         /// </summary>
-        public virtual ICollection<Chat> Chats { get; set;}
+        public ICollection<Chat> Chats { get; set;}
 
         /// <summary>
         /// Gets or sets queues in which user is registered.
         /// </summary>
-        public virtual ICollection<Queue> Queues { get;}
+        public ICollection<Queue> Queues { get;}
     }
 }
