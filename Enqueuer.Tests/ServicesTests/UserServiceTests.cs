@@ -3,9 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services;
-using Enqueuer.Services.Interfaces;
 using Enqueuer.Tests.Utilities.Comparers;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using User = Enqueuer.Persistence.Models.User;
@@ -13,7 +11,7 @@ using User = Enqueuer.Persistence.Models.User;
 namespace Enqueuer.Tests.ServicesTests
 {
     [TestFixture]
-    public class UserServiceTests : ServicesTestsBase
+    public class UserServiceTests
     {
         [Test]
         public async Task UserServiceTests_GetNewOrExistingUser_CreatesAndReturnNewUser()
