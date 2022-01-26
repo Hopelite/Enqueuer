@@ -45,6 +45,11 @@ namespace Enqueuer.Persistence.Models
         public ICollection<Chat> Chats { get; set;}
 
         /// <summary>
+        /// Gets or sets queues which where created by user.
+        /// </summary>
+        public ICollection<Queue> QueuesCreated { get; }
+
+        /// <summary>
         /// Gets or sets queues in which user is registered.
         /// </summary>
         public ICollection<Queue> Queues { get;}
