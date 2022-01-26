@@ -41,7 +41,7 @@ namespace Enqueuer.Persistence
                 .IsUnique();
             modelBuilder.Entity<User>().HasIndex(user => user.UserId)
                 .IsUnique();
-            modelBuilder.Entity<User>().HasMany(user => user.QueuesCreated)
+            modelBuilder.Entity<User>().HasMany(user => user.CreatedQueues)
                 .WithOne(queue => queue.Creator);
             modelBuilder.Entity<User>().HasMany(user => user.Queues)
                 .WithMany(queue => queue.Users);

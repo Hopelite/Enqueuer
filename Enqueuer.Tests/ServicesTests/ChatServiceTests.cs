@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
-using Enqueuer.Persistence;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services;
-using Enqueuer.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Enqueuer.Tests.Utilities.Comparers;
+using Moq;
 using NUnit.Framework;
 
 namespace Enqueuer.Tests.ServicesTests
@@ -12,34 +13,56 @@ namespace Enqueuer.Tests.ServicesTests
     [TestFixture]
     public class ChatServiceTests
     {
-        private const string databaseName = "Test";
-        private EnqueuerContext context;
-        private IRepository<Chat> chatRepository;
-        private IChatService chatService;
-
-        public ChatServiceTests()
-        {
-            var dbContextOptions = new DbContextOptionsBuilder<EnqueuerContext>()
-                .UseInMemoryDatabase(databaseName).Options;
-            this.context = new EnqueuerContext(dbContextOptions);
-            this.chatRepository = new Repository<Chat>(context);
-            this.chatService = new ChatService(chatRepository);
-        }
-
         [Test]
         public async Task ChatServiceTests_GetNewOrExistingChat_CreatesAndReturnNewChat()
         {
             // Arrange
-            var expected = new Chat()
+            var comparer = new ChatComparer();
+            var expected = new Telegram.Bot.Types.Chat()
             {
-                ChatId = 1,
+                Id = 1,
             };
 
-            // Act
-            var actual = await this.chatService.GetNewOrExistingChat(expected.ChatId);
+            var chats = Enumerable.Empty<Chat>().AsQueryable();
 
-            // Asssert
-            Assert.AreEqual(expected.ChatId, actual.ChatId);
+            var mock = new Mock<IRepository<Chat>>();
+            mock.Setup(repository => repository.GetAll())
+                .Returns(chats);
+            mock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
+            var chatService = new ChatService(mock.Object);
+
+            // Act
+            var actual = await chatService.GetNewOrExistingChat(expected);
+
+            // Assert
+            Assert.IsTrue(comparer.Equals(expected, actual));
+            mock.Verify(repository => repository.AddAsync(It.IsAny<Chat>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ChatServiceTests_GetNewOrExistingUser_CreatesAndReturnNewChat()
+        {
+            // Arrange
+            var comparer = new ChatComparer();
+            var expected = new Telegram.Bot.Types.Chat()
+            {
+                Id = 1
+            };
+
+            var chats = new List<Chat> { expected }.AsQueryable();
+
+            var mock = new Mock<IRepository<Chat>>();
+            mock.Setup(repository => repository.GetAll())
+                .Returns(chats);
+            mock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
+            var chatService = new ChatService(mock.Object);
+
+            // Act
+            var actual = await chatService.GetNewOrExistingChat(expected);
+
+            // Assert
+            Assert.IsTrue(comparer.Equals(expected, actual));
+            mock.Verify(repository => repository.AddAsync(It.IsAny<Chat>()), Times.Never);
         }
     }
 }
