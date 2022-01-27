@@ -29,5 +29,10 @@ namespace Enqueuer.Persistence.Models
         /// Gets or sets queues related to this chat.
         /// </summary>
         public ICollection<Queue> Queues { get; set; }
+
+        public static implicit operator Chat(Telegram.Bot.Types.Chat chat)
+        {
+            return new Chat() { ChatId = chat.Id };
+        }
     }
 }

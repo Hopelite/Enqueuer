@@ -5,7 +5,11 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer", "Enqueuer\Enqueuer.csproj", "{00315A55-2885-4FA7-AF49-329CD3D6D913}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Persistence", "Enqueuer.Data\Enqueuer.Persistence.csproj", "{A34A53CC-F67B-44B5-AFCF-2EECF75F3111}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Persistence", "Enqueuer.Data\Enqueuer.Persistence.csproj", "{A34A53CC-F67B-44B5-AFCF-2EECF75F3111}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Services", "Enqueuer.Services\Enqueuer.Services.csproj", "{C993BC07-3472-478F-9DEB-9396AB6BE20B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Tests", "Enqueuer.Tests\Enqueuer.Tests.csproj", "{15483715-E477-4214-A40D-731AB5DB45A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{A34A53CC-F67B-44B5-AFCF-2EECF75F3111}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A34A53CC-F67B-44B5-AFCF-2EECF75F3111}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A34A53CC-F67B-44B5-AFCF-2EECF75F3111}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C993BC07-3472-478F-9DEB-9396AB6BE20B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C993BC07-3472-478F-9DEB-9396AB6BE20B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C993BC07-3472-478F-9DEB-9396AB6BE20B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C993BC07-3472-478F-9DEB-9396AB6BE20B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15483715-E477-4214-A40D-731AB5DB45A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15483715-E477-4214-A40D-731AB5DB45A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15483715-E477-4214-A40D-731AB5DB45A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15483715-E477-4214-A40D-731AB5DB45A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

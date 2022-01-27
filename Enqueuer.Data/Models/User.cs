@@ -47,11 +47,22 @@ namespace Enqueuer.Persistence.Models
         /// <summary>
         /// Gets or sets queues which where created by user.
         /// </summary>
-        public ICollection<Queue> QueuesCreated { get; }
+        public ICollection<Queue> CreatedQueues { get; }
 
         /// <summary>
         /// Gets or sets queues in which user is registered.
         /// </summary>
         public ICollection<Queue> Queues { get;}
+
+        public static implicit operator User(Telegram.Bot.Types.User user)
+        {
+            return new User()
+            {
+                UserId = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.Username
+            };
+        }
     }
 }
