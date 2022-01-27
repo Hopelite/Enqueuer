@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer", "Enqueuer\Enqueu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Persistence", "Enqueuer.Data\Enqueuer.Persistence.csproj", "{A34A53CC-F67B-44B5-AFCF-2EECF75F3111}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Services", "Enqueuer.Services\Enqueuer.Services.csproj", "{C993BC07-3472-478F-9DEB-9396AB6BE20B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Services", "Enqueuer.Services\Enqueuer.Services.csproj", "{C993BC07-3472-478F-9DEB-9396AB6BE20B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Tests", "Enqueuer.Tests\Enqueuer.Tests.csproj", "{15483715-E477-4214-A40D-731AB5DB45A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Tests", "Enqueuer.Tests\Enqueuer.Tests.csproj", "{15483715-E477-4214-A40D-731AB5DB45A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Bot", "Enqueuer.Bot\Enqueuer.Bot.csproj", "{8E28C7B7-9C6E-4531-B6E3-666D051180D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{15483715-E477-4214-A40D-731AB5DB45A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15483715-E477-4214-A40D-731AB5DB45A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15483715-E477-4214-A40D-731AB5DB45A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E28C7B7-9C6E-4531-B6E3-666D051180D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E28C7B7-9C6E-4531-B6E3-666D051180D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E28C7B7-9C6E-4531-B6E3-666D051180D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E28C7B7-9C6E-4531-B6E3-666D051180D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
