@@ -13,6 +13,21 @@ namespace Enqueuer.Tests.ServicesTests
     [TestFixture]
     public class ChatServiceTests
     {
+        private readonly Mock<IRepository<Chat>> chatRepositoryMock;
+        private readonly ChatService chatService;
+
+        public ChatServiceTests()
+        {
+            this.chatRepositoryMock = new Mock<IRepository<Chat>>();
+            this.chatService = new ChatService(chatRepositoryMock.Object);
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            this.chatRepositoryMock.Reset();
+        }
+
         [Test]
         public async Task ChatServiceTests_GetNewOrExistingChat_CreatesAndReturnNewChat()
         {
@@ -25,18 +40,16 @@ namespace Enqueuer.Tests.ServicesTests
 
             var chats = Enumerable.Empty<Chat>().AsQueryable();
 
-            var mock = new Mock<IRepository<Chat>>();
-            mock.Setup(repository => repository.GetAll())
+            this.chatRepositoryMock.Setup(repository => repository.GetAll())
                 .Returns(chats);
-            mock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
-            var chatService = new ChatService(mock.Object);
+            this.chatRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
 
             // Act
-            var actual = await chatService.GetNewOrExistingChat(expected);
+            var actual = await this.chatService.GetNewOrExistingChat(expected);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));
-            mock.Verify(repository => repository.AddAsync(It.IsAny<Chat>()), Times.Once);
+            this.chatRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<Chat>()), Times.Once);
         }
 
         [Test]
@@ -51,18 +64,16 @@ namespace Enqueuer.Tests.ServicesTests
 
             var chats = new List<Chat> { expected }.AsQueryable();
 
-            var mock = new Mock<IRepository<Chat>>();
-            mock.Setup(repository => repository.GetAll())
+            this.chatRepositoryMock.Setup(repository => repository.GetAll())
                 .Returns(chats);
-            mock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
-            var chatService = new ChatService(mock.Object);
+            this.chatRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
 
             // Act
-            var actual = await chatService.GetNewOrExistingChat(expected);
+            var actual = await this.chatService.GetNewOrExistingChat(expected);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));
-            mock.Verify(repository => repository.AddAsync(It.IsAny<Chat>()), Times.Never);
+            this.chatRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<Chat>()), Times.Never);
         }
     }
 }

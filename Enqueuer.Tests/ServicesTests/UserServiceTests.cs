@@ -13,6 +13,21 @@ namespace Enqueuer.Tests.ServicesTests
     [TestFixture]
     public class UserServiceTests
     {
+        private readonly Mock<IRepository<User>> userRepositoryMock;
+        private readonly UserService userService;
+
+        public UserServiceTests()
+        {
+            this.userRepositoryMock = new Mock<IRepository<User>>();
+            this.userService = new UserService(userRepositoryMock.Object);
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            this.userRepositoryMock.Reset();
+        }
+
         [Test]
         public async Task UserServiceTests_GetNewOrExistingUser_CreatesAndReturnNewUser()
         {
@@ -28,18 +43,16 @@ namespace Enqueuer.Tests.ServicesTests
 
             var users = Enumerable.Empty<User>().AsQueryable();
 
-            var mock = new Mock<IRepository<User>>();
-            mock.Setup(repository => repository.GetAll())
+            this.userRepositoryMock.Setup(repository => repository.GetAll())
                 .Returns(users);
-            mock.Setup(repository => repository.AddAsync(It.IsAny<User>()));
-            var userService = new UserService(mock.Object);
+            this.userRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<User>()));
 
             // Act
-            var actual = await userService.GetNewOrExistingUser(expected);
+            var actual = await this.userService.GetNewOrExistingUser(expected);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));
-            mock.Verify(repository => repository.AddAsync(It.IsAny<User>()), Times.Once);
+            this.userRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<User>()), Times.Once);
         }
 
         [Test]
@@ -57,18 +70,16 @@ namespace Enqueuer.Tests.ServicesTests
 
             var users = new List<User> { expected }.AsQueryable();
 
-            var mock = new Mock<IRepository<User>>();
-            mock.Setup(repository => repository.GetAll())
+            this.userRepositoryMock.Setup(repository => repository.GetAll())
                 .Returns(users);
-            mock.Setup(repository => repository.AddAsync(It.IsAny<User>()));
-            var userService = new UserService(mock.Object);
+            this.userRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<User>()));
 
             // Act
-            var actual = await userService.GetNewOrExistingUser(expected);
+            var actual = await this.userService.GetNewOrExistingUser(expected);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));
-            mock.Verify(repository => repository.AddAsync(It.IsAny<User>()), Times.Never);
+            this.userRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<User>()), Times.Never);
         }
     }
 }
