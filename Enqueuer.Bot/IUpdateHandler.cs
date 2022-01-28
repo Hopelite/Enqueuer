@@ -1,4 +1,5 @@
-﻿using Telegram.Bot.Types;
+﻿using System.Threading.Tasks;
+using Telegram.Bot.Types;
 
 namespace Enqueuer.Bot
 {
@@ -12,6 +13,6 @@ namespace Enqueuer.Bot
         /// </summary>
         /// <param name="update"><see cref="Update"/> to handle.</param>
         /// <returns>Update handling task.</returns>
-        public Task HadnleUpdateAsync(Update update);
+        public Task HandleUpdateAsync(Update update);
     }
 }

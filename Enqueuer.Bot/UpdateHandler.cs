@@ -1,26 +1,35 @@
-﻿using Telegram.Bot;
+﻿using System.Threading.Tasks;
+using Enqueuer.Bot.Messages;
+using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Bot
 {
     /// <inheritdoc/>
     public class UpdateHandler : IUpdateHandler
     {
-        private readonly ITelegramBotClient botClient;
+        private readonly ITelegramBotClient telegramBotClient;
+        private readonly IMessageDistributor messageDistributor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateHandler"/> class.
         /// </summary>
         /// <param name="telegramBotClient"><see cref="ITelegramBotClient"/> to use.</param>
-        public UpdateHandler(ITelegramBotClient telegramBotClient)
+        /// <param name="messageDistributor"><see cref="IMessageDistributor"/> to handle incoming messages.</param>
+        public UpdateHandler(ITelegramBotClient telegramBotClient, IMessageDistributor messageDistributor)
         {
-            this.botClient = telegramBotClient;
+            this.telegramBotClient = telegramBotClient;
+            this.messageDistributor = messageDistributor;
         }
 
         /// <inheritdoc/>
-        public Task HadnleUpdateAsync(Update update)
+        public async Task HandleUpdateAsync(Update update)
         {
-            throw new NotImplementedException();
+            if (update.Type == UpdateType.Message)
+            {
+                await this.messageDistributor.DistributeMessageAsync(telegramBotClient, update.Message);
+            }
         }
     }
 }
