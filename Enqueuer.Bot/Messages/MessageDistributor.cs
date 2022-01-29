@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Enqueuer.Bot.Exceptions;
+using Enqueuer.Bot.Extensions;
 using Enqueuer.Bot.Factories;
 using Enqueuer.Bot.Messages.MessageHandlers;
 using Telegram.Bot;
@@ -38,7 +38,11 @@ namespace Enqueuer.Bot.Messages
         /// <inheritdoc/>
         public async Task DistributeMessageAsync(ITelegramBotClient telegramBotClient, Message message)
         {
-            throw new NotImplementedException();
+            var command = message.Text?.SplitToWords()[0];
+            if (command is not null && this.messageHandlers.TryGetValue(command, out IMessageHandler messageHandler))
+            {
+                await messageHandler.HandleMessageAsync(telegramBotClient, message);
+            }
         }
     }
 }

@@ -4,25 +4,23 @@ using Enqueuer.Persistence.Models;
 
 namespace Enqueuer.Tests.Utilities.Comparers
 {
-    /// <inheritdoc/>
-    public class UserComparer : IEqualityComparer<User>
+    internal class QueueComparer : IEqualityComparer<Queue>
     {
         /// <inheritdoc/>
-        public bool Equals(User x, User y)
+        public bool Equals(Queue x, Queue y)
         {
             return (x, y) switch
             {
                 (_, null) => false,
                 (null, _) => false,
-                _ => x.UserId == y.UserId
-                && x.FirstName.Equals(y.FirstName)
-                && x.LastName.Equals(y.LastName)
-                && x.UserName.Equals(y.UserName)
+                _ => x.Name.Equals(y.Name)
+                && x.ChatId == y.ChatId
+                && x.CreatorId == y.CreatorId
             };
         }
 
         /// <inheritdoc/>
-        public int GetHashCode([DisallowNull] User obj)
+        public int GetHashCode([DisallowNull] Queue obj)
         {
             return obj.GetHashCode();
         }

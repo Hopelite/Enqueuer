@@ -48,7 +48,7 @@ namespace Enqueuer.Tests.ServicesTests
             this.userRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<User>()));
 
             // Act
-            var actual = await this.userService.GetNewOrExistingUser(expected);
+            var actual = await this.userService.GetNewOrExistingUserAsync(expected);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));
@@ -75,7 +75,7 @@ namespace Enqueuer.Tests.ServicesTests
             this.userRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<User>()));
 
             // Act
-            var actual = await this.userService.GetNewOrExistingUser(expected);
+            var actual = await this.userService.GetNewOrExistingUserAsync(expected);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));

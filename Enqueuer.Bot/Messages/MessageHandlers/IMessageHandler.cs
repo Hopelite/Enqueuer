@@ -10,7 +10,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
     public interface IMessageHandler
     {
         /// <summary>
-        /// Getscommand this message handler responds to.
+        /// Gets command this message handler responds to.
         /// </summary>
         public string Command { get; }
 

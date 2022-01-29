@@ -8,7 +8,7 @@ namespace Enqueuer.Tests.Utilities.Comparers
     public class ChatComparer : IEqualityComparer<Chat>
     {
         /// <inheritdoc/>
-        public bool Equals(Chat? x, Chat? y)
+        public bool Equals(Chat x, Chat y)
         {
             return (x, y) switch
             {
