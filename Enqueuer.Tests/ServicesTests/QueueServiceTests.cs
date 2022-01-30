@@ -36,7 +36,10 @@ namespace Enqueuer.Tests.ServicesTests
             var expected = new Queue
             {
                 Name = "TestQueue",
-                ChatId = 1,
+                Chat = new Chat()
+                {
+                    ChatId = 1,
+                }
             };
 
             var queues = new List<Queue> { expected }.AsQueryable();
@@ -45,7 +48,7 @@ namespace Enqueuer.Tests.ServicesTests
                 .Returns(queues);
 
             // Act
-            var actual = this.queueService.GetChatQueueByName(expected.Name, expected.ChatId);
+            var actual = this.queueService.GetChatQueueByName(expected.Name, expected.Chat.ChatId);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));
@@ -59,7 +62,10 @@ namespace Enqueuer.Tests.ServicesTests
             var expected = new Queue
             {
                 Name = "TestQueue",
-                ChatId = 1,
+                Chat = new Chat()
+                {
+                    ChatId = 1,
+                }
             };
 
             var queues = new List<Queue> { expected }.AsQueryable();
@@ -82,7 +88,10 @@ namespace Enqueuer.Tests.ServicesTests
             var expected = new Queue
             {
                 Name = "TestQueue",
-                ChatId = 1,
+                Chat = new Chat()
+                {
+                    ChatId = 1,
+                }
             };
 
             var queues = new List<Queue> { expected }.AsQueryable();
@@ -91,14 +100,14 @@ namespace Enqueuer.Tests.ServicesTests
                 .Returns(queues);
 
             // Act
-            var actual = this.queueService.GetChatQueueByName(differentQueueName, expected.ChatId);
+            var actual = this.queueService.GetChatQueueByName(differentQueueName, expected.Chat.ChatId);
 
             // Assert
             Assert.IsNull(actual);
         }
 
         [Test]
-        public void QueueServiceTests_GetChatQueueByName_BotheQueueNameAndChatIdDifferent_ReturnsNull()
+        public void QueueServiceTests_GetChatQueueByName_BothQueueNameAndChatIdDifferent_ReturnsNull()
         {
             // Arrange
             const string differentQueueName = "AnotherTestQueue";
@@ -106,7 +115,10 @@ namespace Enqueuer.Tests.ServicesTests
             var expected = new Queue
             {
                 Name = "TestQueue",
-                ChatId = 1,
+                Chat = new Chat()
+                {
+                    ChatId = 1,
+                }
             };
 
             var queues = new List<Queue> { expected }.AsQueryable();
@@ -214,7 +226,7 @@ namespace Enqueuer.Tests.ServicesTests
                 .Returns(queues);
 
             // Act
-            var actual = this.queueService.GetChatQueues(chatId);
+            var actual = this.queueService.GetTelegramChatQueues(chatId);
 
             // Assert
             AssertWrapper.StrictMultipleEquals(expected, actual);
@@ -241,7 +253,7 @@ namespace Enqueuer.Tests.ServicesTests
                 .Returns(queues.AsQueryable());
 
             // Act
-            var actual = this.queueService.GetChatQueues(chatId);
+            var actual = this.queueService.GetTelegramChatQueues(chatId);
 
             // Assert
             AssertWrapper.MultipleEquals(expected, actual);

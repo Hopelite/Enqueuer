@@ -14,7 +14,7 @@ namespace Enqueuer.Bot.Messages
         /// Adds <see cref="IMessageHandler"/> to message handlers <see cref="IMessageDistributor"/> will spread incoming messages.
         /// </summary>
         /// <param name="messageHandler"></param>
-        public void AddMesssageHandler(IMessageHandler messageHandler);
+        public void AddMessageHandler(IMessageHandler messageHandler);
 
         /// <summary>
         /// Distributes <paramref name="message"/> 

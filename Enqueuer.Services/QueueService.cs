@@ -3,6 +3,7 @@ using System.Linq;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Enqueuer.Services
 {
@@ -24,7 +25,7 @@ namespace Enqueuer.Services
         public Queue GetChatQueueByName(string name, long chatId)
         {
             return this.queueRepository.GetAll()
-                .FirstOrDefault(queue => queue.ChatId == chatId && queue.Name.Equals(name));
+                .FirstOrDefault(queue => queue.Chat.ChatId == chatId && queue.Name.Equals(name));
         }
 
         /// <inheritdoc/>
@@ -35,9 +36,10 @@ namespace Enqueuer.Services
         }
 
         /// <inheritdoc/>
-        public IEnumerable<Queue> GetChatQueues(long chatId)
+        public IEnumerable<Queue> GetTelegramChatQueues(long chatId)
         {
             return this.queueRepository.GetAll()
+                .Include(queue => queue.Chat)
                 .Where(queue => queue.Chat.ChatId == chatId);
         }
     }

@@ -27,7 +27,7 @@ namespace Enqueuer.Bot.Messages
         }
 
         /// <inheritdoc/>
-        public void AddMesssageHandler(IMessageHandler messageHandler)
+        public void AddMessageHandler(IMessageHandler messageHandler)
         {
             if (!this.messageHandlers.TryAdd(messageHandler.Command, messageHandler))
             {

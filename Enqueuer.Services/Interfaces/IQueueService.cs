@@ -20,7 +20,7 @@ namespace Enqueuer.Services.Interfaces
         /// </summary>
         /// <param name="chatId">The ID of Telegram chat whose queues to get.</param>
         /// <returns><see cref="IEnumerable{T}"/> of <see cref="Queue"/> belonging to chat.</returns>
-        public IEnumerable<Queue> GetChatQueues(long chatId);
+        public IEnumerable<Queue> GetTelegramChatQueues(long chatId);
 
         /// <summary>
         /// Gets <see cref="Queue"/> by <paramref name="name"/> which belongs to <see cref="Chat"/> with specified <paramref name="chatId"/>.

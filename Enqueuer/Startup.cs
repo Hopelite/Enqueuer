@@ -60,15 +60,14 @@ namespace Enqueuer.Web
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
                 var accessToken = this.BotConfiguration.AccessToken;
                 endpoints.MapControllerRoute(name: "Webhook",
-                               pattern: $"bot{accessToken}",
-                               new { controller = "BotController", action = "Post" });
+                             pattern: $"bot{BotConfiguration.AccessToken}",
+                             new { controller = "Bot", action = "Post" });
                 endpoints.MapControllers();
             });
         }

@@ -53,11 +53,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         {
             var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
             var user = await this.userService.GetNewOrExistingUserAsync(message.From);
-            if (!chat.Users.Contains(user))
-            {
-                chat.Users.Add(user);
-                await this.chatRepository.UpdateAsync(chat);
-            }
+            await this.chatService.AddUserToChat(user, chat);
 
             var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
             if (messageWords.Length > 1)
@@ -80,7 +76,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            var responceMessage = new StringBuilder($"'{queue.Name}' has these participant:");
+            if (queue.Users.Count == 0)
+            {
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"Queue '{queue.Name}' has no participants.");
+            }
+
+            var responceMessage = new StringBuilder($"'{queue.Name}' has these participants:");
             int participantPosition = 1;
             foreach (var queueParticipant in queue.Users)
             {
@@ -95,7 +98,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithoutParameters(ITelegramBotClient botClient, Message message, Chat chat)
         {
-            var chatQueues = this.queueService.GetChatQueues(chat.ChatId);
+            var chatQueues = this.queueService.GetTelegramChatQueues(chat.ChatId);
             if (chatQueues.Count() == 0)
             {
                 return await botClient.SendTextMessageAsync(

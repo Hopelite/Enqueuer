@@ -42,17 +42,17 @@ namespace Enqueuer.Persistence.Models
         /// <summary>
         /// Gets or sets chats in which user participates.
         /// </summary>
-        public ICollection<Chat> Chats { get; set;}
+        public ICollection<Chat> Chats { get; set;} = new List<Chat>();
 
         /// <summary>
         /// Gets or sets queues which where created by user.
         /// </summary>
-        public ICollection<Queue> CreatedQueues { get; }
+        public ICollection<Queue> CreatedQueues { get; set; } = new List<Queue>();
 
         /// <summary>
         /// Gets or sets queues in which user is registered.
         /// </summary>
-        public ICollection<Queue> Queues { get;}
+        public ICollection<Queue> Queues { get; set; } = new List<Queue>();
 
         public static implicit operator User(Telegram.Bot.Types.User user)
         {
@@ -61,7 +61,10 @@ namespace Enqueuer.Persistence.Models
                 UserId = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                UserName = user.Username
+                UserName = user.Username,
+                Chats = new List<Chat>(),
+                CreatedQueues = new List<Queue>(),
+                Queues = new List<Queue>()
             };
         }
     }

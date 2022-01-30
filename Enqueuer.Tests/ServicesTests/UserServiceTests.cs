@@ -29,10 +29,9 @@ namespace Enqueuer.Tests.ServicesTests
         }
 
         [Test]
-        public async Task UserServiceTests_GetNewOrExistingUser_CreatesAndReturnNewUser()
+        public async Task UserServiceTests_GetNewOrExistingUser_CreatesAndReturnsNewUser()
         {
             // Arrange
-            var comparer = new UserComparer();
             var expected = new Telegram.Bot.Types.User()
             {
                 Id = 1,
@@ -51,12 +50,11 @@ namespace Enqueuer.Tests.ServicesTests
             var actual = await this.userService.GetNewOrExistingUserAsync(expected);
 
             // Assert
-            Assert.IsTrue(comparer.Equals(expected, actual));
             this.userRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<User>()), Times.Once);
         }
 
         [Test]
-        public async Task UserServiceTests_GetNewOrExistingUser_ReturnExistingUser()
+        public async Task UserServiceTests_GetNewOrExistingUser_ReturnsExistingUser()
         {
             // Arrange
             var comparer = new UserComparer();

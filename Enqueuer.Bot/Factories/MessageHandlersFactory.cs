@@ -42,7 +42,7 @@ namespace Enqueuer.Bot.Factories
         {
             return new IMessageHandler[]
             {
-                new CreateQueueMessageHandler(this.chatService, this.userService, this.chatRepository, this.queueRepository),
+                new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.chatRepository, this.queueRepository),
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService, this.chatRepository)
             };
         }

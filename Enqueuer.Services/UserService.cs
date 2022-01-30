@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Services
@@ -23,16 +24,25 @@ namespace Enqueuer.Services
         /// <inheritdoc/>
         public async Task<User> GetNewOrExistingUserAsync(Telegram.Bot.Types.User telegramUser)
         {
-            var user = this.userRepository.GetAll()
-                .FirstOrDefault(user => user.UserId == telegramUser.Id);
+            var user = this.GetUserByUserId(telegramUser.Id);
 
             if (user is null)
             {
                 await this.userRepository.AddAsync(telegramUser);
-                return telegramUser;
+                return this.GetUserByUserId(telegramUser.Id);
             }
 
             return user;
+        }
+
+        private User GetUserByUserId(long userId)
+        {
+            return this.userRepository.GetAll()
+                    .Include(user => user.Chats)
+                    .Include(user => user.Queues)
+                    .Include(user => user.CreatedQueues)
+                    .AsNoTracking()
+                    .FirstOrDefault(user => user.UserId == userId);
         }
     }
 }
