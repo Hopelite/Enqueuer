@@ -25,6 +25,9 @@ namespace Enqueuer.Services
         public Queue GetChatQueueByName(string name, long chatId)
         {
             return this.queueRepository.GetAll()
+                .Include(queue => queue.Creator)
+                .Include(queue => queue.Users)
+                .AsNoTracking()
                 .FirstOrDefault(queue => queue.Chat.ChatId == chatId && queue.Name.Equals(name));
         }
 
@@ -32,6 +35,7 @@ namespace Enqueuer.Services
         public IEnumerable<Queue> GetChatQueues(int chatId)
         {
             return this.queueRepository.GetAll()
+                .AsNoTracking()
                 .Where(queue => queue.ChatId == chatId);
         }
 
@@ -40,6 +44,7 @@ namespace Enqueuer.Services
         {
             return this.queueRepository.GetAll()
                 .Include(queue => queue.Chat)
+                .AsNoTracking()
                 .Where(queue => queue.Chat.ChatId == chatId);
         }
     }

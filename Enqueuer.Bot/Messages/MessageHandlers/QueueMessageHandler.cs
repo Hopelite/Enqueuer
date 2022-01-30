@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Enqueuer.Bot.Extensions;
-using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -19,7 +18,6 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         private readonly IChatService chatService;
         private readonly IUserService userService;
         private readonly IQueueService queueService;
-        private readonly IRepository<Chat> chatRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueueMessageHandler"/> class.
@@ -27,17 +25,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
-        /// <param name="chatRepository">Chat repository to use.</param>
         public QueueMessageHandler(
             IChatService chatService,
             IUserService userService,
-            IQueueService queueService,
-            IRepository<Chat> chatRepository)
+            IQueueService queueService)
         {
             this.chatService = chatService;
             this.userService = userService;
             this.queueService = queueService;
-            this.chatRepository = chatRepository;
         }
 
         /// <inheritdoc/>
@@ -107,7 +102,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                         replyToMessageId: message.MessageId);
             }
 
-            var replyMessage = new StringBuilder("This chat has these queues:");
+            var replyMessage = new StringBuilder("This chat has these queues:\n");
             foreach (var queue in chatQueues)
             {
                 replyMessage.AppendLine($"# {queue.Name}");

@@ -124,5 +124,36 @@ namespace Enqueuer.Tests.ServicesTests
             Assert.IsNotNull(chat.Users.FirstOrDefault(chatUser => chatUser.UserId == user.UserId));
             this.chatRepositoryMock.Verify(repository => repository.UpdateAsync(It.IsAny<Chat>()), Times.Never);
         }
+
+        [Test]
+        public void ChatServiceTests_GetNumberOfQueues_ReturnsCount()
+        {
+            // Arrange
+            const long chatId = 1;
+            var queues = new[]
+            {
+                new Queue(),
+                new Queue(),
+                new Queue()
+            };
+
+            var expected = queues.Length;
+            var chat = new Chat()
+            {
+                ChatId = chatId,
+                Queues = new List<Queue>(queues)
+            };
+
+            var chats = new List<Chat>() { chat }.AsQueryable();
+
+            this.chatRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(chats);
+
+            // Act
+            var actual = this.chatService.GetNumberOfQueues(chat.ChatId);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

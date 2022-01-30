@@ -13,6 +13,7 @@ namespace Enqueuer.Web.Configuration
             var botSection = configuration.GetSection(botConfigurationSectionName);
             this.AccessToken = botSection.GetRequiredSection("AccessToken").Value;
             this.ApplicationHost = botSection.GetRequiredSection("ApplicationHost").Value;
+            this.QueuesPerChat = int.Parse(botSection.GetRequiredSection("QueuesPerChat").Value);
         }
 
         /// <inheritdoc/>
@@ -20,5 +21,8 @@ namespace Enqueuer.Web.Configuration
 
         /// <inheritdoc/>
         public string ApplicationHost { get; set; }
+
+        /// <inheritdoc/>
+        public int QueuesPerChat { get; set; }
     }
 }

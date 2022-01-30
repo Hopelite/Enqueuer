@@ -45,6 +45,15 @@ namespace Enqueuer.Services
             }
         }
 
+        /// <inheritdoc/>
+        public int GetNumberOfQueues(long chatId)
+        {
+            return this.chatRepository.GetAll()
+                .Include(chat => chat.Queues)
+                .First(chat => chat.ChatId == chatId)
+                .Queues.Count;
+        }
+
         private Chat GetChatByChatId(long chatId)
         {
             return this.chatRepository.GetAll()

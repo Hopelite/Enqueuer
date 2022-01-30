@@ -14,5 +14,10 @@
         /// Gets or sets application host.
         /// </summary>
         public string ApplicationHost { get; set;  }
+
+        /// <summary>
+        /// Gets or sets maximal number of queues per chat.
+        /// </summary>
+        public int QueuesPerChat { get; set; }
     }
 }

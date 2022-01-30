@@ -22,5 +22,12 @@ namespace Enqueuer.Services.Interfaces
         /// <param name="chat"><see cref="Chat"/> where <paramref name="user"/> should be added.</param>
         /// <returns>Task in return.</returns>
         public Task AddUserToChat(User user, Chat chat);
+
+        /// <summary>
+        /// Gets number of <see cref="Queue"/> is <see cref="Chat"/> with specified <paramref name="chatId"/>.
+        /// </summary>
+        /// <param name="chatId">ID of the Telegram chat whose queues to count.</param>
+        /// <returns>Number of queues in chat.</returns>
+        public int GetNumberOfQueues(long chatId);
     }
 }
