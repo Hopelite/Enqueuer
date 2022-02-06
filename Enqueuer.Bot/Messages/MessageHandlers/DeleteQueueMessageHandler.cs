@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Enqueuer.Bot.Extensions;
 using Enqueuer.Persistence.Models;
@@ -12,9 +13,9 @@ using User = Enqueuer.Persistence.Models.User;
 namespace Enqueuer.Bot.Messages.MessageHandlers
 {
     /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/createqueue' command.
+    /// Handles incoming <see cref="Message"/> with '/deletequeue' command.
     /// </summary>
-    public class CreateQueueMessageHandler : IMessageHandler
+    public class DeleteQueueMessageHandler : IMessageHandler
     {
         private readonly IChatService chatService;
         private readonly IUserService userService;
@@ -22,13 +23,13 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         private readonly IRepository<Queue> queueRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateQueueMessageHandler"/> class.
+        /// Initializes a new instance of the <see cref="DeleteQueueMessageHandler"/> class.
         /// </summary>
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="queueRepository">Queue repository to use.</param>
-        public CreateQueueMessageHandler(
+        public DeleteQueueMessageHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
@@ -41,10 +42,10 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         }
 
         /// <inheritdoc/>
-        public string Command => "/createqueue";
+        public string Command => "/deletequeue";
 
         /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/createqueue' command.
+        /// Handles incoming <see cref="Message"/> with '/deletequeue' command.
         /// </summary>
         /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
@@ -58,43 +59,40 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
             if (messageWords.Length > 1)
             {
-                return await HandleMessageWithParameters(botClient, messageWords, user, chat);
+                return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To create new queue, please write command this way: '/createqueue [queue name]'.");
+                    "To delete queue, please write command this way: '/deletequeue [queue name]'.");
         }
 
-        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
+        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
-            if (this.chatService.GetNumberOfQueues(chat.ChatId) >= 5)
-            {
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    "This chat has maximum number of queues. Please remove one before adding new.");
-            }
-
             var queueName = messageWords[1];
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
-                queue = new Queue()
-                {
-                    Name = queueName,
-                    ChatId = chat.Id,
-                    CreatorId = user.Id,
-                };
-
-                await this.queueRepository.AddAsync(queue);
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Successfully created new queue '{queue.Name}'!");
+                    $"There is no queue with name '{queueName}'. You can get list of chat queues using '/queue' command.",
+                    replyToMessageId: message.MessageId);
+            }
+
+            var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
+            if (queue.Creator.UserId == user.UserId || admins.Any(admin => admin.User.Id == user.UserId))
+            {
+                await this.queueRepository.DeleteAsync(queue);
+                return await botClient.SendTextMessageAsync(
+                        chat.ChatId,
+                        $"Successfully deleted queue '{queueName}'!",
+                        replyToMessageId: message.MessageId);
             }
 
             return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"This chat already has queue with name '{queue.Name}'.");
+                        chat.ChatId,
+                        $"Unable to delete queue '{queueName}'. It can be deleted only by it's creator or chat administrators.",
+                        replyToMessageId: message.MessageId);
         }
     }
 }
