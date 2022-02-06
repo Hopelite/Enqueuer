@@ -33,14 +33,20 @@ namespace Enqueuer.Persistence
             Database.EnsureCreated();
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
+            base.OnConfiguring(optionsBuilder);
+        }
+
         ///  <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Chat>().HasIndex(chat => chat.ChatId)
-                .IsUnique();
-            modelBuilder.Entity<User>().HasIndex(user => user.UserId)
-                .IsUnique();
+            //modelBuilder.Entity<Chat>().HasIndex(chat => chat.ChatId)
+            //    .IsUnique();
+            //modelBuilder.Entity<User>().HasIndex(user => user.UserId)
+            //    .IsUnique();
             modelBuilder.Entity<User>().HasMany(user => user.CreatedQueues)
                 .WithOne(queue => queue.Creator);
             modelBuilder.Entity<User>().HasMany(user => user.Queues)

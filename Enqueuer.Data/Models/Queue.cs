@@ -25,28 +25,28 @@ namespace Enqueuer.Persistence.Models
         /// <summary>
         /// Gets or sets chat ID to which this queue belongs to.
         /// </summary>
-        public int ChatId { get; set; }
+        public int? ChatId { get; set; }
 
         /// <summary>
         /// Gets or sets chat to which this queue belongs to.
         /// </summary>
-        [ForeignKey(nameof(ChatId))]
-        public Chat Chat { get; set; }
+        [ForeignKey("ChatId")]
+        public virtual Chat Chat { get; set; }
 
         /// <summary>
         /// Gets or sets this queue creator ID.
         /// </summary>
-        public int CreatorId { get; set; }
+        public int? CreatorId { get; set; }
 
         /// <summary>
         /// Gets or sets this queue creator.
         /// </summary>
-        [ForeignKey(nameof(CreatorId))]
-        public User Creator { get; set; }
+        [ForeignKey("CreatorId")]
+        public virtual User Creator { get; set; }
 
         /// <summary>
         /// Gets or sets users in this queue.
         /// </summary>
-        public ICollection<User> Users { get; set; }
+        public virtual ICollection<User> Users { get; set; }
     }
 }

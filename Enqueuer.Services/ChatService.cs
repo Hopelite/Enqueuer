@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Enqueuer.Services
 {
@@ -21,18 +22,41 @@ namespace Enqueuer.Services
         }
 
         /// <inheritdoc/>
-        public async Task<Chat> GetNewOrExistingChat(Telegram.Bot.Types.Chat telegramChat)
+        public async Task<Chat> GetNewOrExistingChatAsync(Telegram.Bot.Types.Chat telegramChat)
         {
-            var chat = this.chatRepository.GetAll()
-                .FirstOrDefault(chat => chat.ChatId == telegramChat.Id);
+            var chat = this.GetChatByChatId(telegramChat.Id);
 
             if (chat is null)
             {
                 await this.chatRepository.AddAsync(telegramChat);
-                return telegramChat;
+                return this.GetChatByChatId(telegramChat.Id);
             }
 
             return chat;
+        }
+
+        /// <inheritdoc/>
+        public async Task AddUserToChat(User user, Chat chat)
+        {
+            if (chat.Users.FirstOrDefault(chatUser => chatUser.UserId == user.UserId) is null)
+            {
+                chat.Users.Add(user);
+                await this.chatRepository.UpdateAsync(chat);
+            }
+        }
+
+        /// <inheritdoc/>
+        public int GetNumberOfQueues(long chatId)
+        {
+            return this.chatRepository.GetAll()
+                .First(chat => chat.ChatId == chatId)
+                .Queues.Count();
+        }
+
+        private Chat GetChatByChatId(long chatId)
+        {
+            return this.chatRepository.GetAll()
+                    .FirstOrDefault(chat => chat.ChatId == chatId);
         }
     }
 }
