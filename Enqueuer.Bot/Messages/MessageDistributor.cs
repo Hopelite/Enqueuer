@@ -39,9 +39,13 @@ namespace Enqueuer.Bot.Messages
         public async Task DistributeMessageAsync(ITelegramBotClient telegramBotClient, Message message)
         {
             var command = message.Text?.SplitToWords()[0];
-            if (command is not null && this.messageHandlers.TryGetValue(command, out IMessageHandler messageHandler))
+            if (command is not null)
             {
-                await messageHandler.HandleMessageAsync(telegramBotClient, message);
+                var messageHandler = this.messageHandlers.FirstOrDefault(pair => command.Contains(pair.Key));
+                if (messageHandler.Value is not null)
+                {
+                    await messageHandler.Value.HandleMessageAsync(telegramBotClient, message);
+                }
             }
         }
     }

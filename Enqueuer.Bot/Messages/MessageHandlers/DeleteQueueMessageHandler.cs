@@ -7,6 +7,7 @@ using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
@@ -64,7 +65,8 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To delete queue, please write command this way: '/deletequeue [queue name]'.");
+                    "To delete queue, please write command this way: '/deletequeue [queue name]'.",
+                    ParseMode.Html);
         }
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
@@ -76,6 +78,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"There is no queue with name '{queueName}'. You can get list of chat queues using '/queue' command.",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
@@ -86,12 +89,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,
                         $"Successfully deleted queue '{queueName}'!",
+                        ParseMode.Html,
                         replyToMessageId: message.MessageId);
             }
 
             return await botClient.SendTextMessageAsync(
                         chat.ChatId,
                         $"Unable to delete queue '{queueName}'. It can be deleted only by it's creator or chat administrators.",
+                        ParseMode.Html,
                         replyToMessageId: message.MessageId);
         }
     }
