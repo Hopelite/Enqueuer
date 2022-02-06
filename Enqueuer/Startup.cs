@@ -44,6 +44,7 @@ namespace Enqueuer.Web
                 .AddTypedClient<ITelegramBotClient>(httpClient
                     => new TelegramBotClient(BotConfiguration.AccessToken, httpClient));
 
+            services.ConfigureRepositories();
             services.ConfigureServices();
             services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
             services.AddScoped<IMessageDistributor, MessageDistributor>();

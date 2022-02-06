@@ -23,12 +23,12 @@ namespace Enqueuer.Persistence.Models
         /// <summary>
         /// Gets or sets users participating in this chat.
         /// </summary>
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public virtual ICollection<User> Users { get; set; }
 
         /// <summary>
         /// Gets or sets queues related to this chat.
         /// </summary>
-        public ICollection<Queue> Queues { get; set; } = new List<Queue>();
+        public virtual ICollection<Queue> Queues { get; set; } = new List<Queue>();
 
         public static implicit operator Chat(Telegram.Bot.Types.Chat chat)
         {

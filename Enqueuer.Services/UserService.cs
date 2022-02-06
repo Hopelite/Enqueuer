@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Services
@@ -38,10 +37,6 @@ namespace Enqueuer.Services
         private User GetUserByUserId(long userId)
         {
             return this.userRepository.GetAll()
-                    .Include(user => user.Chats)
-                    .Include(user => user.Queues)
-                    .Include(user => user.CreatedQueues)
-                    .AsNoTracking()
                     .FirstOrDefault(user => user.UserId == userId);
         }
     }

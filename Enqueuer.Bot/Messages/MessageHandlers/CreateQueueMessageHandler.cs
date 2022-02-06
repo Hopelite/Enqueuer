@@ -7,6 +7,7 @@ using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Chat = Enqueuer.Persistence.Models.Chat;
+using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Bot.Messages.MessageHandlers
 {
@@ -31,7 +32,6 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IRepository<Chat> chatRepository,
             IRepository<Queue> queueRepository)
         {
             this.chatService = chatService;
@@ -58,39 +58,44 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
             if (messageWords.Length > 1)
             {
-                if (this.chatService.GetNumberOfQueues(chat.ChatId) >= 5)
-                {
-                    return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        "This chat has maximum number of queues. Please remove one before adding new.");
-                }
-
-                var queueName = messageWords[1];
-
-                var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
-                if (queue is null)
-                {
-                    queue = new Queue()
-                    {
-                        Name = queueName,
-                        ChatId = chat.Id,
-                        CreatorId = user.Id,
-                    };
-
-                    await this.queueRepository.AddAsync(queue);
-                    return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"Successfully created new queue '{queue.Name}'!");
-                }
-
-                return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"This chat already has queue with name '{queue.Name}'.");
+                return await HandleMessageWithParameters(botClient, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     "To create new queue, please write command this way: '/createqueue [queue name]'.");
+        }
+
+        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
+        {
+            if (this.chatService.GetNumberOfQueues(chat.ChatId) >= 5)
+            {
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    "This chat has maximum number of queues. Please remove one before adding new.");
+            }
+
+            var queueName = messageWords[1];
+
+            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
+            if (queue is null)
+            {
+                queue = new Queue()
+                {
+                    Name = queueName,
+                    ChatId = chat.Id,
+                    CreatorId = user.Id,
+                };
+
+                await this.queueRepository.AddAsync(queue);
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"Successfully created new queue '{queue.Name}'!");
+            }
+
+            return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"This chat already has queue with name '{queue.Name}'.");
         }
     }
 }

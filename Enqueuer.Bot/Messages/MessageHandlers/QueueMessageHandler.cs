@@ -78,7 +78,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     $"Queue '{queue.Name}' has no participants.");
             }
 
-            var responceMessage = new StringBuilder($"'{queue.Name}' has these participants:");
+            var responceMessage = new StringBuilder($"'{queue.Name}' has these participants:{Environment.NewLine}");
             int participantPosition = 1;
             foreach (var queueParticipant in queue.Users)
             {

@@ -49,17 +49,13 @@ namespace Enqueuer.Services
         public int GetNumberOfQueues(long chatId)
         {
             return this.chatRepository.GetAll()
-                .Include(chat => chat.Queues)
                 .First(chat => chat.ChatId == chatId)
-                .Queues.Count;
+                .Queues.Count();
         }
 
         private Chat GetChatByChatId(long chatId)
         {
             return this.chatRepository.GetAll()
-                    .Include(chat => chat.Users)
-                    .Include(chat => chat.Queues)
-                    .AsNoTracking()
                     .FirstOrDefault(chat => chat.ChatId == chatId);
         }
     }

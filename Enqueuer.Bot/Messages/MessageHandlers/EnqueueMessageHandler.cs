@@ -7,6 +7,8 @@ using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Chat = Enqueuer.Persistence.Models.Chat;
+using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Bot.Messages.MessageHandlers
 {
@@ -57,37 +59,42 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
             if (messageWords.Length > 1)
             {
-                var queueName = messageWords[1];
-                var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
-                if (queue is null)
-                {
-                    return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"There is no queue with name '{queue.Name}'. You can get list of chat queues using '/queue' command.",
-                        replyToMessageId: message.MessageId);
-                }
-
-                if (queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.UserId) is null)
-                {
-                    queue.Users.Add(user);
-                    await this.queueRepository.UpdateAsync(queue);
-
-                    return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"Successfully added to queue {queue.Name}!",
-                        replyToMessageId: message.MessageId);
-                }
-
-                return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"You're already participating in queue '{queue.Name}'.",
-                        replyToMessageId: message.MessageId);
+                return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
                 $"To be enqueued in queue, please write command this way: '/enqueue [queue name]'.",
                 replyToMessageId: message.MessageId);
+        }
+
+        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
+        {
+            var queueName = messageWords[1];
+            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
+            if (queue is null)
+            {
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"There is no queue with name '{queueName}'. You can get list of chat queues using '/queue' command.",
+                    replyToMessageId: message.MessageId);
+            }
+
+            if (!queue.Users.Any(queueUser => queueUser.UserId == user.UserId))
+            {
+                queue.Users.Add(user);
+                await this.queueRepository.UpdateAsync(queue);
+
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"Successfully added to queue {queue.Name}!",
+                    replyToMessageId: message.MessageId);
+            }
+
+            return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"You're already participating in queue '{queue.Name}'.",
+                    replyToMessageId: message.MessageId);
         }
     }
 }

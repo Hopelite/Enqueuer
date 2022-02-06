@@ -31,7 +31,7 @@ namespace Enqueuer.Persistence.Models
         /// Gets or sets chat to which this queue belongs to.
         /// </summary>
         [ForeignKey("ChatId")]
-        public Chat Chat { get; set; }
+        public virtual Chat Chat { get; set; }
 
         /// <summary>
         /// Gets or sets this queue creator ID.
@@ -42,11 +42,11 @@ namespace Enqueuer.Persistence.Models
         /// Gets or sets this queue creator.
         /// </summary>
         [ForeignKey("CreatorId")]
-        public User Creator { get; set; }
+        public virtual User Creator { get; set; }
 
         /// <summary>
         /// Gets or sets users in this queue.
         /// </summary>
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public virtual ICollection<User> Users { get; set; }
     }
 }

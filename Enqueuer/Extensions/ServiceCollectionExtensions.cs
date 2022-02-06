@@ -9,11 +9,17 @@ namespace Enqueuer.Web.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection ConfigureServices(this IServiceCollection services)
+        public static IServiceCollection ConfigureRepositories(this IServiceCollection services)
         {
             services.AddScoped<IRepository<Chat>, Repository<Chat>>();
             services.AddScoped<IRepository<User>, Repository<User>>();
             services.AddScoped<IRepository<Queue>, Repository<Queue>>();
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureServices(this IServiceCollection services)
+        {
             services.AddTransient<IChatService, ChatService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IQueueService, QueueService>();

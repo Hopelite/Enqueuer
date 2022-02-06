@@ -33,6 +33,12 @@ namespace Enqueuer.Persistence
             Database.EnsureCreated();
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
+            base.OnConfiguring(optionsBuilder);
+        }
+
         ///  <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

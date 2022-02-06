@@ -12,7 +12,6 @@ namespace Enqueuer.Bot.Factories
         private readonly IChatService chatService;
         private readonly IUserService userService;
         private readonly IQueueService queueService;
-        private readonly IRepository<Chat> chatRepository;
         private readonly IRepository<Queue> queueRepository;
 
         /// <summary>
@@ -21,19 +20,16 @@ namespace Enqueuer.Bot.Factories
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
-        /// <param name="chatRepository">Chat repository to use.</param>
         /// <param name="queueRepository">Queue repository to use.</param>
         public MessageHandlersFactory(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IRepository<Chat> chatRepository,
             IRepository<Queue> queueRepository)
         {
             this.chatService = chatService;
             this.userService = userService;
             this.queueService = queueService;
-            this.chatRepository = chatRepository;
             this.queueRepository = queueRepository;
         }
 
@@ -42,7 +38,7 @@ namespace Enqueuer.Bot.Factories
         {
             return new IMessageHandler[]
             {
-                new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.chatRepository, this.queueRepository),
+                new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository),
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService),
                 new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository)
             };
