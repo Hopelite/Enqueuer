@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Enqueuer.Bot.Callbacks;
 using Enqueuer.Bot.Messages;
 using Telegram.Bot;
@@ -11,16 +12,16 @@ namespace Enqueuer.Bot
     public class UpdateHandler : IUpdateHandler
     {
         private readonly ITelegramBotClient telegramBotClient;
-        private readonly IMessageDistributor messageDistributor;
-        private readonly ICallbackDistributor callbackDistributor;
+        private readonly Lazy<IMessageDistributor> messageDistributor;
+        private readonly Lazy<ICallbackDistributor> callbackDistributor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateHandler"/> class.
         /// </summary>
         /// <param name="telegramBotClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="messageDistributor"><see cref="IMessageDistributor"/> to handle incoming messages.</param>
-        /// <param name="callbackDistributor"><see cref="ICallbackDistributor"/> to handler incoming callback.</param>
-        public UpdateHandler(ITelegramBotClient telegramBotClient, IMessageDistributor messageDistributor, ICallbackDistributor callbackDistributor)
+        /// <param name="messageDistributor">Lazy <see cref="IMessageDistributor"/> to handle incoming messages.</param>
+        /// <param name="callbackDistributor">Lazy <see cref="ICallbackDistributor"/> to handler incoming callback.</param>
+        public UpdateHandler(ITelegramBotClient telegramBotClient, Lazy<IMessageDistributor> messageDistributor, Lazy<ICallbackDistributor> callbackDistributor)
         {
             this.telegramBotClient = telegramBotClient;
             this.messageDistributor = messageDistributor;
@@ -32,11 +33,11 @@ namespace Enqueuer.Bot
         {
             if (update.Type == UpdateType.Message)
             {
-                await this.messageDistributor.DistributeMessageAsync(telegramBotClient, update.Message);
+                await this.messageDistributor.Value.DistributeMessageAsync(telegramBotClient, update.Message);
             }
             else if (update.Type == UpdateType.CallbackQuery)
             {
-                await this.callbackDistributor.DistributeCallbackAsync(telegramBotClient, update.CallbackQuery);
+                await this.callbackDistributor.Value.DistributeCallbackAsync(telegramBotClient, update.CallbackQuery);
             }
         }
     }
