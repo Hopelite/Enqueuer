@@ -7,7 +7,10 @@ namespace Enqueuer.Web.Configuration
     {
         private const string botConfigurationSectionName = "BotConfiguration";
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BotConfiguration"/> class.
+        /// </summary>
+        /// <param name="configuration"><see cref="IConfiguration"/> with application configuration.</param>
         public BotConfiguration(IConfiguration configuration)
         {
             var botSection = configuration.GetSection(botConfigurationSectionName);
