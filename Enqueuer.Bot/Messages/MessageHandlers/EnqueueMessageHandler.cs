@@ -91,12 +91,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully added to queue '<b>{queue.Name}</b>'!",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"You're already participating in queue '<b>{queue.Name}</b>'.",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
         }
     }

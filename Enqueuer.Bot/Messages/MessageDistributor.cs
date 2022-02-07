@@ -18,6 +18,15 @@ namespace Enqueuer.Bot.Messages
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageDistributor"/> class.
         /// </summary>
+        public MessageDistributor()
+        {
+            this.messageHandlers = new SortedDictionary<string, IMessageHandler>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageDistributor"/> class and adds <see cref="IMessageHandler"/> using <paramref name="messageHandlersFactory"/>.
+        /// </summary>
+        /// <param name="messageHandlersFactory"><see cref="IMessageHandlersFactory"/> which provides distibutor with <see cref="IMessageHandler"/>.</param>
         public MessageDistributor(IMessageHandlersFactory messageHandlersFactory)
         {
             this.messageHandlers = new SortedDictionary<string, IMessageHandler>(

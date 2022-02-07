@@ -65,7 +65,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To delete queue, please write command this way: '/deletequeue [queue name]'.",
+                    "To delete queue, please write command this way: '<b>/deletequeue</b> <i>[queue name]</i>'.",
                     ParseMode.Html);
         }
 
@@ -77,7 +77,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"There is no queue with name '{queueName}'. You can get list of chat queues using '/queue' command.",
+                    $"There is no queue with name '<b>{queueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
@@ -88,14 +88,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 await this.queueRepository.DeleteAsync(queue);
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,
-                        $"Successfully deleted queue '{queueName}'!",
+                        $"Successfully deleted queue '<b>{queueName}</b>'!",
                         ParseMode.Html,
                         replyToMessageId: message.MessageId);
             }
 
             return await botClient.SendTextMessageAsync(
                         chat.ChatId,
-                        $"Unable to delete queue '{queueName}'. It can be deleted only by it's creator or chat administrators.",
+                        $"Unable to delete queue '<b>{queueName}</b>'. It can be deleted only by it's creator or chat administrators.",
                         ParseMode.Html,
                         replyToMessageId: message.MessageId);
         }
