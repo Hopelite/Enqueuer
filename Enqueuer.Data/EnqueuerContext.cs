@@ -39,14 +39,10 @@ namespace Enqueuer.Persistence
             base.OnConfiguring(optionsBuilder);
         }
 
-        ///  <inheritdoc/>
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<User>().HasMany(user => user.CreatedQueues)
-                .WithOne(queue => queue.Creator);
-            modelBuilder.Entity<User>().HasMany(user => user.Queues)
-                .WithMany(queue => queue.Users);
-        }
+        /////  <inheritdoc/>
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //}
     }
 }

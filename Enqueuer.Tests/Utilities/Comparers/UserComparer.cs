@@ -17,7 +17,6 @@ namespace Enqueuer.Tests.Utilities.Comparers
                 _ => x.UserId == y.UserId
                 && x.FirstName.Equals(y.FirstName)
                 && x.LastName.Equals(y.LastName)
-                && x.UserName.Equals(y.UserName)
             };
         }
 

@@ -13,6 +13,9 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Bot.Messages.MessageHandlers
 {
+    /// <summary>
+    /// Handles incoming <see cref="Message"/> with '/dequeue' command.
+    /// </summary>
     public class DequeueMessageHandler : IMessageHandler
     {
         private readonly IChatService chatService;
@@ -80,9 +83,9 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            if (queue.Users.Any(queueUser => queueUser.UserId == user.UserId))
+            if (queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
-                var userToRemove = queue.Users.First(queueUser => queueUser.UserId == user.UserId);
+                var userToRemove = queue.Users.First(queueUser => queueUser.UserId == user.Id);
                 queue.Users.Remove(userToRemove);
                 await this.queueRepository.UpdateAsync(queue);
 

@@ -23,7 +23,7 @@ namespace Enqueuer.Persistence.Models
         /// <summary>
         /// Gets or sets users participating in this chat.
         /// </summary>
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
 
         /// <summary>
         /// Gets or sets queues related to this chat.

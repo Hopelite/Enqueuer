@@ -83,7 +83,9 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             var responceMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
             int participantPosition = 1;
-            foreach (var queueParticipant in queue.Users)
+            var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
+                .Select(queueUser => queueUser.User);
+            foreach (var queueParticipant in queueParticipants)
             {
                 responceMessage.AppendLine($"{participantPosition}) <b>{queueParticipant.FirstName} {queueParticipant.LastName}</b>");
                 participantPosition++;
