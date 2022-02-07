@@ -14,9 +14,9 @@ using User = Enqueuer.Persistence.Models.User;
 namespace Enqueuer.Bot.Messages.MessageHandlers
 {
     /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/deletequeue' command.
+    /// Handles incoming <see cref="Message"/> with '/removequeue' command.
     /// </summary>
-    public class DeleteQueueMessageHandler : IMessageHandler
+    public class RemoveQueueMessageHandler : IMessageHandler
     {
         private readonly IChatService chatService;
         private readonly IUserService userService;
@@ -24,13 +24,13 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         private readonly IRepository<Queue> queueRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteQueueMessageHandler"/> class.
+        /// Initializes a new instance of the <see cref="RemoveQueueMessageHandler"/> class.
         /// </summary>
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="queueRepository">Queue repository to use.</param>
-        public DeleteQueueMessageHandler(
+        public RemoveQueueMessageHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
@@ -43,10 +43,10 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         }
 
         /// <inheritdoc/>
-        public string Command => "/deletequeue";
+        public string Command => "/removequeue";
 
         /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/deletequeue' command.
+        /// Handles incoming <see cref="Message"/> with '/removequeue' command.
         /// </summary>
         /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
@@ -65,7 +65,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To delete queue, please write command this way: '<b>/deletequeue</b> <i>[queue name]</i>'.",
+                    "To delete queue, please write command this way: '<b>/removequeue</b> <i>[queue name]</i>'.",
                     ParseMode.Html);
         }
 

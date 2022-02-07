@@ -46,10 +46,12 @@ namespace Enqueuer.Bot.Factories
         {
             return new IMessageHandler[]
             {
+                new StartMessageHandler(),
+                new HelpMessageHandler(),
                 new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository),
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService),
                 new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService, this.userInQueueRepository),
-                new DeleteQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository),
+                new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository),
                 new DequeueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository)
             };
         }
