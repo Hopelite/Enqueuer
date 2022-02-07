@@ -6,6 +6,8 @@ using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
@@ -63,7 +65,8 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To create new queue, please write command this way: '/createqueue [queue name]'.");
+                    "To create new queue, please write command this way: '<b>/createqueue</b> <i>[queue name]</i>'.",
+                    ParseMode.Html);
         }
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
@@ -72,10 +75,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "This chat has maximum number of queues. Please remove one before adding new.");
+                    "This chat has maximum number of queues. Please remove one using '<b>/deletequeue</b>' command before adding new.",
+                    ParseMode.Html);
             }
 
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
@@ -87,14 +91,19 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 };
 
                 await this.queueRepository.AddAsync(queue);
+
+                var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", $"/enqueueme {queue.Name}"));
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Successfully created new queue '{queue.Name}'!");
+                    $"Successfully created new queue '<b>{queue.Name}</b>'!",
+                    ParseMode.Html,
+                    replyMarkup: replyMarkup);
             }
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"This chat already has queue with name '{queue.Name}'.");
+                    $"This chat already has queue with name '<b>{queue.Name}</b>'. Please, use other name for this queue or delete existing one using '<b>/deletequeue</b>'.",
+                    ParseMode.Html);
         }
     }
 }

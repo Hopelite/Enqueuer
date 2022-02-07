@@ -6,6 +6,7 @@ using Enqueuer.Bot.Extensions;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Chat = Enqueuer.Persistence.Models.Chat;
 
 namespace Enqueuer.Bot.Messages.MessageHandlers
@@ -61,13 +62,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, Chat chat)
         {
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"This chat has no queue with name '{queueName}'.",
+                    $"This chat has no queue with name '<b>{queueName}</b>'.",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
@@ -75,20 +77,22 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Queue '{queue.Name}' has no participants.");
+                    $"Queue '<b>{queue.Name}</b>' has no participants.",
+                    ParseMode.Html);
             }
 
-            var responceMessage = new StringBuilder($"'{queue.Name}' has these participants:{Environment.NewLine}");
+            var responceMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
             int participantPosition = 1;
             foreach (var queueParticipant in queue.Users)
             {
-                responceMessage.AppendLine($"{participantPosition}) {queueParticipant.FirstName} {queueParticipant.LastName}");
+                responceMessage.AppendLine($"{participantPosition}) <b>{queueParticipant.FirstName} {queueParticipant.LastName}</b>");
                 participantPosition++;
             }
 
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                responceMessage.ToString());
+                responceMessage.ToString(),
+                ParseMode.Html);
         }
 
         private async Task<Message> HandleMessageWithoutParameters(ITelegramBotClient botClient, Message message, Chat chat)
@@ -98,20 +102,22 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,
-                        $"This chat has no queues. To create new one write '/createqueue [queue name]'.",
+                        $"This chat has no queues. To create new one write '<b>/createqueue</b> <i>[queue name]</i>'.",
+                        ParseMode.Html,
                         replyToMessageId: message.MessageId);
             }
 
             var replyMessage = new StringBuilder("This chat has these queues:\n");
             foreach (var queue in chatQueues)
             {
-                replyMessage.AppendLine($"# {queue.Name}");
+                replyMessage.AppendLine($"• {queue.Name}");
             }
 
-            replyMessage.AppendLine("To get info about one of them write '/queue [queue name]'.");
+            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>[queue name]</i>'.");
             return await botClient.SendTextMessageAsync(
                         chat.ChatId,
-                        replyMessage.ToString());
+                        replyMessage.ToString(),
+                        ParseMode.Html);
         }
     }
 }

@@ -9,6 +9,13 @@ namespace Enqueuer.Services.Interfaces
     public interface IChatService
     {
         /// <summary>
+        /// Gets <see cref="Chat"/> with specified <paramref name="chatId"/>.
+        /// </summary>
+        /// <param name="chatId">Telegram chat ID to get <see cref="Chat"/> by.</param>
+        /// <returns></returns>
+        public Chat GetChatByChatId(long chatId);
+
+        /// <summary>
         /// Gets already existing <see cref="Chat"/> or creates new one.
         /// </summary>
         /// <param name="telegramChat">Telegram chat using which ID to get or create a new one.</param>

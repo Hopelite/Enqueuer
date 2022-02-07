@@ -7,6 +7,7 @@ using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
@@ -64,35 +65,42 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To delete queue, please write command this way: '/deletequeue [queue name]'.");
+                    "To delete queue, please write command this way: '<b>/deletequeue</b> <i>[queue name]</i>'.",
+                    ParseMode.Html);
         }
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"There is no queue with name '{queueName}'. You can get list of chat queues using '/queue' command.",
+                    $"There is no queue with name '<b>{queueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
-            var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
-            if (queue.Creator.UserId == user.UserId || admins.Any(admin => admin.User.Id == user.UserId))
+            if (queue.Creator.UserId != user.UserId)
             {
-                await this.queueRepository.DeleteAsync(queue);
-                return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"Successfully deleted queue '{queueName}'!",
-                        replyToMessageId: message.MessageId);
+                var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
+                if (!admins.Any(admin => admin.User.Id == user.UserId))
+                {
+                    return await botClient.SendTextMessageAsync(
+                                chat.ChatId,
+                                $"Unable to delete queue '<b>{queueName}</b>'. It can be deleted only by it's creator or chat administrators.",
+                                ParseMode.Html,
+                                replyToMessageId: message.MessageId);
+                }
             }
 
+            await this.queueRepository.DeleteAsync(queue);
             return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"Unable to delete queue '{queueName}'. It can be deleted only by it's creator or chat administrators.",
-                        replyToMessageId: message.MessageId);
+                    chat.ChatId,
+                    $"Successfully deleted queue '<b>{queueName}</b>'!",
+                    ParseMode.Html,
+                    replyToMessageId: message.MessageId);
         }
     }
 }

@@ -7,6 +7,7 @@ using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
@@ -64,19 +65,21 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                $"To be enqueued in queue, please write command this way: '/enqueue [queue name]'.",
+                $"To be enqueued in queue, please write command this way: '<b>/enqueue</b> <i>[queue name]</i>'.",
+                ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"There is no queue with name '{queueName}'. You can get list of chat queues using '/queue' command.",
+                    $"There is no queue with name '<b>{queueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
@@ -87,13 +90,15 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Successfully added to queue {queue.Name}!",
+                    $"Successfully added to queue '<b>{queue.Name}</b>'!",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"You're already participating in queue '{queue.Name}'.",
+                    $"You're already participating in queue '<b>{queue.Name}</b>'.",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
         }
     }
