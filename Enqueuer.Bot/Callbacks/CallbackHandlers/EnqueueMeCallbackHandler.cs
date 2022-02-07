@@ -13,7 +13,8 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class EnqueueMeCallbackHandler : ICallbackHandler
     {
-        private const char whitespace = ' ';
+        private const int UserIdStartIndex = 1;
+        private const int QueueNameStartIndex = 2;
         private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IRepository<Queue> queueRepository;
@@ -46,8 +47,8 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
         public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             var callbackData = callbackQuery.Data.SplitToWords();
-            var userId = long.Parse(callbackData[1]);
-            var queueName = string.Join(whitespace, callbackData[2..]);
+            var userId = long.Parse(callbackData[UserIdStartIndex]);
+            var queueName = callbackData.GetQueueName(QueueNameStartIndex);
             var chatId = callbackQuery.Message.Chat.Id;
 
             var user =  this.userService.GetUserByUserId(userId);

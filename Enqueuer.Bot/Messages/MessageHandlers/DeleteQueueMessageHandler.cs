@@ -71,7 +71,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
@@ -82,22 +82,25 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
-            if (queue.Creator.UserId == user.UserId || admins.Any(admin => admin.User.Id == user.UserId))
+            if (queue.Creator.UserId != user.UserId)
             {
-                await this.queueRepository.DeleteAsync(queue);
-                return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"Successfully deleted queue '<b>{queueName}</b>'!",
-                        ParseMode.Html,
-                        replyToMessageId: message.MessageId);
+                var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
+                if (!admins.Any(admin => admin.User.Id == user.UserId))
+                {
+                    return await botClient.SendTextMessageAsync(
+                                chat.ChatId,
+                                $"Unable to delete queue '<b>{queueName}</b>'. It can be deleted only by it's creator or chat administrators.",
+                                ParseMode.Html,
+                                replyToMessageId: message.MessageId);
+                }
             }
 
+            await this.queueRepository.DeleteAsync(queue);
             return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"Unable to delete queue '<b>{queueName}</b>'. It can be deleted only by it's creator or chat administrators.",
-                        ParseMode.Html,
-                        replyToMessageId: message.MessageId);
+                    chat.ChatId,
+                    $"Successfully deleted queue '<b>{queueName}</b>'!",
+                    ParseMode.Html,
+                    replyToMessageId: message.MessageId);
         }
     }
 }

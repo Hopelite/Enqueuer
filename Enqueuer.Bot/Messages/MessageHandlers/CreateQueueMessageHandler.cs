@@ -79,7 +79,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     ParseMode.Html);
             }
 
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
