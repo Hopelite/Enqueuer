@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Enqueuer.Services
 {
@@ -53,7 +52,8 @@ namespace Enqueuer.Services
                 .Queues.Count();
         }
 
-        private Chat GetChatByChatId(long chatId)
+        /// <inheritdoc/>
+        public Chat GetChatByChatId(long chatId)
         {
             return this.chatRepository.GetAll()
                     .FirstOrDefault(chat => chat.ChatId == chatId);
