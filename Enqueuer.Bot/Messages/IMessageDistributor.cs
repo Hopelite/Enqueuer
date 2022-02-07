@@ -17,11 +17,11 @@ namespace Enqueuer.Bot.Messages
         public void AddMessageHandler(IMessageHandler messageHandler);
 
         /// <summary>
-        /// Distributes <paramref name="message"/> 
+        /// Distributes <paramref name="message"/> to one of <see cref="IMessageHandler"/> with specified command if exists.
         /// </summary>
-        /// <param name="telegramBotClient"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
+        /// <param name="telegramBotClient"><see cref="ITelegramBotClient"/> to use.</param>
+        /// <param name="message"><see cref="Message"/> to distribute.</param>
+        /// <returns>Awaitable <see cref="Task"/>.</returns>
         public Task DistributeMessageAsync(ITelegramBotClient telegramBotClient, Message message);
     }
 }

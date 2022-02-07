@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Enqueuer.Bot;
+using Enqueuer.Bot.Callbacks;
 using Enqueuer.Bot.Factories;
 using Enqueuer.Bot.Messages;
 using Enqueuer.Persistence;
@@ -48,6 +49,10 @@ namespace Enqueuer.Web
             services.ConfigureServices();
             services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
             services.AddScoped<IMessageDistributor, MessageDistributor>();
+            services.AddTransient(provider => new Lazy<IMessageDistributor>(provider.GetService<IMessageDistributor>));
+            services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();
+            services.AddScoped<ICallbackDistributor, CallbackDistributor>();
+            services.AddTransient(provider => new Lazy<ICallbackDistributor>(provider.GetService<ICallbackDistributor>));
             services.AddScoped<IUpdateHandler, UpdateHandler>();
 
             services.AddControllers()

@@ -7,6 +7,7 @@ using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
@@ -78,7 +79,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     ParseMode.Html);
             }
 
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
@@ -90,10 +91,13 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 };
 
                 await this.queueRepository.AddAsync(queue);
+
+                var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", $"/enqueueme {queue.Name}"));
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully created new queue '<b>{queue.Name}</b>'!",
-                    ParseMode.Html);
+                    ParseMode.Html,
+                    replyMarkup: replyMarkup);
             }
 
             return await botClient.SendTextMessageAsync(

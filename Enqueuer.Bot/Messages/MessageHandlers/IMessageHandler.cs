@@ -15,7 +15,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         public string Command { get; }
 
         /// <summary>
-        /// Handles incoming <see cref="Message"/>.
+        /// Handles incoming <paramref name="message"/>.
         /// </summary>
         /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="message">Incoming <see cref="Message"/> to handle.</param>

@@ -34,7 +34,8 @@ namespace Enqueuer.Services
             return user;
         }
 
-        private User GetUserByUserId(long userId)
+        /// <inheritdoc/>
+        public User GetUserByUserId(long userId)
         {
             return this.userRepository.GetAll()
                     .FirstOrDefault(user => user.UserId == userId);

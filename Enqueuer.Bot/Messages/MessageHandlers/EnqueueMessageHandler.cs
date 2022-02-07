@@ -72,7 +72,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
-            var queueName = messageWords[1];
+            var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
@@ -91,12 +91,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully added to queue '<b>{queue.Name}</b>'!",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"You're already participating in queue '<b>{queue.Name}</b>'.",
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
         }
     }

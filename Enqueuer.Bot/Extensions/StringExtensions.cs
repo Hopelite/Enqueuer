@@ -7,7 +7,7 @@ namespace Enqueuer.Bot.Extensions
     /// </summary>
     public static class StringExtensions
     {
-        private const char whitespace = ' ';
+        private const char Whitespace = ' ';
 
         /// <summary>
         /// Splits <paramref name="messageText"/> to words by removing whitespaces.
@@ -16,7 +16,7 @@ namespace Enqueuer.Bot.Extensions
         /// <returns>Array of message words.</returns>
         public static string[] SplitToWords(this string messageText)
         {
-            return messageText.Split(whitespace, StringSplitOptions.RemoveEmptyEntries);
+            return messageText.Split(separator: Whitespace, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }
