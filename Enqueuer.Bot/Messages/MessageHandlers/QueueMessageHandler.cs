@@ -47,6 +47,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         /// <returns><see cref="Message"/> which was sent in responce.</returns>
         public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
+            if (message.IsPrivateChat())
+            {
+                return await botClient.SendUnsupportedOperationMessage(message);
+            }
+
             var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
             var user = await this.userService.GetNewOrExistingUserAsync(message.From);
             await this.chatService.AddUserToChat(user, chat);
