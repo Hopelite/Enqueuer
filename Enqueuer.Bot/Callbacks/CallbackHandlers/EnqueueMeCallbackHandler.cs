@@ -75,10 +75,10 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
             var userInReplyMessage = $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
             if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
-                var lastPositionInQueue = this.userInQueueService.GetTotalUsersInQueue(queue);
+                var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
                 var userInQueue = new UserInQueue()
                 {
-                    Position = ++lastPositionInQueue,
+                    Position = positionInQueue,
                     UserId = user.Id,
                     QueueId = queue.Id,
                 };

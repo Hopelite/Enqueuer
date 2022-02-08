@@ -20,10 +20,34 @@ namespace Enqueuer.Services
         }
 
         /// <inheritdoc/>
-        public int GetTotalUsersInQueue(Queue queue)
+        public int GetFirstAvailablePosition(Queue queue)
+        {
+            var positions = this.userInQueueRepository.GetAll()
+                .Where(userInQueue => userInQueue.QueueId == queue.Id)
+                .Select(userInQueue => userInQueue.Position)
+                .OrderBy(position => position)
+                .ToList();
+
+            int firstAvailablePosition = 1;
+            for (int i = 0; i < positions.Count; i++)
+            {
+                if (firstAvailablePosition != positions[i])
+                {
+                    break;
+                }
+
+                firstAvailablePosition++;
+            }
+
+            return firstAvailablePosition;
+        }
+
+        /// <inheritdoc/>
+        public bool IsPositionReserved(Queue queue, int position)
         {
             return this.userInQueueRepository.GetAll()
-                .Count(userInQueue => userInQueue.Queue.Id == queue.Id);
+                .Any(userInQueue => userInQueue.QueueId == queue.Id
+                                 && userInQueue.Position == position);
         }
     }
 }

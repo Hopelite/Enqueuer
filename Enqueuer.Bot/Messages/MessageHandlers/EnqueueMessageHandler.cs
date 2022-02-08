@@ -81,32 +81,52 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
-            var queueName = messageWords.GetQueueName();
-            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
+            var queueNameAndPosition = GetQueueNameAndPosition(messageWords);
+            if (queueNameAndPosition.UserPosition.HasValue && queueNameAndPosition.UserPosition.Value <= 0)
+            {
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"Please, use positive numbers for user position.",
+                    ParseMode.Html,
+                    replyToMessageId: message.MessageId);
+            }
+
+            var queue = this.queueService.GetChatQueueByName(queueNameAndPosition.QueueName, chat.ChatId);
             if (queue is null)
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"There is no queue with name '<b>{queueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
+                    $"There is no queue with name '<b>{queueNameAndPosition.QueueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
             if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
-                var lastPositionInQueue = this.userInQueueService.GetTotalUsersInQueue(queue);
+                if (queueNameAndPosition.UserPosition.HasValue)
+                {
+                    if (this.userInQueueService.IsPositionReserved(queue, queueNameAndPosition.UserPosition.Value))
+                    {
+                        return await botClient.SendTextMessageAsync(
+                                chat.ChatId,
+                                $"Position '<b>{queueNameAndPosition.UserPosition.Value}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.",
+                                ParseMode.Html,
+                                replyToMessageId: message.MessageId);
+                    }
+                }
+
+                int userPostion = queueNameAndPosition.UserPosition ?? this.userInQueueService.GetFirstAvailablePosition(queue);
                 var userInQueue = new UserInQueue()
                 {
-                    Position = ++lastPositionInQueue,
+                    Position = userPostion,
                     UserId = user.Id,
                     QueueId = queue.Id,
                 };
 
                 await this.userInQueueRepository.AddAsync(userInQueue);
-
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Successfully added to queue '<b>{queue.Name}</b>'!",
+                    $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPostion}</b>!",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
@@ -116,6 +136,23 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     $"You're already participating in queue '<b>{queue.Name}</b>'.",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
+        }
+
+        private (string QueueName, int? UserPosition) GetQueueNameAndPosition(string[] messageWords)
+        {
+            (string QueueName, int? UserPosition) result;
+            if (int.TryParse(messageWords[^1], out int position))
+            {
+                result.QueueName = messageWords.GetQueueNameWithoutUserPosition();
+                result.UserPosition = position;
+            }
+            else
+            {
+                result.QueueName = messageWords.GetQueueName();
+                result.UserPosition = null;
+            }
+
+            return result;
         }
     }
 }

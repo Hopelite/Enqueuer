@@ -87,13 +87,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             }
 
             var responceMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
-            int participantPosition = 1;
             var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
-                .Select(queueUser => queueUser.User);
+                .Select(queueUser => (queueUser.Position, queueUser.User));
             foreach (var queueParticipant in queueParticipants)
             {
-                responceMessage.AppendLine($"{participantPosition}) <b>{queueParticipant.FirstName} {queueParticipant.LastName}</b>");
-                participantPosition++;
+                responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
             }
 
             return await botClient.SendTextMessageAsync(
