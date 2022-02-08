@@ -47,6 +47,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         /// <returns><see cref="Message"/> which was sent in responce.</returns>
         public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
+            if (message.IsPrivateChat())
+            {
+                return await botClient.SendUnsupportedOperationMessage(message);
+            }
+
             var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
             var user = await this.userService.GetNewOrExistingUserAsync(message.From);
             await this.chatService.AddUserToChat(user, chat);
@@ -83,7 +88,9 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             var responceMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
             int participantPosition = 1;
-            foreach (var queueParticipant in queue.Users)
+            var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
+                .Select(queueUser => queueUser.User);
+            foreach (var queueParticipant in queueParticipants)
             {
                 responceMessage.AppendLine($"{participantPosition}) <b>{queueParticipant.FirstName} {queueParticipant.LastName}</b>");
                 participantPosition++;

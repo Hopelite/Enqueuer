@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Enqueuer.Bot.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace Enqueuer.Web.Configuration
 {
@@ -7,13 +8,17 @@ namespace Enqueuer.Web.Configuration
     {
         private const string botConfigurationSectionName = "BotConfiguration";
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BotConfiguration"/> class.
+        /// </summary>
+        /// <param name="configuration"><see cref="IConfiguration"/> with application configuration.</param>
         public BotConfiguration(IConfiguration configuration)
         {
             var botSection = configuration.GetSection(botConfigurationSectionName);
             this.AccessToken = botSection.GetRequiredSection("AccessToken").Value;
             this.ApplicationHost = botSection.GetRequiredSection("ApplicationHost").Value;
             this.QueuesPerChat = int.Parse(botSection.GetRequiredSection("QueuesPerChat").Value);
+            this.BotVersion = botSection.GetRequiredSection("BotVersion").Value;
         }
 
         /// <inheritdoc/>
@@ -24,5 +29,8 @@ namespace Enqueuer.Web.Configuration
 
         /// <inheritdoc/>
         public int QueuesPerChat { get; set; }
+
+        /// <inheritdoc/>
+        public string BotVersion { get; set; }
     }
 }

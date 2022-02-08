@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Web.Configuration
+﻿namespace Enqueuer.Bot.Configuration
 {
     /// <summary>
     /// Contains bot configuration.
@@ -19,5 +19,10 @@
         /// Gets or sets maximal number of queues per chat.
         /// </summary>
         public int QueuesPerChat { get; set; }
+
+        /// <summary>
+        /// Gets or sets bot version.
+        /// </summary>
+        public string BotVersion { get; set; }
     }
 }

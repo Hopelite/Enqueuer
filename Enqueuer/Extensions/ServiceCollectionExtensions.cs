@@ -1,5 +1,4 @@
-﻿using System;
-using Enqueuer.Persistence.Models;
+﻿using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services;
 using Enqueuer.Services.Interfaces;
@@ -14,6 +13,7 @@ namespace Enqueuer.Web.Extensions
             services.AddScoped<IRepository<Chat>, Repository<Chat>>();
             services.AddScoped<IRepository<User>, Repository<User>>();
             services.AddScoped<IRepository<Queue>, Repository<Queue>>();
+            services.AddScoped<IRepository<UserInQueue>, Repository<UserInQueue>>();
 
             return services;
         }
@@ -23,6 +23,7 @@ namespace Enqueuer.Web.Extensions
             services.AddTransient<IChatService, ChatService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IQueueService, QueueService>();
+            services.AddTransient<IUserInQueueService, UserInQueueService>();
 
             return services;
         }

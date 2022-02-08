@@ -17,7 +17,8 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
         private readonly IChatService chatService;
         private readonly IUserService userService;
         private readonly IQueueService queueService;
-        private readonly IRepository<Queue> queueRepository;
+        private readonly IUserInQueueService userInQueueService;
+        private readonly IRepository<UserInQueue> userInQueueRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnqueueMeCallbackHandler"/> class.
@@ -25,17 +26,20 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
-        /// <param name="queueRepository">Queue repository to use.</param>
+        /// <param name="userInQueueService">User in queue service to use.</param>
+        /// <param name="userInQueueRepository">User in queue repository to use.</param>
         public EnqueueMeCallbackHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IRepository<Queue> queueRepository)
+            IUserInQueueService userInQueueService,
+            IRepository<UserInQueue> userInQueueRepository)
         {
             this.chatService = chatService;
             this.userService = userService;
             this.queueService = queueService;
-            this.queueRepository = queueRepository;
+            this.userInQueueService = userInQueueService;
+            this.userInQueueRepository = userInQueueRepository;
         }
 
         /// <inheritdoc/>
@@ -64,24 +68,32 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
                 return await botClient.EditMessageTextAsync(
                     chatId,
                     callbackQuery.Message.MessageId,
-                    $"Queue '<b>{queueName}</b>' has been deleted.",
+                    $"Queue '<b>{queueName}</b>' has been deleted. Please, create new one to participate.",
                     ParseMode.Html);
             }
 
-            if (!queue.Users.Any(queueUser => queueUser.UserId == user.UserId))
+            var userInReplyMessage = $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
+            if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
-                queue.Users.Add(user);
-                await this.queueRepository.UpdateAsync(queue);
+                var lastPositionInQueue = this.userInQueueService.GetTotalUsersInQueue(queue);
+                var userInQueue = new UserInQueue()
+                {
+                    Position = ++lastPositionInQueue,
+                    UserId = user.Id,
+                    QueueId = queue.Id,
+                };
+
+                await this.userInQueueRepository.AddAsync(userInQueue);
 
                 return await botClient.SendTextMessageAsync(
                     chatId,
-                    $"<b>@{telegramUser.Username}</b> successfully added to queue '<b>{queue.Name}</b>'!",
+                    $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html);
             }
 
             return await botClient.SendTextMessageAsync(
                     chatId,
-                    $"<b>@{telegramUser.Username}</b>, you're already participating in queue '<b>{queue.Name}</b>'!",
+                    $"<b>{userInReplyMessage}</b>, you're already participating in queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html);
         }
     }

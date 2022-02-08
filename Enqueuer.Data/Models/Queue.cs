@@ -19,7 +19,7 @@ namespace Enqueuer.Persistence.Models
         /// Gets or sets queue name.
         /// </summary>
         [Required]
-        [StringLength(100)]
+        [StringLength(50)]
         public string Name { get; set; }
 
         /// <summary>
@@ -47,6 +47,6 @@ namespace Enqueuer.Persistence.Models
         /// <summary>
         /// Gets or sets users in this queue.
         /// </summary>
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<UserInQueue> Users { get; set; } = new List<UserInQueue>();
     }
 }

@@ -6,6 +6,7 @@ using Telegram.Bot.Types;
 using Enqueuer.Bot.Callbacks.CallbackHandlers;
 using Enqueuer.Bot.Extensions;
 using Enqueuer.Bot.Factories;
+using Microsoft.Extensions.Logging;
 
 namespace Enqueuer.Bot.Callbacks
 {
@@ -13,17 +14,20 @@ namespace Enqueuer.Bot.Callbacks
     public class CallbackDistributor : ICallbackDistributor
     {
         private readonly SortedDictionary<string, ICallbackHandler> callbackHandlers;
+        private readonly ILogger<ICallbackDistributor> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CallbackDistributor"/> class and adds <see cref="ICallbackHandler"/> using <paramref name="callbackHandlersFactory"/>.
         /// </summary>
         /// <param name="callbackHandlersFactory"><see cref="ICallbackHandlersFactory"/> which provides distibutor with <see cref="ICallbackHandler"/>.</param>
-        public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory)
+        /// <param name="logger"><see cref="ILogger"/> to log info.</param>
+        public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory, ILogger<ICallbackDistributor> logger)
         {
             this.callbackHandlers = new SortedDictionary<string, ICallbackHandler>(
                 callbackHandlersFactory
                 .CreateCallbackHandlers()
                 .ToDictionary(callbackHandler => callbackHandler.Command));
+            this.logger = logger;
         }
 
         /// <inheritdoc/>
@@ -32,7 +36,8 @@ namespace Enqueuer.Bot.Callbacks
             var command = callbackQuery.Data?.SplitToWords()[0];
             if (command is not null && this.callbackHandlers.TryGetValue(command, out ICallbackHandler callbackHandler))
             {
-                await callbackHandler.HandleCallbackAsync(telegramBotClient, callbackQuery);
+                var sentMessage = await callbackHandler.HandleCallbackAsync(telegramBotClient, callbackQuery);
+                this.logger.LogInformation($"Sent message '{sentMessage.Text}' on user's callback to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}.");
             }
         }
     }

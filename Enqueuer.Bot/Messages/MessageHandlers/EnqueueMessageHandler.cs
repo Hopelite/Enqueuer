@@ -21,7 +21,8 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         private readonly IChatService chatService;
         private readonly IUserService userService;
         private readonly IQueueService queueService;
-        private readonly IRepository<Queue> queueRepository;
+        private readonly IUserInQueueService userInQueueService;
+        private readonly IRepository<UserInQueue> userInQueueRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnqueueMessageHandler"/> class.
@@ -29,17 +30,20 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
-        /// <param name="queueRepository">Queue repository to use.</param>
+        /// <param name="userInQueueService">User in queue service to use.</param>
+        /// <param name="userInQueueRepository">User in queue repository to use.</param>
         public EnqueueMessageHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IRepository<Queue> queueRepository)
+            IUserInQueueService userInQueueService,
+            IRepository<UserInQueue> userInQueueRepository)
         {
             this.chatService = chatService;
             this.userService = userService;
             this.queueService = queueService;
-            this.queueRepository = queueRepository;
+            this.userInQueueService = userInQueueService;
+            this.userInQueueRepository = userInQueueRepository;
         }
 
         /// <inheritdoc/>
@@ -53,6 +57,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         /// <returns><see cref="Message"/> which was sent in responce.</returns>
         public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
+            if (message.IsPrivateChat())
+            {
+                return await botClient.SendUnsupportedOperationMessage(message);
+            }
+
             var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
             var user = await this.userService.GetNewOrExistingUserAsync(message.From);
             await this.chatService.AddUserToChat(user, chat);
@@ -83,10 +92,17 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            if (!queue.Users.Any(queueUser => queueUser.UserId == user.UserId))
+            if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
-                queue.Users.Add(user);
-                await this.queueRepository.UpdateAsync(queue);
+                var lastPositionInQueue = this.userInQueueService.GetTotalUsersInQueue(queue);
+                var userInQueue = new UserInQueue()
+                {
+                    Position = ++lastPositionInQueue,
+                    UserId = user.Id,
+                    QueueId = queue.Id,
+                };
+
+                await this.userInQueueRepository.AddAsync(userInQueue);
 
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,

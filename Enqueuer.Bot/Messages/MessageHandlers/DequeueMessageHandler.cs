@@ -13,6 +13,9 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Bot.Messages.MessageHandlers
 {
+    /// <summary>
+    /// Handles incoming <see cref="Message"/> with '/dequeue' command.
+    /// </summary>
     public class DequeueMessageHandler : IMessageHandler
     {
         private readonly IChatService chatService;
@@ -50,6 +53,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         /// <returns><see cref="Message"/> which was sent in responce.</returns>
         public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
+            if (message.IsPrivateChat())
+            {
+                return await botClient.SendUnsupportedOperationMessage(message);
+            }
+
             var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
             var user = await this.userService.GetNewOrExistingUserAsync(message.From);
             await this.chatService.AddUserToChat(user, chat);
@@ -80,9 +88,9 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            if (queue.Users.Any(queueUser => queueUser.UserId == user.UserId))
+            if (queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
-                var userToRemove = queue.Users.First(queueUser => queueUser.UserId == user.UserId);
+                var userToRemove = queue.Users.First(queueUser => queueUser.UserId == user.Id);
                 queue.Users.Remove(userToRemove);
                 await this.queueRepository.UpdateAsync(queue);
 

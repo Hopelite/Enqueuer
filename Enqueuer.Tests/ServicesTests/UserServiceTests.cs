@@ -89,9 +89,9 @@ namespace Enqueuer.Tests.ServicesTests
             var comparer = new UserComparer();
             var expected = new User[]
             {
-                new User() { UserId = 1, FirstName = "TestFirstName", LastName = "TestLastName", UserName = "TestUsername" },
-                new User() { UserId = 2, FirstName = "TestSecondName", LastName = "TestLastName", UserName = "TestUsername" },
-                new User() { UserId = 3, FirstName = "TestThirdName", LastName = "TestLastName", UserName = "TestUsername" },
+                new User() { UserId = 1, FirstName = "TestFirstName", LastName = "TestLastName", },
+                new User() { UserId = 2, FirstName = "TestSecondName", LastName = "TestLastName" },
+                new User() { UserId = 3, FirstName = "TestThirdName", LastName = "TestLastName" },
             };
 
             var users = new List<User>(expected).AsQueryable();
@@ -113,9 +113,9 @@ namespace Enqueuer.Tests.ServicesTests
             const long expectedUserId = 100;
             var expected = new User[]
             {
-                new User() { UserId = 1, FirstName = "TestFirstName", LastName = "TestLastName", UserName = "TestUsername" },
-                new User() { UserId = 2, FirstName = "TestSecondName", LastName = "TestLastName", UserName = "TestUsername" },
-                new User() { UserId = 3, FirstName = "TestThirdName", LastName = "TestLastName", UserName = "TestUsername" },
+                new User() { UserId = 1, FirstName = "TestFirstName", LastName = "TestLastName" },
+                new User() { UserId = 2, FirstName = "TestSecondName", LastName = "TestLastName" },
+                new User() { UserId = 3, FirstName = "TestThirdName", LastName = "TestLastName" },
             };
 
             var users = new List<User>(expected).AsQueryable();
