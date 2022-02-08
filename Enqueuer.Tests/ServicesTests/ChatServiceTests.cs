@@ -155,5 +155,46 @@ namespace Enqueuer.Tests.ServicesTests
             // Assert
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void ChatServiceTests_GetChatByChatId_ReturnsChat()
+        {
+            // Arrange
+            const long chatId = 2;
+            var comparer = new ChatComparer();
+            var expected = new Chat() { ChatId = chatId };
+            var chats = new List<Chat>()
+            {
+                new Chat() { ChatId = 1 },
+                new Chat() { ChatId = 2 },
+                new Chat() { ChatId = 3 },
+            }.AsQueryable();
+
+            this.chatRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(chats);
+
+            // Act
+            var actual = this.chatService.GetChatByChatId(chatId);
+
+            // Assert
+            Assert.IsTrue(comparer.Equals(expected, actual));
+        }
+
+        [Test]
+        public void ChatServiceTests_GetChatByChatId_ChatDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            const long chatId = 1;
+            var chats = Enumerable.Empty<Chat>().AsQueryable();
+
+            this.chatRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(chats);
+
+            // Act
+            var actual = this.chatService.GetChatByChatId(chatId);
+
+            // Assert
+            Assert.IsNull(actual);
+        }
     }
 }
