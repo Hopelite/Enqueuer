@@ -1,6 +1,7 @@
 ﻿using System;
 using Enqueuer.Bot;
 using Enqueuer.Bot.Callbacks;
+using Enqueuer.Bot.Configuration;
 using Enqueuer.Bot.Factories;
 using Enqueuer.Bot.Messages;
 using Enqueuer.Persistence;

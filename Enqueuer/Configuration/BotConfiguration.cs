@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Enqueuer.Bot.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace Enqueuer.Web.Configuration
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Enqueuer.Bot.Configuration;
 using Enqueuer.Bot.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
@@ -22,6 +23,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IRepository<Queue> queueRepository;
+        private readonly IBotConfiguration botConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateQueueMessageHandler"/> class.
@@ -30,16 +32,19 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="queueRepository">Queue repository to use.</param>
+        /// <param name="botConfiguration">Bot configuration to rely on.</param>
         public CreateQueueMessageHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IRepository<Queue> queueRepository)
+            IRepository<Queue> queueRepository,
+            IBotConfiguration botConfiguration)
         {
             this.chatService = chatService;
             this.userService = userService;
             this.queueService = queueService;
             this.queueRepository = queueRepository;
+            this.botConfiguration = botConfiguration;
         }
 
         /// <inheritdoc/>
@@ -76,11 +81,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
         {
-            if (this.chatService.GetNumberOfQueues(chat.ChatId) >= 5)
+            if (this.chatService.GetNumberOfQueues(chat.ChatId) >= this.botConfiguration.QueuesPerChat)
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "This chat has maximum number of queues. Please remove one using '<b>/deletequeue</b>' command before adding new.",
+                    "This chat has maximum number of queues. Please remove one using '<b>/removequeue</b>' command before adding new.",
                     ParseMode.Html);
             }
 
@@ -107,7 +112,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"This chat already has queue with name '<b>{queue.Name}</b>'. Please, use other name for this queue or delete existing one using '<b>/deletequeue</b>'.",
+                    $"This chat already has queue with name '<b>{queue.Name}</b>'. Please, use other name for this queue or delete existing one using '<b>/removequeue</b>'.",
                     ParseMode.Html);
         }
     }
