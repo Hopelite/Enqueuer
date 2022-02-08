@@ -70,7 +70,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                $"Please write command this way: '/<b>dequeue</b> <i>[queue name]</i>'.",
+                $"Please write command this way: '/<b>dequeue</b> <i>queue_name</i>'.",
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }

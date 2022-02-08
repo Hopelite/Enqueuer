@@ -68,7 +68,7 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
                 return await botClient.EditMessageTextAsync(
                     chatId,
                     callbackQuery.Message.MessageId,
-                    $"Queue '<b>{queueName}</b>' has been deleted. Please, create new one to participate.",
+                    $"Queue '<b>{queueName}</b>' has been deleted. Please, create new one to participate in.",
                     ParseMode.Html);
             }
 

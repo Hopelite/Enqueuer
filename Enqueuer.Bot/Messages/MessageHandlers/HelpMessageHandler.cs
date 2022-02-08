@@ -28,11 +28,10 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 + "<b>/help</b> - get bot help\n"
                 + "<b>/queue</b> - list chat queues or get info about one of them\n"
                 + "<b>/createqueue</b> - create new queue\n"
-                + "<b>/enqueue</b> - add yourself to the end of the queue\n"
+                + "<b>/enqueue</b> - add yourself to the end of the queue or specified position\n"
                 + "<b>/dequeue</b> - remove yourself from queue\n"
                 + "<b>/removequeue</b> - delete queue\n"
-                + "To get slightly more detailed info about one of them, write appopriate command.\n"
-                + "\n<i>Please, message this guy (@hopelite) to get help, give feedback or report bug.</i>",
+                + "To get slightly more detailed info about one of them, write appopriate command.",
                 ParseMode.Html);
         }
     }

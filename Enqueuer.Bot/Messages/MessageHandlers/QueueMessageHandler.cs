@@ -107,7 +107,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,
-                        $"This chat has no queues. To create new one write '<b>/createqueue</b> <i>[queue name]</i>'.",
+                        $"This chat has no queues. To create new one write '<b>/createqueue</b> <i>queue_name</i>'.",
                         ParseMode.Html,
                         replyToMessageId: message.MessageId);
             }
@@ -118,7 +118,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 replyMessage.AppendLine($"• {queue.Name}");
             }
 
-            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>[queue name]</i>'.");
+            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>queue_name</i>'.");
             return await botClient.SendTextMessageAsync(
                         chat.ChatId,
                         replyMessage.ToString(),
