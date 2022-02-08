@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Enqueuer.Bot.Configuration;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -10,6 +11,17 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
     /// </summary>
     public class StartMessageHandler : IMessageHandler
     {
+        private readonly IBotConfiguration botConfiguration;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StartMessageHandler"/> class.
+        /// </summary>
+        /// <param name="configuration"><see cref="IBotConfiguration"/> with bot configuration.</param>
+        public StartMessageHandler(IBotConfiguration botConfiguration)
+        {
+            this.botConfiguration = botConfiguration;
+        }
+
         /// <inheritdoc/>
         public string Command => "/start";
 
@@ -24,7 +36,8 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             return await botClient.SendTextMessageAsync(
                 message.Chat,
                 "Hello there! I'm the <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
-                + "To get list of commands and help, write '<b>/help</b>'.",
+                + "To get list of commands and help, write '<b>/help</b>'.\n"
+                + $"\n<i>Bot version: {this.botConfiguration.BotVersion}</i>",
                 ParseMode.Html);
         }
     }

@@ -26,6 +26,7 @@ namespace Enqueuer.Web
         /// </summary>
         public Startup()
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             this.Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();

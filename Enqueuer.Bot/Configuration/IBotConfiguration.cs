@@ -19,5 +19,10 @@
         /// Gets or sets maximal number of queues per chat.
         /// </summary>
         public int QueuesPerChat { get; set; }
+
+        /// <summary>
+        /// Gets or sets bot version.
+        /// </summary>
+        public string BotVersion { get; set; }
     }
 }

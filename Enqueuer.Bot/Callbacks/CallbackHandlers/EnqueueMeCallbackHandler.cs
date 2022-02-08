@@ -72,6 +72,7 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
                     ParseMode.Html);
             }
 
+            var userInReplyMessage = $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
             if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
                 var lastPositionInQueue = this.userInQueueService.GetTotalUsersInQueue(queue);
@@ -86,13 +87,13 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
 
                 return await botClient.SendTextMessageAsync(
                     chatId,
-                    $"<b>@{telegramUser.Username}</b> successfully added to queue '<b>{queue.Name}</b>'!",
+                    $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html);
             }
 
             return await botClient.SendTextMessageAsync(
                     chatId,
-                    $"<b>@{telegramUser.Username}</b>, you're already participating in queue '<b>{queue.Name}</b>'!",
+                    $"<b>{userInReplyMessage}</b>, you're already participating in queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html);
         }
     }
