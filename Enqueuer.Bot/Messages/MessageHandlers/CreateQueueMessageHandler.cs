@@ -75,7 +75,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To create new queue, please write command this way: '<b>/createqueue</b> <i>[queue name]</i>'.",
+                    "To create new queue, please write command this way: '<b>/createqueue</b> <i>queue_name</i>'.",
                     ParseMode.Html);
         }
 
@@ -86,6 +86,17 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     "This chat has maximum number of queues. Please remove one using '<b>/removequeue</b>' command before adding new.",
+                    ParseMode.Html);
+            }
+
+            if (QueueHasNumberAtTheEnd(messageWords))
+            {
+                var responceMessage = messageWords.Length > 2
+                                    ? "Unable to create queue with number at the last position of name. Please concat queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number at all."
+                                    : "Unable to create queue with only number in name. Please add some nice words.";
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    responceMessage,
                     ParseMode.Html);
             }
 
@@ -114,6 +125,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                     chat.ChatId,
                     $"This chat already has queue with name '<b>{queue.Name}</b>'. Please, use other name for this queue or delete existing one using '<b>/removequeue</b>'.",
                     ParseMode.Html);
+        }
+
+        private static bool QueueHasNumberAtTheEnd(string[] messageWords)
+        {
+            return int.TryParse(messageWords[^1], out int _);
         }
     }
 }
