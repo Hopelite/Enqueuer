@@ -87,13 +87,11 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             }
 
             var responceMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
-            int participantPosition = 1;
             var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
-                .Select(queueUser => queueUser.User);
+                .Select(queueUser => (queueUser.Position, queueUser.User));
             foreach (var queueParticipant in queueParticipants)
             {
-                responceMessage.AppendLine($"{participantPosition}) <b>{queueParticipant.FirstName} {queueParticipant.LastName}</b>");
-                participantPosition++;
+                responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
             }
 
             return await botClient.SendTextMessageAsync(
@@ -109,7 +107,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,
-                        $"This chat has no queues. To create new one write '<b>/createqueue</b> <i>[queue name]</i>'.",
+                        $"This chat has no queues. To create new one write '<b>/createqueue</b> <i>queue_name</i>'.",
                         ParseMode.Html,
                         replyToMessageId: message.MessageId);
             }
@@ -120,7 +118,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 replyMessage.AppendLine($"• {queue.Name}");
             }
 
-            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>[queue name]</i>'.");
+            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>queue_name</i>'.");
             return await botClient.SendTextMessageAsync(
                         chat.ChatId,
                         replyMessage.ToString(),

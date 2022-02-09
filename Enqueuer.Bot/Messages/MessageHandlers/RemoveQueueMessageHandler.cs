@@ -70,7 +70,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "To delete queue, please write command this way: '<b>/removequeue</b> <i>[queue name]</i>'.",
+                    "To delete queue, please write command this way: '<b>/removequeue</b> <i>queue_name</i>'.",
                     ParseMode.Html);
         }
 

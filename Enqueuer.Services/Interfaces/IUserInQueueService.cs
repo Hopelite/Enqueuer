@@ -8,10 +8,18 @@ namespace Enqueuer.Services.Interfaces
     public interface IUserInQueueService
     {
         /// <summary>
-        /// Gets total number of users in queue.
+        /// Gets first available position in queue.
         /// </summary>
         /// <param name="queue"><see cref="Queue"/> where to search.</param>
-        /// <returns>Number of users in <see cref="Queue"/>.</returns>
-        public int GetTotalUsersInQueue(Queue queue);
+        /// <returns>First available position <paramref name="queue"/>.</returns>
+        public int GetFirstAvailablePosition(Queue queue);
+
+        /// <summary>
+        /// Checks whether specified <paramref name="position"/> in this <paramref name="queue"/> already reserved.
+        /// </summary>
+        /// <param name="queue"><see cref="Queue"/> which positions to check.</param>
+        /// <param name="position">Position to check.</param>
+        /// <returns>True, if <paramref name="position"/> is reserved; false otherwise.</returns>
+        public bool IsPositionReserved(Queue queue, int position);
     }
 }

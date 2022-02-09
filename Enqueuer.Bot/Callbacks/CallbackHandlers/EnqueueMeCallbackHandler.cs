@@ -68,17 +68,17 @@ namespace Enqueuer.Bot.Callbacks.CallbackHandlers
                 return await botClient.EditMessageTextAsync(
                     chatId,
                     callbackQuery.Message.MessageId,
-                    $"Queue '<b>{queueName}</b>' has been deleted. Please, create new one to participate.",
+                    $"Queue '<b>{queueName}</b>' has been deleted. Please, create new one to participate in.",
                     ParseMode.Html);
             }
 
             var userInReplyMessage = $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
             if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
-                var lastPositionInQueue = this.userInQueueService.GetTotalUsersInQueue(queue);
+                var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
                 var userInQueue = new UserInQueue()
                 {
-                    Position = ++lastPositionInQueue,
+                    Position = positionInQueue,
                     UserId = user.Id,
                     QueueId = queue.Id,
                 };
