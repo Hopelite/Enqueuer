@@ -56,8 +56,6 @@ namespace Enqueuer.Web
 
             services.AddTransient(_ => this.BotConfiguration);
 
-            services.AddHostedService<ConfigureWebhook>();
-
             services.AddHttpClient("Webhook")
                 .AddTypedClient<ITelegramBotClient>(httpClient
                     => new TelegramBotClient(BotConfiguration.AccessToken, httpClient));
