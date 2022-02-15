@@ -62,18 +62,18 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 return await botClient.SendUnsupportedOperationMessage(message);
             }
 
-            var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
-            var user = await this.userService.GetNewOrExistingUserAsync(message.From);
-            await this.chatService.AddUserToChat(user, chat);
-
             var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
             if (messageWords.Length > 1)
             {
+                var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
+                var user = await this.userService.GetNewOrExistingUserAsync(message.From);
+                await this.chatService.AddUserToChat(user, chat);
+
                 return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(
-                chat.ChatId,
+                message.Chat.Id,
                 $"To be enqueued, please write command this way: '<b>/enqueue</b> <i>queue_name position(optional)</i>'.",
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);

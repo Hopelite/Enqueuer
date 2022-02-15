@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Enqueuer.Bot.Constants;
 using Enqueuer.Bot.Configuration;
 using Enqueuer.Bot.Extensions;
 using Enqueuer.Persistence.Models;
@@ -63,18 +64,18 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 return await botClient.SendUnsupportedOperationMessage(message);
             }
 
-            var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
-            var user = await this.userService.GetNewOrExistingUserAsync(message.From);
-            await this.chatService.AddUserToChat(user, chat);
-
             var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
             if (messageWords.Length > 1)
             {
+                var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
+                var user = await this.userService.GetNewOrExistingUserAsync(message.From);
+                await this.chatService.AddUserToChat(user, chat);
+
                 return await HandleMessageWithParameters(botClient, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
+                    message.Chat.Id,
                     "To create new queue, please write command this way: '<b>/createqueue</b> <i>queue_name</i>'.",
                     ParseMode.Html);
         }
@@ -101,6 +102,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             }
 
             var queueName = messageWords.GetQueueName();
+            if (queueName.Length > MessageHandlersConstants.MaxQueueNameLength)
+            {
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    "This queue name is too long. Please, provide it with name shorter than 50 symbols."
+                );
+            }
+
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
