@@ -64,10 +64,10 @@ namespace Enqueuer.Web
             services.ConfigureServices();
             services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
             services.AddScoped<IMessageDistributor, MessageDistributor>();
-            services.AddTransient(provider => new Lazy<IMessageDistributor>(provider.GetService<IMessageDistributor>));
+            services.AddScoped(provider => new Lazy<IMessageDistributor>(provider.GetService<IMessageDistributor>));
             services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();
             services.AddScoped<ICallbackDistributor, CallbackDistributor>();
-            services.AddTransient(provider => new Lazy<ICallbackDistributor>(provider.GetService<ICallbackDistributor>));
+            services.AddScoped(provider => new Lazy<ICallbackDistributor>(provider.GetService<ICallbackDistributor>));
             services.AddScoped<IUpdateHandler, UpdateHandler>();
 
             services.AddControllers()
