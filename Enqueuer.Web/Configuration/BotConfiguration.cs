@@ -16,7 +16,6 @@ namespace Enqueuer.Web.Configuration
         {
             var botSection = configuration.GetSection(botConfigurationSectionName);
             this.AccessToken = botSection.GetRequiredSection("AccessToken").Value;
-            this.ApplicationHost = botSection.GetRequiredSection("ApplicationHost").Value;
             this.QueuesPerChat = int.Parse(botSection.GetRequiredSection("QueuesPerChat").Value);
             this.BotVersion = botSection.GetRequiredSection("BotVersion").Value;
         }

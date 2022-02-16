@@ -44,6 +44,7 @@ namespace Enqueuer.Callbacks.Factories
             return new ICallbackHandler[]
             {
                 new EnqueueMeCallbackHandler(this.chatService, this.userService, this.queueService, this.userInQueueService, this.userInQueueRepository),
+                new ViewChatsCallbackHandler(this.userService)
             };
         }
     }

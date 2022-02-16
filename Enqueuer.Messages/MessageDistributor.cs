@@ -8,6 +8,8 @@ using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Microsoft.Extensions.Logging;
+using Enqueuer.Messages.PrivateChatMessageHandlers;
+using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Messages
 {
@@ -15,6 +17,7 @@ namespace Enqueuer.Messages
     public class MessageDistributor : IMessageDistributor
     {
         private readonly SortedDictionary<string, IMessageHandler> messageHandlers;
+        private readonly SortedDictionary<string, IPrivateChatMessageHandler> privateChatMessageHandler;
         private readonly ILogger<IMessageDistributor> logger;
 
         /// <summary>
@@ -31,11 +34,16 @@ namespace Enqueuer.Messages
         /// Initializes a new instance of the <see cref="MessageDistributor"/> class and adds <see cref="IMessageHandler"/> using <paramref name="messageHandlersFactory"/>.
         /// </summary>
         /// <param name="messageHandlersFactory"><see cref="IMessageHandlersFactory"/> which provides distibutor with <see cref="IMessageHandler"/>.</param>
+        /// <param name="privateChatMessageHandlersFactory"><see cref="IPrivateChatMessageHandlersFactory"/> which provides distibutor with <see cref="IPrivateChatMessageHandler"/>.</param>
         /// <param name="logger"><see cref="ILogger"/> to log info.</param>
-        public MessageDistributor(IMessageHandlersFactory messageHandlersFactory, ILogger<IMessageDistributor> logger)
+        public MessageDistributor(IMessageHandlersFactory messageHandlersFactory, IPrivateChatMessageHandlersFactory privateChatMessageHandlersFactory, ILogger<IMessageDistributor> logger)
         {
             this.messageHandlers = new SortedDictionary<string, IMessageHandler>(
                 messageHandlersFactory
+                .CreateMessageHandlers()
+                .ToDictionary(messageHandler => messageHandler.Command));
+            this.privateChatMessageHandler = new SortedDictionary<string, IPrivateChatMessageHandler>(
+                privateChatMessageHandlersFactory
                 .CreateMessageHandlers()
                 .ToDictionary(messageHandler => messageHandler.Command));
             this.logger = logger;
@@ -56,10 +64,19 @@ namespace Enqueuer.Messages
             var command = message.Text?.SplitToWords()[0];
             if (command is not null)
             {
-                var messageHandler = this.messageHandlers.FirstOrDefault(pair => command.Contains(pair.Key));
-                if (messageHandler.Value is not null)
+                IMessageHandler messageHandler;
+                if (message.Chat.Type == ChatType.Private)
                 {
-                    var sentMessage = await messageHandler.Value.HandleMessageAsync(telegramBotClient, message);
+                    messageHandler = this.privateChatMessageHandler.FirstOrDefault(pair => command.Contains(pair.Key)).Value;
+                }
+                else
+                {
+                    messageHandler = this.messageHandlers.FirstOrDefault(pair => command.Contains(pair.Key)).Value;
+                }
+
+                if (messageHandler is not null)
+                {
+                    var sentMessage = await messageHandler.HandleMessageAsync(telegramBotClient, message);
                     this.logger.LogInformation($"Sent message '{sentMessage.Text}' to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}");
                 }
             }
