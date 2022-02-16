@@ -74,7 +74,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                $"To be enqueued, please write command this way: '<b>/enqueue</b> <i>queue_name position(optional)</i>'.",
+                $"To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.",
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
