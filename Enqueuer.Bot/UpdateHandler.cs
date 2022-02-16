@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Enqueuer.Bot.Callbacks;
-using Enqueuer.Bot.Messages;
+using Enqueuer.Callbacks;
+using Enqueuer.Messages;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
