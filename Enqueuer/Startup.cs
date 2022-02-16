@@ -1,10 +1,11 @@
 ﻿using System;
 using Enqueuer.Bot;
-using Enqueuer.Bot.Callbacks;
-using Enqueuer.Bot.Configuration;
-using Enqueuer.Bot.Factories;
-using Enqueuer.Bot.Messages;
+using Enqueuer.Callbacks;
+using Enqueuer.Callbacks.Factories;
+using Enqueuer.Messages;
+using Enqueuer.Messages.Factories;
 using Enqueuer.Persistence;
+using Enqueuer.Utilities.Configuration;
 using Enqueuer.Web.Configuration;
 using Enqueuer.Web.Extensions;
 using Microsoft.AspNetCore.Builder;
