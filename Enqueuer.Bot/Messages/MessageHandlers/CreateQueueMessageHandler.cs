@@ -76,7 +76,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     message.Chat.Id,
-                    "To create new queue, please write command this way: '<b>/createqueue</b> <i>queue_name</i>'.",
+                    "To create a new queue, please write the command this way: '<b>/createqueue</b> <i>[queue_name]</i>'.",
                     ParseMode.Html);
         }
 
@@ -86,15 +86,15 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "This chat has maximum number of queues. Please remove one using '<b>/removequeue</b>' command before adding new.",
+                    "This chat has reached its maximum number of queues. Please remove one using the '<b>/removequeue</b>' command before adding a new one.",
                     ParseMode.Html);
             }
 
             if (QueueHasNumberAtTheEnd(messageWords))
             {
                 var responceMessage = messageWords.Length > 2
-                                    ? "Unable to create queue with number at the last position of name. Please concat queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number at all."
-                                    : "Unable to create queue with only number in name. Please add some nice words.";
+                                    ? "Unable to create a queue with a number at the last position of its name. Please concat the queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number."
+                                    : "Unable to create a queue with only a number in its name. Please add some nice words.";
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     responceMessage,
@@ -106,7 +106,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "This queue name is too long. Please, provide it with name shorter than 50 symbols."
+                    "This queue name is too long. Please, provide it with a name shorter than 50 symbols."
                 );
             }
 
@@ -125,14 +125,14 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", $"/enqueueme {queue.Name}"));
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Successfully created new queue '<b>{queue.Name}</b>'!",
+                    $"Successfully created a new queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html,
                     replyMarkup: replyMarkup);
             }
 
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"This chat already has queue with name '<b>{queue.Name}</b>'. Please, use other name for this queue or delete existing one using '<b>/removequeue</b>'.",
+                    $"This chat already has a queue named '<b>{queue.Name}</b>'. Please, use some other name for this queue or delete the existing one using '<b>/removequeue</b>'.",
                     ParseMode.Html);
         }
 

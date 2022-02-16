@@ -118,7 +118,7 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
                 replyMessage.AppendLine($"• {queue.Name}");
             }
 
-            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>queue_name</i>'.");
+            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>[queue_name]</i>'.");
             return await botClient.SendTextMessageAsync(
                         chat.ChatId,
                         replyMessage.ToString(),
