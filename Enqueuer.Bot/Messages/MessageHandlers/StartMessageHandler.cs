@@ -35,9 +35,9 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         {
             return await botClient.SendTextMessageAsync(
                 message.Chat,
-                "Hello there! I'm the <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
-                + "To get list of commands, write '<b>/help</b>'.\n"
-                + "<i>Please, message this guy (@hopelite) to get help, give feedback or report bug.</i>\n"
+                "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
+                + "To get the list of commands, write '<b>/help</b>'.\n"
+                + "<i>Please, message this guy (@hopelite) to get help, give feedback or report a bug.</i>\n"
                 + $"\n<i>Bot version: {this.botConfiguration.BotVersion}</i>",
                 ParseMode.Html);
         }

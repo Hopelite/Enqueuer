@@ -23,15 +23,15 @@ namespace Enqueuer.Bot.Messages.MessageHandlers
         {
             return await botClient.SendTextMessageAsync(
                 message.Chat,
-                "There is list of available commands with short description:\n"
+                "Here is the list of available commands with short description:\n"
                 + "<b>/start</b> - get introducing message\n"
                 + "<b>/help</b> - get bot help\n"
                 + "<b>/queue</b> - list chat queues or get info about one of them\n"
                 + "<b>/createqueue</b> - create new queue\n"
-                + "<b>/enqueue</b> - add yourself to the end of the queue or specified position\n"
-                + "<b>/dequeue</b> - remove yourself from queue\n"
-                + "<b>/removequeue</b> - delete queue\n"
-                + "To get slightly more detailed info about one of them, write appopriate command.",
+                + "<b>/enqueue</b> - add yourself to the end of a queue or to a specified position\n"
+                + "<b>/dequeue</b> - remove yourself from a queue\n"
+                + "<b>/removequeue</b> - delete a queue\n"
+                + "To get slightly more detailed info about one of them, write the appopriate command.",
                 ParseMode.Html);
         }
     }
