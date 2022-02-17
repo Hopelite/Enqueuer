@@ -29,5 +29,12 @@ namespace Enqueuer.Services.Interfaces
         /// <param name="chatId">The ID of the Telegram chat whose queues to search.</param>
         /// <returns><see cref="Queue"/> with specified <paramref name="name"/> and <paramref name="chatId"/>; null if doesn't exist.</returns>
         public Queue GetChatQueueByName(string name, long chatId);
+
+        /// <summary>
+        /// Gets <see cref="Queue"/> by <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">The ID of the queue to get.</param>
+        /// <returns><see cref="Queue"/> with specified <paramref name="id"/>; null if doesn't exist.</returns>
+        public Queue GetQueueById(int id);
     }
 }

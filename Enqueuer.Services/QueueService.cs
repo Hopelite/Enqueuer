@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Collections.Generic;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
@@ -39,6 +39,12 @@ namespace Enqueuer.Services
         {
             return this.queueRepository.GetAll()
                 .Where(queue => queue.Chat.ChatId == chatId);
+        }
+
+        /// <inheritdoc/>
+        public Queue GetQueueById(int id)
+        {
+            return this.queueRepository.Get(id);
         }
     }
 }

@@ -37,7 +37,14 @@ namespace Enqueuer.Callbacks
             if (command is not null && this.callbackHandlers.TryGetValue(command, out ICallbackHandler callbackHandler))
             {
                 var sentMessage = await callbackHandler.HandleCallbackAsync(telegramBotClient, callbackQuery);
-                this.logger.LogInformation($"Sent message '{sentMessage.Text}' on user's callback to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}.");
+                if (sentMessage is null)
+                {
+                    this.logger.LogError($"Message to user with ID '{callbackQuery.Message.From.Id}' was not sent.");
+                }
+                else
+                {
+                    this.logger.LogInformation($"Sent message '{sentMessage.Text}' on user's callback to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}.");
+                }
             }
         }
     }
