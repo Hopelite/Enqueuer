@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
@@ -8,6 +9,7 @@ namespace Enqueuer.Services
     /// <inheritdoc/>
     public class UserInQueueService : IUserInQueueService
     {
+        private const int NumberOfPositions = 20;
         private readonly IRepository<UserInQueue> userInQueueRepository;
 
         /// <summary>
@@ -17,6 +19,34 @@ namespace Enqueuer.Services
         public UserInQueueService(IRepository<UserInQueue> userInQueueRepository)
         {
             this.userInQueueRepository = userInQueueRepository;
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<int> GetAvailablePositions(Queue queue)
+        {
+            var reservedPositions = this.userInQueueRepository.GetAll()
+                .Where(userInQueue => userInQueue.QueueId == queue.Id)
+                .OrderBy(userInQueue => userInQueue.Position)
+                .Select(userInQueue => userInQueue.Position)
+                .Take(NumberOfPositions)
+                .ToList();
+
+            var maxPosition = reservedPositions.Count == 0 ? NumberOfPositions : reservedPositions.Max();
+            var positionsUpToMax = Enumerable.Range(1, maxPosition);
+            
+            var availablePositions = positionsUpToMax.Except(reservedPositions)
+                .Take(NumberOfPositions)
+                .ToList();
+
+            if (availablePositions.Count < NumberOfPositions)
+            {
+                for (int i = maxPosition + 1; availablePositions.Count < NumberOfPositions; i++)
+                {
+                    availablePositions.Add(i);
+                }
+            }
+
+            return availablePositions;
         }
 
         /// <inheritdoc/>

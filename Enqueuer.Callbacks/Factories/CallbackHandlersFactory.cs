@@ -51,6 +51,8 @@ namespace Enqueuer.Callbacks.Factories
                 new GetChatCallbackHandler(this.chatService, this.logger),
                 new GetQueueCallbackHandler(this.queueService, this.userService, this.logger),
                 new ViewChatsCallbackHandler(this.userService),
+                new EnqueueCallbackHandler(queueService, userInQueueService, logger),
+                new EnqueueAtCallbackHandler(userService, queueService, userInQueueService, userInQueueRepository, logger),
             };
         }
     }

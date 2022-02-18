@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Extensions;
@@ -13,30 +11,31 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Enqueuer.Callbacks.CallbackHandlers
 {
     /// <inheritdoc/>
-    public class GetQueueCallbackHandler : ICallbackHandler
+    public class EnqueueCallbackHandler : ICallbackHandler
     {
+        private const int PositionsInRow = 4;
         private readonly IQueueService queueService;
-        private readonly IUserService userService;
+        private readonly IUserInQueueService userInQueueService;
         private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetQueueCallbackHandler"/> class.
         /// </summary>
         /// <param name="queueService">Queue service to use.</param>
-        /// <param name="userService">User service to use.</param>
+        /// <param name="userInQueueService">User in queue service to use.</param>
         /// <param name="logger">Logger to log errors.</param>
-        public GetQueueCallbackHandler(IQueueService queueService, IUserService userService, ILogger logger)
+        public EnqueueCallbackHandler(IQueueService queueService, IUserInQueueService userInQueueService, ILogger logger)
         {
             this.queueService = queueService;
-            this.userService = userService;
+            this.userInQueueService = userInQueueService;
             this.logger = logger;
         }
-
+        
         /// <inheritdoc/>
-        public string Command => "/getqueue";
+        public string Command => "/enqueue";
 
         /// <summary>
-        /// Handles incoming <paramref name="callbackQuery"/> with '/getqueue' command.
+        /// Handles incoming <paramref name="callbackQuery"/> with '/enqueue' command.
         /// </summary>
         /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="callbackQuery">Incoming <see cref="CallbackQuery"/> to handle.</param>
@@ -59,43 +58,28 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                             replyMarkup: returnButton);
                     }
 
-                    StringBuilder responceMessage;
-                    var replyMarkupButtons = new List<InlineKeyboardButton>();
-                    if (queue.Users.Count() == 0)
+                    var availablePositions = this.userInQueueService.GetAvailablePositions(queue) as List<int>;
+                    var numberOfRows = availablePositions.Count / PositionsInRow;
+                    var positionButtons = new InlineKeyboardButton[numberOfRows + 2][];
+                    positionButtons[0] = new InlineKeyboardButton[1];
+                    positionButtons[0][0] = InlineKeyboardButton.WithCallbackData("First available", $"/enqueueat {queueId}");
+                    for (int i = 1, positionIndex = 0; i < numberOfRows + 1; i++)
                     {
-                        responceMessage = new StringBuilder("This queue has no participants.");
-                    }
-                    else
-                    {
-                        responceMessage = new StringBuilder("This queue has these participants:\n");
-                        foreach (var queueParticipant in queue.Users)
+                        positionButtons[i] = new InlineKeyboardButton[PositionsInRow];
+                        for (int j = 0; j < PositionsInRow; j++, positionIndex++)
                         {
-                            responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
+                            var position = availablePositions[positionIndex];
+                            positionButtons[i][j] = InlineKeyboardButton.WithCallbackData($"{position}", $"/enqueueat {position} {queueId}");
                         }
                     }
 
-                    var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
-                    if (queue.Users.FirstOrDefault(userInQueue => userInQueue.UserId == user.Id) is not null)
-                    {
-                        replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Dequeue me", $"/dequeue {queue.Id}"));
-                    }
-                    else
-                    {
-                        replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Enqueue me", $"/enqueue {queue.Id} {chatId}"));
-                    }
-
-                    if (queue.CreatorId == user.Id)
-                    {
-                        replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Delete queue", $"/removequeue {queue.Id}"));
-                    }
-
-                    replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Return", $"/getchat {chatId}"));
+                    positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Return", $"/getqueue {queueId} {chatId}") };
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        responceMessage.ToString(),
+                        $"Select available position in queue <b>'{queue.Name}'</b>:",
                         ParseMode.Html,
-                        replyMarkup: new InlineKeyboardMarkup(replyMarkupButtons));
+                        replyMarkup: new InlineKeyboardMarkup(positionButtons));
                 }
 
                 this.logger.LogError("Invalid chat ID passed to message handler.");

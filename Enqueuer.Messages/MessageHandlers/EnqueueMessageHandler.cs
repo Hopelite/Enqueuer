@@ -115,10 +115,10 @@ namespace Enqueuer.Messages.MessageHandlers
                     }
                 }
 
-                int userPostion = queueNameAndPosition.UserPosition ?? this.userInQueueService.GetFirstAvailablePosition(queue);
+                int userPosition = queueNameAndPosition.UserPosition ?? this.userInQueueService.GetFirstAvailablePosition(queue);
                 var userInQueue = new UserInQueue()
                 {
-                    Position = userPostion,
+                    Position = userPosition,
                     UserId = user.Id,
                     QueueId = queue.Id,
                 };
@@ -126,7 +126,7 @@ namespace Enqueuer.Messages.MessageHandlers
                 await this.userInQueueRepository.AddAsync(userInQueue);
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPostion}</b>!",
+                    $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPosition}</b>!",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }

@@ -1,4 +1,5 @@
 ﻿using Enqueuer.Persistence.Models;
+using System.Collections.Generic;
 
 namespace Enqueuer.Services.Interfaces
 {
@@ -21,5 +22,12 @@ namespace Enqueuer.Services.Interfaces
         /// <param name="position">Position to check.</param>
         /// <returns>True, if <paramref name="position"/> is reserved; false otherwise.</returns>
         public bool IsPositionReserved(Queue queue, int position);
+
+        /// <summary>
+        /// Returns available positions in queue.
+        /// </summary>
+        /// <param name="queue">Queue, which positions to check.</param>
+        /// <returns>Available positions.</returns>
+        public IEnumerable<int> GetAvailablePositions(Queue queue);
     }
 }
