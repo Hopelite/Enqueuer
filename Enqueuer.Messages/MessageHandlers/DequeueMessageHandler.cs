@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Enqueuer.Messages.Extensions;
+using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
@@ -13,9 +13,7 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
-    /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/dequeue' command.
-    /// </summary>
+    /// <inheritdoc/>
     public class DequeueMessageHandler : MessageHandlerBase
     {
         private readonly IQueueService queueService;
@@ -42,12 +40,7 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <inheritdoc/>
         public override string Command => "/dequeue";
 
-        /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/dequeue' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             if (message.IsPrivateChat())

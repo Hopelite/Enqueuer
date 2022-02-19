@@ -12,9 +12,7 @@ using Chat = Enqueuer.Persistence.Models.Chat;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
-    /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/createqueue' command.
-    /// </summary>
+    /// <inheritdoc/>
     public class QueueMessageHandler : MessageHandlerBase
     {
         private readonly IQueueService queueService;
@@ -37,12 +35,7 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <inheritdoc/>
         public override string Command => "/queue";
 
-        /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/queue' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             if (message.IsPrivateChat())

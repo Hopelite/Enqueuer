@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Enqueuer.Persistence.Models;
 
-namespace Enqueuer.Messages.Extensions
+namespace Enqueuer.Persistence.Extensions
 {
     /// <summary>
     /// Contains extension methods for <see cref="User"/>.

@@ -9,9 +9,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
-    /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/start' command.
-    /// </summary>
+    /// <inheritdoc/>
     public class StartMessageHandler : IMessageHandler
     {
         private readonly IBotConfiguration botConfiguration;
@@ -30,12 +28,7 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <inheritdoc/>
         public string Command => "/start";
 
-        /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/start' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <inheritdoc/>
         public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             await this.userService.GetNewOrExistingUserAsync(message.From);

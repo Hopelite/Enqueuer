@@ -1,13 +1,9 @@
-﻿using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
+﻿using System.Threading.Tasks;
+using Enqueuer.Callbacks.Exceptions;
+using Enqueuer.Persistence.Extensions;
+using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Extensions;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -18,11 +14,10 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class EnqueueAtCallbackHandler : ICallbackHandler
     {
+        private static readonly InlineKeyboardButton ReturnButton = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
         private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
-        private readonly IRepository<UserInQueue> userInQueueRepository;
-        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetQueueCallbackHandler"/> class.
@@ -30,20 +25,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="userInQueueRepository">User in queue repository to use.</param>
-        /// <param name="logger">Logger to log errors.</param>
         public EnqueueAtCallbackHandler(
             IUserService userService,
             IQueueService queueService,
-            IUserInQueueService userInQueueService,
-            IRepository<UserInQueue> userInQueueRepository,
-            ILogger logger)
+            IUserInQueueService userInQueueService)
         {
             this.userService = userService;
             this.queueService = queueService;
             this.userInQueueService = userInQueueService;
-            this.userInQueueRepository = userInQueueRepository;
-            this.logger = logger;
         }
 
         /// <inheritdoc/>
@@ -63,85 +52,70 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 var queue = this.queueService.GetQueueById(queueId);
                 if (queue is null)
                 {
-                    var returnButton = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
                         "This queue has been deleted.",
-                        replyMarkup: returnButton);
+                        replyMarkup: ReturnButton);
                 }
 
-                var user = this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
-                if (queue.Users.Any(queueUser => queueUser.UserId == user.Id))
-                {
-                    var returnButton = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
-                    return await botClient.EditMessageTextAsync(
-                            callbackQuery.Message.Chat,
-                            callbackQuery.Message.MessageId,
-                            $"You're already participating in queue '<b>{queue.Name}</b>'. To change your position, please, dequeue yourself first.",
-                            ParseMode.Html,
-                            replyMarkup: returnButton);
-                }
-
-                if (HasSpecifiedPosition(callbackData))
-                {
-                    if (int.TryParse(callbackData[1], out var position))
-                    {
-                        if (this.userInQueueService.IsPositionReserved(queue, position))
-                        {
-                            var returnButton = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
-                            return await botClient.EditMessageTextAsync(
-                                    callbackQuery.Message.Chat,
-                                    callbackQuery.Message.MessageId,
-                                    $"Position '<b>{position}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.",
-                                    ParseMode.Html,
-                                    replyMarkup: returnButton);
-                        }
-
-                        var userInQueue = new UserInQueue()
-                        {
-                            Position = position,
-                            UserId = user.Id,
-                            QueueId = queue.Id,
-                        };
-
-                        await this.userInQueueRepository.AddAsync(userInQueue);
-                        var replyMarkup = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
-                        return await botClient.EditMessageTextAsync(
-                            callbackQuery.Message.Chat,
-                            callbackQuery.Message.MessageId,
-                            $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{position}</b>!",
-                            ParseMode.Html,
-                            replyMarkup: replyMarkup);
-                    }
-
-                    this.logger.LogError("Invalid user position passed to message handler.");
-                    return null;
-                }
-                else
-                {
-                    var firstPositionAvailable = this.userInQueueService.GetFirstAvailablePosition(queue);
-                    // Error here
-                    var userInQueue = new UserInQueue()
-                    {
-                        Position = firstPositionAvailable,
-                        UserId = user.Id,
-                        QueueId = queue.Id,
-                    };
-
-                    await this.userInQueueRepository.AddAsync(userInQueue);
-                    var replyMarkup = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
-                    return await botClient.EditMessageTextAsync(
-                        callbackQuery.Message.Chat,
-                        callbackQuery.Message.MessageId,
-                        $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{firstPositionAvailable}</b>!",
-                        ParseMode.Html,
-                        replyMarkup: replyMarkup);
-                }
+                return await HandleCallbackWithExistionQueueAsync(botClient, callbackQuery, callbackData, queue);
             }
 
-            this.logger.LogError("Invalid queue ID passed to message handler.");
-            return null;
+            throw new CallbackMessageHandlingException("Invalid queue ID passed to message handler.");
+        }
+
+        private async Task<Message> HandleCallbackWithExistionQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, string[] callbackData, Queue queue)
+        {
+            var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
+            if (user.IsParticipatingIn(queue))
+            {
+                return await botClient.EditMessageTextAsync(
+                        callbackQuery.Message.Chat,
+                        callbackQuery.Message.MessageId,
+                        $"You're already participating in queue '<b>{queue.Name}</b>'. To change your position, please, dequeue yourself first.",
+                        ParseMode.Html,
+                        replyMarkup: ReturnButton);
+            }
+
+            var (message, position) = HasSpecifiedPosition(callbackData)
+                ? this.HandleCallbackWithSpecifiedPosition(callbackData, queue)
+                : this.HandleCallbackWithoutPositionProvided(queue);
+
+            if (position.HasValue)
+            {
+                await this.userInQueueService.AddUserToQueue(user, queue, position.Value);
+            }
+
+            return await botClient.EditMessageTextAsync(
+                callbackQuery.Message.Chat,
+                callbackQuery.Message.MessageId,
+                message,
+                ParseMode.Html,
+                replyMarkup: ReturnButton);
+        }
+
+        private (string message, int? position) HandleCallbackWithSpecifiedPosition(string[] callbackData, Queue queue)
+        {
+            if (int.TryParse(callbackData[1], out var position))
+            {
+                if (this.userInQueueService.IsPositionReserved(queue, position))
+                {
+                    var notAvailableMessage = $"Position '<b>{position}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.";
+                    return (notAvailableMessage, null);
+                }
+
+                var message = $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{position}</b>!";
+                return (message, position);
+            }
+
+            throw new CallbackMessageHandlingException("Invalid user position passed to message handler.");
+        }
+
+        private (string message, int position) HandleCallbackWithoutPositionProvided(Queue queue)
+        {
+            var firstPositionAvailable = this.userInQueueService.GetFirstAvailablePosition(queue);
+            return ($"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{firstPositionAvailable}</b>!", firstPositionAvailable);
         }
 
         private bool HasSpecifiedPosition(string[] callbackData)

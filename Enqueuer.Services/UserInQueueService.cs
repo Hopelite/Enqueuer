@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
@@ -78,6 +79,19 @@ namespace Enqueuer.Services
             return this.userInQueueRepository.GetAll()
                 .Any(userInQueue => userInQueue.QueueId == queue.Id
                                  && userInQueue.Position == position);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddUserToQueue(User user, Queue queue, int position)
+        {
+            var userInQueue = new UserInQueue()
+            {
+                Position = position,
+                UserId = user.Id,
+                QueueId = queue.Id,
+            };
+
+            await this.userInQueueRepository.AddAsync(userInQueue);
         }
     }
 }

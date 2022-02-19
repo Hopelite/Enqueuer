@@ -7,6 +7,7 @@ using Enqueuer.Callbacks.CallbackHandlers;
 using Enqueuer.Utilities.Extensions;
 using Enqueuer.Callbacks.Factories;
 using Microsoft.Extensions.Logging;
+using Enqueuer.Callbacks.Exceptions;
 
 namespace Enqueuer.Callbacks
 {
@@ -36,14 +37,14 @@ namespace Enqueuer.Callbacks
             var command = callbackQuery.Data?.SplitToWords()[0];
             if (command is not null && this.callbackHandlers.TryGetValue(command, out ICallbackHandler callbackHandler))
             {
-                var sentMessage = await callbackHandler.HandleCallbackAsync(telegramBotClient, callbackQuery);
-                if (sentMessage is null)
+                try
                 {
-                    this.logger.LogError($"Message to user with ID '{callbackQuery.Message.From.Id}' was not sent.");
-                }
-                else
-                {
+                    var sentMessage = await callbackHandler.HandleCallbackAsync(telegramBotClient, callbackQuery);
                     this.logger.LogInformation($"Sent message '{sentMessage.Text}' on user's callback to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}.");
+                }
+                catch (CallbackMessageHandlingException ex)
+                {
+                    this.logger.LogError(ex, $"Message to user with ID '{callbackQuery.Message.From.Id}' was not sent.");
                 }
             }
         }
