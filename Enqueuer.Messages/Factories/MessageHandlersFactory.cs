@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Utilities.Configuration;
 
 namespace Enqueuer.Messages.Factories
@@ -51,7 +51,7 @@ namespace Enqueuer.Messages.Factories
         {
             return new IMessageHandler[]
             {
-                new StartMessageHandler(this.botConfiguration),
+                new StartMessageHandler(this.botConfiguration, this.userService),
                 new HelpMessageHandler(),
                 new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository, this.botConfiguration),
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService),

@@ -91,7 +91,7 @@ namespace Enqueuer.Tests.ServicesTests
             this.chatRepositoryMock.Setup(repository => repository.UpdateAsync(It.IsAny<Chat>()));
 
             // Act
-            await this.chatService.AddUserToChat(user, chat);
+            await this.chatService.AddUserToChatIfNotAlready(user, chat);
 
             // Assert
             Assert.IsNotNull(chat.Users.FirstOrDefault(chatUser => chatUser.UserId == user.UserId));
@@ -118,7 +118,7 @@ namespace Enqueuer.Tests.ServicesTests
             this.chatRepositoryMock.Setup(repository => repository.UpdateAsync(It.IsAny<Chat>()));
 
             // Act
-            await this.chatService.AddUserToChat(user, chat);
+            await this.chatService.AddUserToChatIfNotAlready(user, chat);
 
             // Assert
             Assert.IsNotNull(chat.Users.FirstOrDefault(chatUser => chatUser.UserId == user.UserId));

@@ -64,7 +64,6 @@ namespace Enqueuer.Web
             services.ConfigureRepositories();
             services.ConfigureServices();
             services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
-            services.AddTransient<IPrivateChatMessageHandlersFactory, PrivateChatMessageHandlersFactory>();
             services.AddScoped<IMessageDistributor, MessageDistributor>();
             services.AddScoped(provider => new Lazy<IMessageDistributor>(provider.GetService<IMessageDistributor>));
             services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();

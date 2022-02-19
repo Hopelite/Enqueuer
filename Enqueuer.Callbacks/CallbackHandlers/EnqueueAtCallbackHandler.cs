@@ -71,6 +71,18 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                         replyMarkup: returnButton);
                 }
 
+                var user = this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
+                if (queue.Users.Any(queueUser => queueUser.UserId == user.Id))
+                {
+                    var returnButton = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
+                    return await botClient.EditMessageTextAsync(
+                            callbackQuery.Message.Chat,
+                            callbackQuery.Message.MessageId,
+                            $"You're already participating in queue '<b>{queue.Name}</b>'. To change your position, please, dequeue yourself first.",
+                            ParseMode.Html,
+                            replyMarkup: returnButton);
+                }
+
                 if (HasSpecifiedPosition(callbackData))
                 {
                     if (int.TryParse(callbackData[1], out var position))
@@ -86,7 +98,6 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                                     replyMarkup: returnButton);
                         }
 
-                        var user = this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
                         var userInQueue = new UserInQueue()
                         {
                             Position = position,
@@ -111,7 +122,6 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 {
                     var firstPositionAvailable = this.userInQueueService.GetFirstAvailablePosition(queue);
                     // Error here
-                    var user = this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
                     var userInQueue = new UserInQueue()
                     {
                         Position = firstPositionAvailable,

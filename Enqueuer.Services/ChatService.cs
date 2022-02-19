@@ -35,7 +35,7 @@ namespace Enqueuer.Services
         }
 
         /// <inheritdoc/>
-        public async Task AddUserToChat(User user, Chat chat)
+        public async Task AddUserToChatIfNotAlready(User user, Chat chat)
         {
             if (chat.Users.FirstOrDefault(chatUser => chatUser.UserId == user.UserId) is null)
             {

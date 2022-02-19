@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Messages.Constants;
-using Enqueuer.Utilities.Configuration;
-using Enqueuer.Utilities.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
+using Enqueuer.Utilities.Configuration;
+using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -15,13 +14,9 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
-    /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/createqueue' command.
-    /// </summary>
-    public class CreateQueueMessageHandler : IMessageHandler
+    /// <inheritdoc/>
+    public class CreateQueueMessageHandler : MessageHandlerBase
     {
-        private readonly IChatService chatService;
-        private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IRepository<Queue> queueRepository;
         private readonly IBotConfiguration botConfiguration;
@@ -40,38 +35,29 @@ namespace Enqueuer.Messages.MessageHandlers
             IQueueService queueService,
             IRepository<Queue> queueRepository,
             IBotConfiguration botConfiguration)
+            : base(chatService, userService)
         {
-            this.chatService = chatService;
-            this.userService = userService;
             this.queueService = queueService;
             this.queueRepository = queueRepository;
             this.botConfiguration = botConfiguration;
         }
 
         /// <inheritdoc/>
-        public string Command => "/createqueue";
+        public override string Command => "/createqueue";
 
-        /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/createqueue' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
-        public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        /// <inheritdoc/>
+        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             if (message.IsPrivateChat())
             {
                 return await botClient.SendUnsupportedOperationMessage(message);
             }
 
-            var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
-            if (messageWords.Length > 1)
+            var messageWords = message.Text.SplitToWords();
+            if (messageWords.HasParameters())
             {
-                var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
-                var user = await this.userService.GetNewOrExistingUserAsync(message.From);
-                await this.chatService.AddUserToChat(user, chat);
-
-                return await HandleMessageWithParameters(botClient, messageWords, user, chat);
+                var userAndChat = await this.GetNewOrExistingUserAndChat(message);
+                return await HandleMessageWithParameters(botClient, messageWords, userAndChat.user, userAndChat.chat);
             }
 
             return await botClient.SendTextMessageAsync(
@@ -82,7 +68,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
         {
-            if (this.chatService.GetNumberOfQueues(chat.ChatId) >= this.botConfiguration.QueuesPerChat)
+            if (ChatHasMaximalNumberOfQueues(chat))
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
@@ -92,15 +78,25 @@ namespace Enqueuer.Messages.MessageHandlers
 
             if (QueueHasNumberAtTheEnd(messageWords))
             {
-                var responceMessage = messageWords.Length > 2
-                                    ? "Unable to create a queue with a number at the last position of its name. Please concat the queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number."
-                                    : "Unable to create a queue with only a number in its name. Please add some nice words.";
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    responceMessage,
-                    ParseMode.Html);
+                return await this.HandleMessageWithNumberAtTheEndInName(botClient, messageWords, chat);
             }
 
+            return await this.HandleMessageWithQueueName(botClient, messageWords, user, chat);
+        }
+
+        private async Task<Message> HandleMessageWithNumberAtTheEndInName(ITelegramBotClient botClient, string[] messageWords, Chat chat)
+        {
+            var responceMessage = messageWords.Length > 2
+                                ? "Unable to create a queue with a number at the last position of its name. Please concat the queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number."
+                                : "Unable to create a queue with only a number in its name. Please add some nice words.";
+            return await botClient.SendTextMessageAsync(
+                chat.ChatId,
+                responceMessage,
+                ParseMode.Html);
+        }
+
+        private async Task<Message> HandleMessageWithQueueName(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
+        {
             var queueName = messageWords.GetQueueName();
             if (queueName.Length > MessageHandlersConstants.MaxQueueNameLength)
             {
@@ -121,7 +117,6 @@ namespace Enqueuer.Messages.MessageHandlers
                 };
 
                 await this.queueRepository.AddAsync(queue);
-
                 var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", $"/enqueueme {queue.Name}"));
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
@@ -139,6 +134,11 @@ namespace Enqueuer.Messages.MessageHandlers
         private static bool QueueHasNumberAtTheEnd(string[] messageWords)
         {
             return int.TryParse(messageWords[^1], out int _);
+        }
+
+        private bool ChatHasMaximalNumberOfQueues(Chat chat)
+        {
+            return this.chatService.GetNumberOfQueues(chat.ChatId) >= this.botConfiguration.QueuesPerChat;
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
             var user = await this.userService.GetNewOrExistingUserAsync(telegramUser);
             var chat = this.chatService.GetChatByChatId(chatId);
-            await this.chatService.AddUserToChat(user, chat);
+            await this.chatService.AddUserToChatIfNotAlready(user, chat);
 
             var queue = this.queueService.GetChatQueueByName(queueName, chatId);
             if (queue is null)

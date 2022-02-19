@@ -5,12 +5,12 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Messages.PrivateChatMessageHandlers
+namespace Enqueuer.Messages.MessageHandlers
 {
     /// <summary>
     /// Handles incoming <see cref="Message"/> with '/start' command.
     /// </summary>
-    public class StartPrivateMessageHandler : IPrivateChatMessageHandler
+    public class StartPrivateMessageHandler : IMessageHandler
     {
         private readonly IUserService userService;
 

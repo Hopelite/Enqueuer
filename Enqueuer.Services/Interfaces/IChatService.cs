@@ -28,7 +28,7 @@ namespace Enqueuer.Services.Interfaces
         /// <param name="user"><see cref="User"/> to add into <paramref name="chat"/>.</param>
         /// <param name="chat"><see cref="Chat"/> where <paramref name="user"/> should be added.</param>
         /// <returns>Task in return.</returns>
-        public Task AddUserToChat(User user, Chat chat);
+        public Task AddUserToChatIfNotAlready(User user, Chat chat);
 
         /// <summary>
         /// Gets number of <see cref="Queue"/> is <see cref="Chat"/> with specified <paramref name="chatId"/>.

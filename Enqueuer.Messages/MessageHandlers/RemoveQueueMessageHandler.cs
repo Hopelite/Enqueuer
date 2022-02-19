@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
@@ -16,10 +15,8 @@ namespace Enqueuer.Messages.MessageHandlers
     /// <summary>
     /// Handles incoming <see cref="Message"/> with '/removequeue' command.
     /// </summary>
-    public class RemoveQueueMessageHandler : IMessageHandler
+    public class RemoveQueueMessageHandler : MessageHandlerBase
     {
-        private readonly IChatService chatService;
-        private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IRepository<Queue> queueRepository;
 
@@ -35,15 +32,14 @@ namespace Enqueuer.Messages.MessageHandlers
             IUserService userService,
             IQueueService queueService,
             IRepository<Queue> queueRepository)
+            : base(chatService, userService)
         {
-            this.chatService = chatService;
-            this.userService = userService;
             this.queueService = queueService;
             this.queueRepository = queueRepository;
         }
 
         /// <inheritdoc/>
-        public string Command => "/removequeue";
+        public override string Command => "/removequeue";
 
         /// <summary>
         /// Handles incoming <see cref="Message"/> with '/removequeue' command.
@@ -51,21 +47,18 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
         /// <returns><see cref="Message"/> which was sent in responce.</returns>
-        public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             if (message.IsPrivateChat())
             {
                 return await botClient.SendUnsupportedOperationMessage(message);
             }
 
-            var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
-            if (messageWords.Length > 1)
+            var messageWords = message.Text.SplitToWords();
+            if (messageWords.HasParameters())
             {
-                var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
-                var user = await this.userService.GetNewOrExistingUserAsync(message.From);
-                await this.chatService.AddUserToChat(user, chat);
-
-                return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
+                var userAndChat = await this.GetNewOrExistingUserAndChat(message);
+                return await HandleMessageWithParameters(botClient, message, messageWords, userAndChat.user, userAndChat.chat);
             }
 
             return await botClient.SendTextMessageAsync(
@@ -89,8 +82,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
             if (queue.Creator.UserId != user.UserId)
             {
-                var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
-                if (!admins.Any(admin => admin.User.Id == user.UserId))
+                if (!await IsUserAnAdmin(botClient, chat, user))
                 {
                     return await botClient.SendTextMessageAsync(
                                 chat.ChatId,
@@ -106,6 +98,12 @@ namespace Enqueuer.Messages.MessageHandlers
                     $"Successfully deleted queue '<b>{queueName}</b>'!",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
+        }
+
+        private async static Task<bool> IsUserAnAdmin(ITelegramBotClient botClient, Chat chat, User user)
+        {
+            var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
+            return admins.Any(admin => admin.User.Id == user.UserId);
         }
     }
 }
