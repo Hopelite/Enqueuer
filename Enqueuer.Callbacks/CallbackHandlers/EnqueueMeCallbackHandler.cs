@@ -1,12 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Enqueuer.Utilities.Extensions;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
+using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Enqueuer.Persistence.Models;
 
 namespace Enqueuer.Callbacks.CallbackHandlers
 {
@@ -18,7 +17,6 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
-        private readonly IRepository<UserInQueue> userInQueueRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnqueueMeCallbackHandler"/> class.
@@ -27,19 +25,16 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="userInQueueRepository">User in queue repository to use.</param>
         public EnqueueMeCallbackHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IUserInQueueService userInQueueService,
-            IRepository<UserInQueue> userInQueueRepository)
+            IUserInQueueService userInQueueService)
         {
             this.chatService = chatService;
             this.userService = userService;
             this.queueService = queueService;
             this.userInQueueService = userInQueueService;
-            this.userInQueueRepository = userInQueueRepository;
         }
 
         /// <inheritdoc/>
@@ -51,12 +46,8 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var callbackData = callbackQuery.Data.SplitToWords();
             var queueName = callbackData.GetQueueName(QueueNameStartIndex);
             var chatId = callbackQuery.Message.Chat.Id;
-            var telegramUser = callbackQuery.From;
 
-            var user = await this.userService.GetNewOrExistingUserAsync(telegramUser);
-            var chat = this.chatService.GetChatByChatId(chatId);
-            await this.chatService.AddUserToChatIfNotAlready(user, chat);
-
+            await this.AddUserAndChatToDBAsync(callbackQuery, chatId);
             var queue = this.queueService.GetChatQueueByName(queueName, chatId);
             if (queue is null)
             {
@@ -67,19 +58,16 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     ParseMode.Html);
             }
 
-            var userInReplyMessage = $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
+            return await this.HandleCallbackWithExistingQueueAsync(botClient, callbackQuery.From, queue, chatId);
+        }
+
+        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, Telegram.Bot.Types.User user, Queue queue, long chatId)
+        {
+            var userInReplyMessage = $"{(user.Username is null ? user.FirstName + (user.LastName is null ? string.Empty : " " + user.LastName) : "@" + user.Username)}";
             if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
             {
                 var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
-                var userInQueue = new UserInQueue()
-                {
-                    Position = positionInQueue,
-                    UserId = user.Id,
-                    QueueId = queue.Id,
-                };
-
-                await this.userInQueueRepository.AddAsync(userInQueue);
-
+                await this.userInQueueService.AddUserToQueue(user, queue, positionInQueue);
                 return await botClient.SendTextMessageAsync(
                     chatId,
                     $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>'!",
@@ -90,6 +78,13 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     chatId,
                     $"<b>{userInReplyMessage}</b>, you're already participating in queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html);
+        }
+
+        private async Task AddUserAndChatToDBAsync(CallbackQuery callbackQuery, long chatId)
+        {
+            var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
+            var chat = this.chatService.GetChatByChatId(chatId);
+            await this.chatService.AddUserToChatIfNotAlready(user, chat);
         }
     }
 }

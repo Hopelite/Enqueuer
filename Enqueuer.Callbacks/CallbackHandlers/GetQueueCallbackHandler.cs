@@ -2,13 +2,16 @@
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Enqueuer.Callbacks.Exceptions;
+using Enqueuer.Persistence.Extensions;
+using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Extensions;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Callbacks.CallbackHandlers
 {
@@ -17,19 +20,16 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     {
         private readonly IQueueService queueService;
         private readonly IUserService userService;
-        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetQueueCallbackHandler"/> class.
         /// </summary>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userService">User service to use.</param>
-        /// <param name="logger">Logger to log errors.</param>
-        public GetQueueCallbackHandler(IQueueService queueService, IUserService userService, ILogger logger)
+        public GetQueueCallbackHandler(IQueueService queueService, IUserService userService)
         {
             this.queueService = queueService;
             this.userService = userService;
-            this.logger = logger;
         }
 
         /// <inheritdoc/>
@@ -59,51 +59,68 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                             replyMarkup: returnButton);
                     }
 
-                    StringBuilder responceMessage;
-                    var replyMarkupButtons = new List<InlineKeyboardButton>();
-                    if (queue.Users.Count() == 0)
-                    {
-                        responceMessage = new StringBuilder("This queue has no participants.");
-                    }
-                    else
-                    {
-                        responceMessage = new StringBuilder("This queue has these participants:\n");
-                        foreach (var queueParticipant in queue.Users)
-                        {
-                            responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
-                        }
-                    }
-
-                    var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
-                    if (queue.Users.FirstOrDefault(userInQueue => userInQueue.UserId == user.Id) is not null)
-                    {
-                        replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Dequeue me", $"/dequeue {queue.Id}"));
-                    }
-                    else
-                    {
-                        replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Enqueue me", $"/enqueue {queue.Id} {chatId}"));
-                    }
-
-                    if (queue.CreatorId == user.Id)
-                    {
-                        replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Delete queue", $"/removequeue {queue.Id}"));
-                    }
-
-                    replyMarkupButtons.Add(InlineKeyboardButton.WithCallbackData("Return", $"/getchat {chatId}"));
-                    return await botClient.EditMessageTextAsync(
-                        callbackQuery.Message.Chat,
-                        callbackQuery.Message.MessageId,
-                        responceMessage.ToString(),
-                        ParseMode.Html,
-                        replyMarkup: new InlineKeyboardMarkup(replyMarkupButtons));
+                    return await this.HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, chatId);
                 }
 
-                this.logger.LogError("Invalid chat ID passed to message handler.");
-                return null;
+                throw new CallbackMessageHandlingException("Invalid chat ID passed to message handler.");
             }
 
-            this.logger.LogError("Invalid queue ID passed to message handler.");
-            return null;
+            throw new CallbackMessageHandlingException("Invalid queue ID passed to message handler.");
+        }
+
+        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, long chatId)
+        {
+            var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
+            var replyMarkup = BuildReplyMarkup(user, queue, chatId);
+            var responceMessage = BuildResponceMessage(queue);
+            return await botClient.EditMessageTextAsync(
+                callbackQuery.Message.Chat,
+                callbackQuery.Message.MessageId,
+                responceMessage,
+                ParseMode.Html,
+                replyMarkup: replyMarkup);
+        }
+
+        private static InlineKeyboardMarkup BuildReplyMarkup(User user, Queue queue, long chatId)
+        {
+            var replyMarkupButtons = new List<InlineKeyboardButton[]>()
+            {
+                user.IsParticipatingIn(queue)
+                ? new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Dequeue me", $"/dequeue {queue.Id}") }
+                : new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Enqueue me", $"/enqueue {queue.Id} {chatId}") }
+            };
+
+            if (IsUserQueueCreator(user, queue))
+            {
+                replyMarkupButtons.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Remove queue", $"/removequeue {queue.Id}") });
+            }
+            replyMarkupButtons.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Return", $"/getchat {chatId}") });
+
+            return new InlineKeyboardMarkup(replyMarkupButtons);
+        }
+
+        private static string BuildResponceMessage(Queue queue)
+        {
+            StringBuilder responceMessage;
+            if (queue.Users.Count() == 0)
+            {
+                responceMessage = new StringBuilder("This queue has no participants.");
+            }
+            else
+            {
+                responceMessage = new StringBuilder("This queue has these participants:\n");
+                foreach (var queueParticipant in queue.Users)
+                {
+                    responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
+                }
+            }
+
+            return responceMessage.ToString();
+        }
+
+        private static bool IsUserQueueCreator(User user, Queue queue)
+        {
+            return queue.CreatorId == user.Id;
         }
     }
 }

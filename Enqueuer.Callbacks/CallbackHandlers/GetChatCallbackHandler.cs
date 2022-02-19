@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Enqueuer.Callbacks.Exceptions;
+using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Extensions;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -12,18 +14,16 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class GetChatCallbackHandler : ICallbackHandler
     {
+        private static readonly InlineKeyboardButton ReturnButton = InlineKeyboardButton.WithCallbackData("Return", "/viewchats");
         private readonly IChatService chatService;
-        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetChatCallbackHandler"/> class.
         /// </summary>
         /// <param name="chatService">Chat service to use.</param>
-        /// <param name="logger">Logger to log errors.</param>
-        public GetChatCallbackHandler(IChatService chatService, ILogger logger)
+        public GetChatCallbackHandler(IChatService chatService)
         {
             this.chatService = chatService;
-            this.logger = logger;
         }
 
         /// <inheritdoc/>
@@ -40,18 +40,21 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var callbackData = callbackQuery.Data.SplitToWords();
             if (long.TryParse(callbackData[1], out var chatId))
             {
-                var chatQueues = this.chatService.GetChatByChatId(chatId).Queues.ToList();
+                var chatQueues = this.chatService.GetChatByChatId(chatId)?.Queues.ToList();
+                if (chatQueues is null)
+                {
+                    return await botClient.EditMessageTextAsync(
+                            callbackQuery.Message.Chat,
+                            callbackQuery.Message.MessageId,
+                            "This chat has been deleted.",
+                            replyMarkup: ReturnButton);
+                }
+
                 var responceMessage = chatQueues.Count == 0
                     ? "This chat has no queues. Are you thinking of creating one?"
                     : "This chat has these queues. You can manage any one of them be selecting it.";
 
-                var replyMarkup = new InlineKeyboardButton[chatQueues.Count + 1];
-                for (int i = 0; i < chatQueues.Count; i++)
-                {
-                    replyMarkup[i] = InlineKeyboardButton.WithCallbackData(chatQueues[i].Name, $"/getqueue {chatQueues[i].Id} {chatId}");
-                }
-                
-                replyMarkup[^1] = InlineKeyboardButton.WithCallbackData("Return", "/viewchats");
+                var replyMarkup = BuildReplyMarkup(chatQueues, chatId);
                 return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
@@ -59,8 +62,19 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                         replyMarkup: replyMarkup);
             }
 
-            this.logger.LogError("Invalid chat ID passed to message handler.");
-            return null;
+            throw new CallbackMessageHandlingException("Invalid chat ID passed to message handler.");
+        }
+
+        private static InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, long chatId)
+        {
+            var replyButtons = new InlineKeyboardButton[chatQueues.Count + 1][];
+            for (int i = 0; i < chatQueues.Count; i++)
+            {
+                replyButtons[i] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData($"'{chatQueues[i].Name}'", $"/getqueue {chatQueues[i].Id} {chatId}") };
+            }
+
+            replyButtons[^1] = new InlineKeyboardButton[] { ReturnButton };
+            return new InlineKeyboardMarkup(replyButtons);
         }
     }
 }
