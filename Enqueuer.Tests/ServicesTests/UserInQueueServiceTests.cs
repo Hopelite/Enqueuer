@@ -12,6 +12,7 @@ namespace Enqueuer.Tests.ServicesTests
     [TestFixture]
     public class UserInQueueServiceTests
     {
+        private const int NumberOfPositions = 20;
         private readonly Mock<IRepository<UserInQueue>> userInQueueRepositoryMock;
         private readonly IUserInQueueService userInQueueService;
 
@@ -125,6 +126,139 @@ namespace Enqueuer.Tests.ServicesTests
 
             // Assert
             Assert.IsTrue(actual);
+        }
+
+        [Test]
+        public void UserInQueueServiceTests_GetAvailablePositions_AllPositionsAvailable()
+        {
+            // Arrange
+            var queue = new Queue() { Id = 1 };
+            var usersInQueues = Enumerable.Empty<UserInQueue>();
+            var expected = Enumerable.Range(1, NumberOfPositions);
+
+            this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(usersInQueues.AsQueryable());
+
+            // Act
+            var actual = this.userInQueueService.GetAvailablePositions(queue);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void UserInQueueServiceTests_GetAvailablePositions_FirstTwentyPositionsReserved()
+        {
+            // Arrange
+            var queue = new Queue() { Id = 1 };
+            var usersInQueues = GenerateUsersInQueue(NumberOfPositions, queue.Id);
+            var expected = Enumerable.Range(NumberOfPositions + 1, NumberOfPositions);
+
+            this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(usersInQueues.AsQueryable());
+
+            // Act
+            var actual = this.userInQueueService.GetAvailablePositions(queue);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void UserInQueueServiceTests_GetAvailablePositions_FirstFortyPositionsReserved()
+        {
+            // Arrange
+            var queue = new Queue() { Id = 1 };
+            var usersInQueues = GenerateUsersInQueue(NumberOfPositions * 2, queue.Id);
+            var expected = Enumerable.Range(NumberOfPositions * 2 + 1, NumberOfPositions);
+
+            this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(usersInQueues.AsQueryable());
+
+            // Act
+            var actual = this.userInQueueService.GetAvailablePositions(queue);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void UserInQueueServiceTests_GetAvailablePositions_SomePositionsInFirstTwentyReserved()
+        {
+            // Arrange
+            var queue = new Queue() { Id = 1 };
+            var usersInQueues = new UserInQueue[]
+            {
+                new UserInQueue() { Position = 4, QueueId = queue.Id },
+                new UserInQueue() { Position = 7, QueueId = queue.Id },
+            };
+
+            var expected = GenerateAvailablePositions(usersInQueues);
+
+            this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(usersInQueues.AsQueryable());
+
+            // Act
+            var actual = this.userInQueueService.GetAvailablePositions(queue);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+
+        [Test]
+        public void UserInQueueServiceTests_GetAvailablePositions_AllPositionsInFirstTwentyAndSomeInTheNextAreReserved()
+        {
+            // Arrange
+            var queue = new Queue() { Id = 1 };
+            var extraUsers = new UserInQueue[]
+            {
+                new UserInQueue() { Position = 22, QueueId = queue.Id },
+                new UserInQueue() { Position = 34, QueueId = queue.Id },
+            };
+
+            var usersInQueues = GenerateUsersInQueue(NumberOfPositions, queue.Id).ToList();
+            usersInQueues.AddRange(extraUsers);
+
+            var expected = GenerateAvailablePositions(usersInQueues);
+
+            this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(usersInQueues.AsQueryable());
+
+            // Act
+            var actual = this.userInQueueService.GetAvailablePositions(queue);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        private static List<int> GenerateAvailablePositions(IEnumerable<UserInQueue> usersInQueues)
+        {
+            var result = new List<int>(NumberOfPositions);
+            int startPosition = 1;
+            foreach (var user in usersInQueues.OrderBy(userInQueue => userInQueue.Position))
+            {
+                result.AddRange(Enumerable.Range(startPosition, user.Position - startPosition));
+                startPosition = user.Position + 1;
+            }
+
+            if (result.Count < NumberOfPositions)
+            {
+                result.AddRange(Enumerable.Range(startPosition, NumberOfPositions - result.Count));
+            }
+
+            return result;
+        }
+
+        private static IEnumerable<UserInQueue> GenerateUsersInQueue(int numberOfUsers, int queueId)
+        {
+            var usersInQueue = new UserInQueue[numberOfUsers];
+            for (int i = 0; i < numberOfUsers; i++)
+            {
+                usersInQueue[i] = new UserInQueue() { Position = i + 1, QueueId = queueId };
+            }
+
+            return usersInQueue;
         }
     }
 }

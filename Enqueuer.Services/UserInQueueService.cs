@@ -25,19 +25,8 @@ namespace Enqueuer.Services
         /// <inheritdoc/>
         public IEnumerable<int> GetAvailablePositions(Queue queue)
         {
-            var reservedPositions = this.userInQueueRepository.GetAll()
-                .Where(userInQueue => userInQueue.QueueId == queue.Id)
-                .OrderBy(userInQueue => userInQueue.Position)
-                .Select(userInQueue => userInQueue.Position)
-                .Take(NumberOfPositions)
-                .ToList();
-
-            var maxPosition = reservedPositions.Count == 0 ? NumberOfPositions : reservedPositions.Max();
-            var positionsUpToMax = Enumerable.Range(1, maxPosition);
-            
-            var availablePositions = positionsUpToMax.Except(reservedPositions)
-                .Take(NumberOfPositions)
-                .ToList();
+            var maxPosition = this.GetMaxPositionInQueue(queue);
+            var availablePositions = this.GetAvailablePositions(queue, maxPosition);
 
             if (availablePositions.Count < NumberOfPositions)
             {
@@ -48,6 +37,31 @@ namespace Enqueuer.Services
             }
 
             return availablePositions;
+        }
+
+        private int GetMaxPositionInQueue(Queue queue)
+        {
+            int? maxPosition = this.userInQueueRepository.GetAll()
+                .Where(userInQueue => userInQueue.QueueId == queue.Id)
+                .Select(userInQueue => userInQueue.Position)
+                .DefaultIfEmpty()
+                .Max(userInQueue => userInQueue);
+
+            return maxPosition ?? NumberOfPositions;
+        }
+
+        private List<int> GetAvailablePositions(Queue queue, int maxPosition)
+        {
+            // TODO: optimize the algorithm
+            var positionsToSearchIn = Enumerable.Range(1, maxPosition);
+            var postionsReserved = this.userInQueueRepository.GetAll()
+                .Where(userInQueue => userInQueue.QueueId == queue.Id)
+                .OrderBy(userInQueue => userInQueue.Position)
+                .Select(userInQueue => userInQueue.Position);
+
+            return positionsToSearchIn
+                .Except(postionsReserved)
+                .Take(NumberOfPositions).ToList();
         }
 
         /// <inheritdoc/>
