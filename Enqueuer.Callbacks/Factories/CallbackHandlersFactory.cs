@@ -42,6 +42,8 @@ namespace Enqueuer.Callbacks.Factories
                 new ViewChatsCallbackHandler(this.userService),
                 new EnqueueCallbackHandler(this.queueService, this.userInQueueService),
                 new EnqueueAtCallbackHandler(this.userService, this.queueService, this.userInQueueService),
+                new DequeueMeCallbackHandler(this.userService, this.queueService),
+                new RemoveQueueCallbackHandler(this.queueService),
             };
         }
     }

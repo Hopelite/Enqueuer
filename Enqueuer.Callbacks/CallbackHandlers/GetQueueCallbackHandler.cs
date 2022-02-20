@@ -35,12 +35,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <inheritdoc/>
         public string Command => "/getqueue";
 
-        /// <summary>
-        /// Handles incoming <paramref name="callbackQuery"/> with '/getqueue' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="callbackQuery">Incoming <see cref="CallbackQuery"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <inheritdoc/>
         public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             var callbackData = callbackQuery.Data.SplitToWords();
@@ -86,7 +81,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var replyMarkupButtons = new List<InlineKeyboardButton[]>()
             {
                 user.IsParticipatingIn(queue)
-                ? new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Dequeue me", $"/dequeue {queue.Id}") }
+                ? new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Dequeue me", $"/dequeueme {queue.Id}") }
                 : new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Enqueue me", $"/enqueue {queue.Id} {chatId}") }
             };
 

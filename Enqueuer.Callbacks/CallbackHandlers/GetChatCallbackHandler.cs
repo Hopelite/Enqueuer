@@ -29,12 +29,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <inheritdoc/>
         public string Command => "/getchat";
 
-        /// <summary>
-        /// Handles incoming <paramref name="callbackQuery"/> with '/getchat' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="callbackQuery">Incoming <see cref="CallbackQuery"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <inheritdoc/>
         public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             var callbackData = callbackQuery.Data.SplitToWords();

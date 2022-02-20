@@ -1,8 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Persistence.Extensions;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
@@ -17,7 +14,6 @@ namespace Enqueuer.Messages.MessageHandlers
     public class DequeueMessageHandler : MessageHandlerBase
     {
         private readonly IQueueService queueService;
-        private readonly IRepository<Queue> queueRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DequeueMessageHandler"/> class.
@@ -25,16 +21,13 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
-        /// <param name="queueRepository">Queue repository to use.</param>
         public DequeueMessageHandler(
             IChatService chatService,
             IUserService userService,
-            IQueueService queueService,
-            IRepository<Queue> queueRepository)
+            IQueueService queueService)
             : base(chatService, userService)
         {
             this.queueService = queueService;
-            this.queueRepository = queueRepository;
         }
 
         /// <inheritdoc/>
@@ -77,10 +70,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
             if (user.IsParticipatingIn(queue))
             {
-                var userToRemove = queue.Users.First(queueUser => queueUser.UserId == user.Id);
-                queue.Users.Remove(userToRemove);
-                await this.queueRepository.UpdateAsync(queue);
-
+                await this.queueService.RemoveUserAsync(queue, user);
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully removed from queue '<b>{queue.Name}</b>'!",

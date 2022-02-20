@@ -1,7 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
@@ -16,7 +14,6 @@ namespace Enqueuer.Messages.MessageHandlers
     public class RemoveQueueMessageHandler : MessageHandlerBase
     {
         private readonly IQueueService queueService;
-        private readonly IRepository<Queue> queueRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RemoveQueueMessageHandler"/> class.
@@ -24,16 +21,13 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
-        /// <param name="queueRepository">Queue repository to use.</param>
         public RemoveQueueMessageHandler(
             IChatService chatService,
             IUserService userService,
-            IQueueService queueService,
-            IRepository<Queue> queueRepository)
+            IQueueService queueService)
             : base(chatService, userService)
         {
             this.queueService = queueService;
-            this.queueRepository = queueRepository;
         }
 
         /// <inheritdoc/>
@@ -85,7 +79,7 @@ namespace Enqueuer.Messages.MessageHandlers
                 }
             }
 
-            await this.queueRepository.DeleteAsync(queue);
+            await this.queueService.DeleteQueueAsync(queue);
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully deleted queue '<b>{queueName}</b>'!",

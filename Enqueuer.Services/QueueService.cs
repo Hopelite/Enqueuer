@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace Enqueuer.Services
 {
@@ -45,6 +46,23 @@ namespace Enqueuer.Services
         public Queue GetQueueById(int id)
         {
             return this.queueRepository.Get(id);
+        }
+
+        /// <inheritdoc/>
+        public async Task RemoveUserAsync(Queue queue, User user)
+        {
+            var userToRemove = queue.Users.First(queueUser => queueUser.UserId == user.Id);
+            if (userToRemove is not null)
+            {
+                queue.Users.Remove(userToRemove);
+                await this.queueRepository.UpdateAsync(queue);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteQueueAsync(Queue queue)
+        {
+            await this.queueRepository.DeleteAsync(queue);
         }
     }
 }

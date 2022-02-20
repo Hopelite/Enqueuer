@@ -26,12 +26,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <inheritdoc/>
         public string Command => "/viewchats";
 
-        /// <summary>
-        /// Handles incoming <paramref name="callbackQuery"/> with '/viewchats' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="callbackQuery">Incoming <see cref="CallbackQuery"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <inheritdoc/>
         public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             var chats = this.userService.GetUserChats(callbackQuery.From.Id).ToArray();
@@ -47,19 +42,24 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         {
             var buttonsAtTheLastRow = chats.Length % MaxChatsPerRow;
             var rowsTotal = chats.Length / MaxChatsPerRow + buttonsAtTheLastRow;
+            var chatsIndex = 0;
+
             var replyButtons = new InlineKeyboardButton[rowsTotal][];
-            var chatIndex = 0;
             for (int i = 0; i < rowsTotal - 1; i++)
             {
                 replyButtons[i] = new InlineKeyboardButton[MaxChatsPerRow];
-                AddButtonsRow(replyButtons, i, MaxChatsPerRow, chats, ref chatIndex);
+                AddButtonsRow(replyButtons, i, MaxChatsPerRow, chats, ref chatsIndex);
             }
 
-            var temp = buttonsAtTheLastRow == 0 ? MaxChatsPerRow : buttonsAtTheLastRow;
-            replyButtons[^1] = new InlineKeyboardButton[temp];
-            AddButtonsRow(replyButtons, rowsTotal - 1, temp, chats, ref chatIndex);
-
+            AddLastButtonsRow(replyButtons, rowsTotal, buttonsAtTheLastRow, chats, chatsIndex);
             return new InlineKeyboardMarkup(replyButtons);
+        }
+
+        private static void AddLastButtonsRow(InlineKeyboardButton[][] replyButtons, int rowsTotal, int buttonsAtTheLastRow, Chat[] chats, int chatsIndex)
+        {
+            buttonsAtTheLastRow = buttonsAtTheLastRow == 0 ? MaxChatsPerRow : buttonsAtTheLastRow;
+            replyButtons[^1] = new InlineKeyboardButton[buttonsAtTheLastRow];
+            AddButtonsRow(replyButtons, rowsTotal - 1, buttonsAtTheLastRow, chats, ref chatsIndex);
         }
 
         private static void AddButtonsRow(InlineKeyboardButton[][] replyButtons, int row, int rowLength, Chat[] chats, ref int chatIndex)
