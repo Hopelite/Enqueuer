@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services;
@@ -193,7 +194,7 @@ namespace Enqueuer.Tests.ServicesTests
                 new UserInQueue() { Position = 7, QueueId = queue.Id },
             };
 
-            var expected = GenerateAvailablePositions(usersInQueues);
+            var expected = GenerateAvailablePositions(usersInQueues, NumberOfPositions);
 
             this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
                 .Returns(usersInQueues.AsQueryable());
@@ -204,23 +205,22 @@ namespace Enqueuer.Tests.ServicesTests
             // Assert
             Assert.AreEqual(expected, actual);
         }
-
 
         [Test]
         public void UserInQueueServiceTests_GetAvailablePositions_AllPositionsInFirstTwentyAndSomeInTheNextAreReserved()
         {
             // Arrange
             var queue = new Queue() { Id = 1 };
-            var extraUsers = new UserInQueue[]
+            var extraReservedPositions = new UserInQueue[]
             {
                 new UserInQueue() { Position = 22, QueueId = queue.Id },
                 new UserInQueue() { Position = 34, QueueId = queue.Id },
             };
 
             var usersInQueues = GenerateUsersInQueue(NumberOfPositions, queue.Id).ToList();
-            usersInQueues.AddRange(extraUsers);
+            usersInQueues.AddRange(extraReservedPositions);
 
-            var expected = GenerateAvailablePositions(usersInQueues);
+            var expected = GenerateAvailablePositions(usersInQueues, NumberOfPositions);
 
             this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
                 .Returns(usersInQueues.AsQueryable());
@@ -232,7 +232,51 @@ namespace Enqueuer.Tests.ServicesTests
             Assert.AreEqual(expected, actual);
         }
 
-        private static List<int> GenerateAvailablePositions(IEnumerable<UserInQueue> usersInQueues)
+        [Test]
+        public void UserInQueueServiceTests_GetAvailablePositions_SomePositionsInFirstTwentyAndSomeInTheNextAreReserved()
+        {
+            // Arrange
+            var queue = new Queue() { Id = 1 };
+            var reservedPositions = new UserInQueue[]
+            {
+                new UserInQueue() { Position = 1, QueueId = queue.Id },
+                new UserInQueue() { Position = 4, QueueId = queue.Id },
+                new UserInQueue() { Position = 5, QueueId = queue.Id },
+                new UserInQueue() { Position = 11, QueueId = queue.Id },
+                new UserInQueue() { Position = 22, QueueId = queue.Id },
+                new UserInQueue() { Position = 34, QueueId = queue.Id },
+            };
+
+            var expected = GenerateAvailablePositions(reservedPositions, NumberOfPositions);
+
+            this.userInQueueRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(reservedPositions.AsQueryable());
+
+            // Act
+            var actual = this.userInQueueService.GetAvailablePositions(queue);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public async Task UserInQueueServiceTests_AddUserToQueue_AddsUserToQueue()
+        {
+            // Arrange
+            var queue = new Queue() { Id = 1 };
+            var user = new User() { Id = 1 };
+            const int position = 1;
+
+            this.userInQueueRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<UserInQueue>()));
+
+            // Act
+            await this.userInQueueService.AddUserToQueue(user, queue, position);
+
+            // Assert
+            this.userInQueueRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<UserInQueue>()), Times.Once());
+        }
+
+        private static List<int> GenerateAvailablePositions(IEnumerable<UserInQueue> usersInQueues, int positionsToGet)
         {
             var result = new List<int>(NumberOfPositions);
             int startPosition = 1;
@@ -247,7 +291,7 @@ namespace Enqueuer.Tests.ServicesTests
                 result.AddRange(Enumerable.Range(startPosition, NumberOfPositions - result.Count));
             }
 
-            return result;
+            return result.Take(positionsToGet).ToList();
         }
 
         private static IEnumerable<UserInQueue> GenerateUsersInQueue(int numberOfUsers, int queueId)

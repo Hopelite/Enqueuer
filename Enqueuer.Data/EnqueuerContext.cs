@@ -38,11 +38,5 @@ namespace Enqueuer.Persistence
             optionsBuilder.UseLazyLoadingProxies();
             base.OnConfiguring(optionsBuilder);
         }
-
-        /////  <inheritdoc/>
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    base.OnModelCreating(modelBuilder);
-        //}
     }
 }

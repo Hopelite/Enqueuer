@@ -51,7 +51,7 @@ namespace Enqueuer.Services
         /// <inheritdoc/>
         public async Task RemoveUserAsync(Queue queue, User user)
         {
-            var userToRemove = queue.Users.First(queueUser => queueUser.UserId == user.Id);
+            var userToRemove = queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
             if (userToRemove is not null)
             {
                 queue.Users.Remove(userToRemove);
