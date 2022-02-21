@@ -51,7 +51,7 @@ namespace Enqueuer.Messages.Factories
         {
             return new IMessageHandler[]
             {
-                new StartMessageHandler(this.botConfiguration, this.userService),
+                new StartMessageHandler(this.botConfiguration, this.chatService, this.userService),
                 new HelpMessageHandler(),
                 new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository, this.botConfiguration),
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService),

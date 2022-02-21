@@ -18,6 +18,7 @@ namespace Enqueuer.Web.Configuration
             this.AccessToken = botSection.GetRequiredSection("AccessToken").Value;
             this.QueuesPerChat = int.Parse(botSection.GetRequiredSection("QueuesPerChat").Value);
             this.BotVersion = botSection.GetRequiredSection("BotVersion").Value;
+            this.DevelomentChatId = long.Parse(botSection.GetRequiredSection("DevelomentChatId").Value);
         }
 
         /// <inheritdoc/>
@@ -31,5 +32,8 @@ namespace Enqueuer.Web.Configuration
 
         /// <inheritdoc/>
         public string BotVersion { get; set; }
+
+        /// <inheritdoc/>
+        public long DevelomentChatId { get; set; }
     }
 }

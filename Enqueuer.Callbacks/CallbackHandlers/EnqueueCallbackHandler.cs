@@ -67,7 +67,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                $"Select available position in queue <b>'{queue.Name}'</b>:",
+                $"Select an available position in queue <b>'{queue.Name}'</b>:",
                 ParseMode.Html,
                 replyMarkup: replyButtons);
         }
@@ -77,14 +77,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var numberOfRows = availablePositions.Count / PositionsInRow;
             var positionButtons = new InlineKeyboardButton[numberOfRows + 2][];
 
-            positionButtons[0] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("First available", $"/enqueueat {queueId}") };
-            AddPositionButtons(availablePositions, positionButtons, numberOfRows, queueId);
+            positionButtons[0] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("First available", $"/enqueueat {queueId} {chatId}") };
+            AddPositionButtons(availablePositions, positionButtons, numberOfRows, queueId, chatId);
             positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Return", $"/getqueue {queueId} {chatId}") };
 
             return new InlineKeyboardMarkup(positionButtons);
         }
 
-        private static void AddPositionButtons(List<int> availablePositions, InlineKeyboardButton[][] positionButtons, int numberOfRows, int queueId)
+        private static void AddPositionButtons(List<int> availablePositions, InlineKeyboardButton[][] positionButtons, int numberOfRows, int queueId, long chatId)
         {
             for (int i = 1, positionIndex = 0; i < numberOfRows + 1; i++)
             {
@@ -92,7 +92,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 for (int j = 0; j < PositionsInRow; j++, positionIndex++)
                 {
                     var position = availablePositions[positionIndex];
-                    positionButtons[i][j] = InlineKeyboardButton.WithCallbackData($"{position}", $"/enqueueat {position} {queueId}");
+                    positionButtons[i][j] = InlineKeyboardButton.WithCallbackData($"{position}", $"/enqueueat {queueId} {chatId} {position}");
                 }
             }
         }

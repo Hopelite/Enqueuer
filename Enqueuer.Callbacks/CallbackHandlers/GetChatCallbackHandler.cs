@@ -7,6 +7,7 @@ using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Callbacks.CallbackHandlers
@@ -14,6 +15,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class GetChatCallbackHandler : ICallbackHandler
     {
+        const string UnableToCreateQueueMessage = "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>";
         private static readonly InlineKeyboardButton ReturnButton = InlineKeyboardButton.WithCallbackData("Return", "/viewchats");
         private readonly IChatService chatService;
 
@@ -45,15 +47,17 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                             replyMarkup: ReturnButton);
                 }
 
-                var responceMessage = chatQueues.Count == 0
+                var responceMessage = (chatQueues.Count == 0
                     ? "This chat has no queues. Are you thinking of creating one?"
-                    : "This chat has these queues. You can manage any one of them be selecting it.";
+                    : "This chat has these queues. You can manage any one of them be selecting it.")
+                    + UnableToCreateQueueMessage;
 
                 var replyMarkup = BuildReplyMarkup(chatQueues, chatId);
                 return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
                         responceMessage,
+                        ParseMode.Html,
                         replyMarkup: replyMarkup);
             }
 

@@ -10,28 +10,29 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Enqueuer.Messages.MessageHandlers
 {
     /// <inheritdoc/>
-    public class StartMessageHandler : IMessageHandler
+    public class StartMessageHandler : MessageHandlerBase
     {
         private readonly IBotConfiguration botConfiguration;
-        private readonly IUserService userService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StartMessageHandler"/> class.
         /// </summary>
+        /// <param name="chatService">Chat service to use.</param>
+        /// <param name="userService">User service to use.</param>
         /// <param name="configuration"><see cref="IBotConfiguration"/> with bot configuration.</param>
-        public StartMessageHandler(IBotConfiguration botConfiguration, IUserService userService)
+        public StartMessageHandler(IBotConfiguration botConfiguration, IChatService chatService, IUserService userService)
+            : base(chatService, userService)
         {
             this.botConfiguration = botConfiguration;
-            this.userService = userService;
         }
 
         /// <inheritdoc/>
-        public string Command => "/start";
+        public override string Command => "/start";
 
         /// <inheritdoc/>
-        public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
-            await this.userService.GetNewOrExistingUserAsync(message.From);
+            await this.GetNewOrExistingUserAndChat(message);
             if (message.IsPrivateChat())
             {
                 var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]

@@ -81,13 +81,13 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var replyMarkupButtons = new List<InlineKeyboardButton[]>()
             {
                 user.IsParticipatingIn(queue)
-                ? new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Dequeue me", $"/dequeueme {queue.Id}") }
+                ? new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Dequeue me", $"/dequeueme {queue.Id} {chatId}") }
                 : new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Enqueue me", $"/enqueue {queue.Id} {chatId}") }
             };
 
             if (IsUserQueueCreator(user, queue))
             {
-                replyMarkupButtons.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Remove queue", $"/removequeue {queue.Id}") });
+                replyMarkupButtons.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Remove queue", $"/removequeue {queue.Id} {chatId}") });
             }
             replyMarkupButtons.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Return", $"/getchat {chatId}") });
 
@@ -99,11 +99,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             StringBuilder responceMessage;
             if (queue.Users.Count() == 0)
             {
-                responceMessage = new StringBuilder("This queue has no participants.");
+                responceMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has no participants.");
             }
             else
             {
-                responceMessage = new StringBuilder("This queue has these participants:\n");
+                responceMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has these participants:\n");
                 foreach (var queueParticipant in queue.Users)
                 {
                     responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");

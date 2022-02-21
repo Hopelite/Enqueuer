@@ -14,7 +14,6 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class EnqueueAtCallbackHandler : ICallbackHandler
     {
-        private static readonly InlineKeyboardButton ReturnButton = InlineKeyboardButton.WithCallbackData("Return", $"/viewchats");
         private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
@@ -47,25 +46,30 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             var callbackData = callbackQuery.Data.SplitToWords();
-            if (int.TryParse(callbackData[^1], out var queueId))
+            if (int.TryParse(callbackData[1], out var queueId))
             {
-                var queue = this.queueService.GetQueueById(queueId);
-                if (queue is null)
+                if (long.TryParse(callbackData[2], out var chatId))
                 {
-                    return await botClient.EditMessageTextAsync(
-                        callbackQuery.Message.Chat,
-                        callbackQuery.Message.MessageId,
-                        "This queue has been deleted.",
-                        replyMarkup: ReturnButton);
+                    var queue = this.queueService.GetQueueById(queueId);
+                    if (queue is null)
+                    {
+                        return await botClient.EditMessageTextAsync(
+                            callbackQuery.Message.Chat,
+                            callbackQuery.Message.MessageId,
+                            "This queue has been deleted.",
+                            replyMarkup: InlineKeyboardButton.WithCallbackData("Return", $"/getchat {chatId}"));
+                    }
+
+                    return await HandleCallbackWithExistionQueueAsync(botClient, callbackQuery, callbackData, queue, chatId);
                 }
 
-                return await HandleCallbackWithExistionQueueAsync(botClient, callbackQuery, callbackData, queue);
+                throw new CallbackMessageHandlingException("Invalid chat ID passed to message handler.");
             }
 
             throw new CallbackMessageHandlingException("Invalid queue ID passed to message handler.");
         }
 
-        private async Task<Message> HandleCallbackWithExistionQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, string[] callbackData, Queue queue)
+        private async Task<Message> HandleCallbackWithExistionQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, string[] callbackData, Queue queue, long chatId)
         {
             var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
             if (user.IsParticipatingIn(queue))
@@ -75,7 +79,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                         callbackQuery.Message.MessageId,
                         $"You're already participating in queue '<b>{queue.Name}</b>'. To change your position, please, dequeue yourself first.",
                         ParseMode.Html,
-                        replyMarkup: ReturnButton);
+                        replyMarkup: GetReturnButton(queue.Id, chatId));
             }
 
             var (message, position) = HasSpecifiedPosition(callbackData)
@@ -92,12 +96,17 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 callbackQuery.Message.MessageId,
                 message,
                 ParseMode.Html,
-                replyMarkup: ReturnButton);
+                replyMarkup: GetReturnButton(queue.Id, chatId));
+        }
+
+        private static InlineKeyboardButton GetReturnButton(int queueId, long chatId)
+        {
+            return InlineKeyboardButton.WithCallbackData("Return", $"/getqueue {queueId} {chatId}");
         }
 
         private (string message, int? position) HandleCallbackWithSpecifiedPosition(string[] callbackData, Queue queue)
         {
-            if (int.TryParse(callbackData[1], out var position))
+            if (int.TryParse(callbackData[3], out var position))
             {
                 if (this.userInQueueService.IsPositionReserved(queue, position))
                 {
@@ -120,7 +129,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private bool HasSpecifiedPosition(string[] callbackData)
         {
-            return callbackData.Length == 3;
+            return callbackData.Length == 4;
         }
     }
 }

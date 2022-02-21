@@ -117,7 +117,7 @@ namespace Enqueuer.Messages.MessageHandlers
                 };
 
                 await this.queueRepository.AddAsync(queue);
-                var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", $"/enqueueme {queue.Name}"));
+                var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", $"/enqueueme {queue.Id}"));
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully created a new queue '<b>{queue.Name}</b>'!",
