@@ -1,18 +1,20 @@
 ﻿using System.Threading.Tasks;
+using Enqueuer.Data;
+using Enqueuer.Data.Constants;
+using Enqueuer.Data.DataSerialization;
+using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Exceptions;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Callbacks.CallbackHandlers
 {
     /// <inheritdoc/>
-    public class DequeueMeCallbackHandler : ICallbackHandler
+    public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
     {
         private readonly IUserService userService;
         private readonly IQueueService queueService;
@@ -22,67 +24,60 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// </summary>
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
-        public DequeueMeCallbackHandler(IUserService userService, IQueueService queueService)
+        /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
+        public DequeueMeCallbackHandler(IUserService userService, IQueueService queueService, IDataSerializer dataSerializer)
+            : base(dataSerializer)
         {
             this.userService = userService;
             this.queueService = queueService;
         }
 
         /// <inheritdoc/>
-        public string Command => "/dequeueme";
+        public override string Command => CallbackConstants.DequeueMeCommand;
 
         /// <inheritdoc/>
-        public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
-            var callbackData = callbackQuery.Data.SplitToWords();
-            if (int.TryParse(callbackData[1], out var queueId))
+            if (callbackData.QueueData is not null)
             {
-                if (long.TryParse(callbackData[2], out var chatId))
+                var queue = this.queueService.GetQueueById(callbackData.QueueData.QueueId);
+                if (queue is null)
                 {
-                    var queue = this.queueService.GetQueueById(queueId);
-                    if (queue is null)
-                    {
-                        return await botClient.EditMessageTextAsync(
-                            callbackQuery.Message.Chat,
-                            callbackQuery.Message.MessageId,
-                            "This queue has been deleted.",
-                            replyMarkup: InlineKeyboardButton.WithCallbackData("Return", $"/getchat {chatId}"));
-                    }
-
-                    return await this.HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, chatId);
+                    var returnButton = this.GetReturnToChatButton(callbackData);
+                    return await botClient.EditMessageTextAsync(
+                        callbackQuery.Message.Chat,
+                        callbackQuery.Message.MessageId,
+                        "This queue has been deleted.",
+                        replyMarkup: returnButton);
                 }
 
-                throw new CallbackMessageHandlingException("Invalid chat ID passed to message handler.");
+                return await this.HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, callbackData);
             }
 
-            throw new CallbackMessageHandlingException("Invalid queue ID passed to message handler.");
+            throw new CallbackMessageHandlingException("Null queue data passed to callback handler.");
         }
 
-        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, long chatId)
+        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
             var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
+            string responseMessage;
             if (user.IsParticipatingIn(queue))
             {
                 await this.queueService.RemoveUserAsync(queue, user);
-                return await botClient.EditMessageTextAsync(
-                    callbackQuery.Message.Chat,
-                    callbackQuery.Message.MessageId,
-                    $"Successfully removed from the '<b>{queue.Name}</b>' queue!",
-                    ParseMode.Html,
-                    replyMarkup: GetReturnButton(queue.Id, chatId));
+                responseMessage = $"Successfully removed from the '<b>{queue.Name}</b>' queue!";
+            }
+            else
+            {
+                responseMessage = $"You've already dequeued from the '<b>{queue.Name}</b>' queue.";
             }
 
+            var returnButton = this.GetReturnToQueueButton(callbackData);
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                $"You've already dequeued from the '<b>{queue.Name}</b>' queue.",
+                responseMessage,
                 ParseMode.Html,
-                replyMarkup: GetReturnButton(queue.Id, chatId));
-        }
-
-        private static InlineKeyboardButton GetReturnButton(int queueId, long chatId)
-        {
-            return InlineKeyboardButton.WithCallbackData("Return", $"/getqueue {queueId} {chatId}");
+                replyMarkup: returnButton);
         }
     }
 }

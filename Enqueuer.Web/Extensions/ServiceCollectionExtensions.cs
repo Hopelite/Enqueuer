@@ -1,4 +1,5 @@
-﻿using Enqueuer.Persistence.Models;
+﻿using Enqueuer.Data.DataSerialization;
+using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services;
 using Enqueuer.Services.Interfaces;
@@ -37,6 +38,19 @@ namespace Enqueuer.Web.Extensions
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IQueueService, QueueService>();
             services.AddTransient<IUserInQueueService, UserInQueueService>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// Configures serialization and deserialization.
+        /// </summary>
+        /// <param name="services"><see cref="IServiceCollection"/> to configure serialization by.</param>
+        /// <returns><see cref="IServiceCollection"/> with configured serialization.</returns>
+        public static IServiceCollection ConfigureSerialization(this IServiceCollection services)
+        {
+            services.AddTransient<IDataSerializer, JsonDataSerializer>();
+            services.AddTransient<IDataDeserializer, JsonDataDeserializer>();
 
             return services;
         }

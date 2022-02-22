@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Enqueuer.Data;
+using Enqueuer.Data.Constants;
+using Enqueuer.Data.DataSerialization;
+using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Exceptions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -12,7 +15,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Enqueuer.Callbacks.CallbackHandlers
 {
     /// <inheritdoc/>
-    public class EnqueueCallbackHandler : ICallbackHandler
+    public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
     {
         private const int PositionsInRow = 4;
         private readonly IQueueService queueService;
@@ -23,47 +26,42 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// </summary>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
-        public EnqueueCallbackHandler(IQueueService queueService, IUserInQueueService userInQueueService)
+        /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
+        public EnqueueCallbackHandler(IQueueService queueService, IUserInQueueService userInQueueService, IDataSerializer dataSerializer)
+            : base(dataSerializer)
         {
             this.queueService = queueService;
             this.userInQueueService = userInQueueService;
         }
-        
-        /// <inheritdoc/>
-        public string Command => "/enqueue";
 
         /// <inheritdoc/>
-        public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        public override string Command => CallbackConstants.EnqueueCommand;
+
+        /// <inheritdoc/>
+        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
-            var callbackData = callbackQuery.Data.SplitToWords();
-            if (int.TryParse(callbackData[1], out var queueId))
+            if (callbackData.QueueData is not null)
             {
-                if (long.TryParse(callbackData[2], out var chatId))
+                var queue = this.queueService.GetQueueById(callbackData.QueueData.QueueId);
+                if (queue is null)
                 {
-                    var queue = this.queueService.GetQueueById(queueId);
-                    if (queue is null)
-                    {
-                        var returnButton = InlineKeyboardButton.WithCallbackData("Return", $"/getchat {chatId}");
-                        return await botClient.EditMessageTextAsync(
-                            callbackQuery.Message.Chat,
-                            callbackQuery.Message.MessageId,
-                            "This queue has been deleted.",
-                            replyMarkup: returnButton);
-                    }
-
-                    return await HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, queueId, chatId);
+                    return await botClient.EditMessageTextAsync(
+                        callbackQuery.Message.Chat,
+                        callbackQuery.Message.MessageId,
+                        "This queue has been deleted.",
+                        replyMarkup: this.GetReturnToChatButton(callbackData));
                 }
 
-                throw new CallbackMessageHandlingException("Invalid chat ID passed to message handler.");
+                return await HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, callbackData);
             }
 
-            throw new CallbackMessageHandlingException("Invalid queue ID passed to message handler.");
+            throw new CallbackMessageHandlingException("Null queue data passed to message handler.");
         }
 
-        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, int queueId, long chatId)
+        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
             var availablePositions = this.userInQueueService.GetAvailablePositions(queue) as List<int>;
-            var replyButtons = BuildKeyboardMarkup(availablePositions, queueId, chatId);
+            var replyButtons = this.BuildKeyboardMarkup(availablePositions, callbackData);
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
@@ -72,19 +70,19 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 replyMarkup: replyButtons);
         }
 
-        private static InlineKeyboardMarkup BuildKeyboardMarkup(List<int> availablePositions, int queueId, long chatId)
+        private InlineKeyboardMarkup BuildKeyboardMarkup(List<int> availablePositions, CallbackData callbackData)
         {
             var numberOfRows = availablePositions.Count / PositionsInRow;
             var positionButtons = new InlineKeyboardButton[numberOfRows + 2][];
 
-            positionButtons[0] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("First available", $"/enqueueat {queueId} {chatId}") };
-            AddPositionButtons(availablePositions, positionButtons, numberOfRows, queueId, chatId);
-            positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Return", $"/getqueue {queueId} {chatId}") };
+            positionButtons[0] = new InlineKeyboardButton[] { this.GetEnqueueAtButton(callbackData) };
+            this.AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
+            positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { this.GetReturnToQueueButton(callbackData) };
 
             return new InlineKeyboardMarkup(positionButtons);
         }
 
-        private static void AddPositionButtons(List<int> availablePositions, InlineKeyboardButton[][] positionButtons, int numberOfRows, int queueId, long chatId)
+        private void AddPositionButtons(List<int> availablePositions, InlineKeyboardButton[][] positionButtons, int numberOfRows, CallbackData callbackData)
         {
             for (int i = 1, positionIndex = 0; i < numberOfRows + 1; i++)
             {
@@ -92,9 +90,26 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 for (int j = 0; j < PositionsInRow; j++, positionIndex++)
                 {
                     var position = availablePositions[positionIndex];
-                    positionButtons[i][j] = InlineKeyboardButton.WithCallbackData($"{position}", $"/enqueueat {queueId} {chatId} {position}");
+                    positionButtons[i][j] = this.GetEnqueueAtButton(callbackData, position);
                 }
             }
+        }
+
+        private InlineKeyboardButton GetEnqueueAtButton(CallbackData callbackData, int? position = null)
+        {
+            var buttonCallbackData = new CallbackData()
+            {
+                Command = CallbackConstants.EnqueueAtCommand,
+                ChatId = callbackData.ChatId,
+                QueueData = new QueueData()
+                {
+                    QueueId = callbackData.QueueData.QueueId,
+                    Position = position,
+                },
+            };
+
+            var serializedCallbackData = this.dataSerializer.Serialize(buttonCallbackData);
+            return InlineKeyboardButton.WithCallbackData($"{position}", serializedCallbackData);
         }
     }
 }

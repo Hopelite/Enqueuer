@@ -6,7 +6,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace Enqueuer.Bot
+namespace Enqueuer.Web
 {
     /// <inheritdoc/>
     public class UpdateHandler : IUpdateHandler

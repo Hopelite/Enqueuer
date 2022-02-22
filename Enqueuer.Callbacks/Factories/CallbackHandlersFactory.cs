@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Enqueuer.Callbacks.CallbackHandlers;
+using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
+using Enqueuer.Data.DataSerialization;
 using Enqueuer.Services.Interfaces;
 
 namespace Enqueuer.Callbacks.Factories
@@ -11,6 +13,7 @@ namespace Enqueuer.Callbacks.Factories
         private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
+        private readonly IDataSerializer dataSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CallbackHandlersFactory"/> class.
@@ -19,16 +22,19 @@ namespace Enqueuer.Callbacks.Factories
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
+        /// <param name="dataSerializer"></param>
         public CallbackHandlersFactory(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IUserInQueueService userInQueueService)
+            IUserInQueueService userInQueueService,
+            IDataSerializer dataSerializer)
         {
             this.chatService = chatService;
             this.userService = userService;
             this.queueService = queueService;
             this.userInQueueService = userInQueueService;
+            this.dataSerializer = dataSerializer;
         }
 
         /// <inheritdoc/>
@@ -37,13 +43,13 @@ namespace Enqueuer.Callbacks.Factories
             return new ICallbackHandler[]
             {
                 new EnqueueMeCallbackHandler(this.chatService, this.userService, this.queueService, this.userInQueueService),
-                new GetChatCallbackHandler(this.chatService),
-                new GetQueueCallbackHandler(this.queueService, this.userService),
-                new ViewChatsCallbackHandler(this.userService),
-                new EnqueueCallbackHandler(this.queueService, this.userInQueueService),
-                new EnqueueAtCallbackHandler(this.userService, this.queueService, this.userInQueueService),
-                new DequeueMeCallbackHandler(this.userService, this.queueService),
-                new RemoveQueueCallbackHandler(this.queueService),
+                new GetChatCallbackHandler(this.chatService, this.dataSerializer),
+                new GetQueueCallbackHandler(this.queueService, this.userService, this.dataSerializer),
+                new ListChatsCallbackHandler(this.userService, this.dataSerializer),
+                new EnqueueCallbackHandler(this.queueService, this.userInQueueService, this.dataSerializer),
+                new EnqueueAtCallbackHandler(this.userService, this.queueService, this.userInQueueService, this.dataSerializer),
+                new DequeueMeCallbackHandler(this.userService, this.queueService, this.dataSerializer),
+                new RemoveQueueCallbackHandler(this.queueService, this.dataSerializer),
             };
         }
     }

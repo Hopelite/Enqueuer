@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Bot
+namespace Enqueuer.Web
 {
     /// <summary>
     /// Handles incoming <see cref="Update"/>.

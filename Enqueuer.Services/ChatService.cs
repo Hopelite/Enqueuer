@@ -49,7 +49,7 @@ namespace Enqueuer.Services
         {
             return this.chatRepository.GetAll()
                 .First(chat => chat.ChatId == chatId)
-                .Queues.Count();
+                .Queues.Count;
         }
 
         /// <inheritdoc/>

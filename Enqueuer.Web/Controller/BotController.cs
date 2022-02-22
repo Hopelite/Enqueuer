@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Enqueuer.Bot;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot.Types;
 
