@@ -7,7 +7,7 @@ using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Data.Configuration;
-using Enqueuer.Utilities.Extensions;
+using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;

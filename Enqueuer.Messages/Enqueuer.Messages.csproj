@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Enqueuer.Data\Enqueuer.Data.csproj" />
     <ProjectReference Include="..\Enqueuer.Services\Enqueuer.Services.csproj" />
-    <ProjectReference Include="..\Enqueuer.Utilities\Enqueuer.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

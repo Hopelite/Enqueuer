@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Data.Configuration;
-using Enqueuer.Utilities.Extensions;
+using Enqueuer.Messages.Extensions;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
