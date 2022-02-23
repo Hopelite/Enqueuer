@@ -3,7 +3,7 @@ using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Configuration;
+using Enqueuer.Data.Configuration;
 using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;

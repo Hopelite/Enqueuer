@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Messages.MessageHandlers;
-using Enqueuer.Utilities.Configuration;
+using Enqueuer.Data.Configuration;
 using Enqueuer.Utilities.Extensions;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -47,7 +47,7 @@ namespace Enqueuer.Messages
                     try
                     {
                         var sentMessage = await messageHandler.HandleMessageAsync(telegramBotClient, message);
-                        this.logger.LogInformation($"Sent message '{sentMessage.Text}' to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}");
+                        this.logger.LogInformation("Sent message '{Text}' to {To}", sentMessage.Text, sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username);
                     }
                     catch (Exception ex)
                     {

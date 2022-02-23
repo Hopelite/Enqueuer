@@ -4,7 +4,7 @@ using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Configuration;
+using Enqueuer.Data.Configuration;
 
 namespace Enqueuer.Messages.Factories
 {
