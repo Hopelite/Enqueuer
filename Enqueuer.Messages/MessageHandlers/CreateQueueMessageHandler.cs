@@ -1,4 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Enqueuer.Data;
+using Enqueuer.Data.Constants;
+using Enqueuer.Data.DataSerialization;
 using Enqueuer.Messages.Constants;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
@@ -20,6 +23,7 @@ namespace Enqueuer.Messages.MessageHandlers
         private readonly IQueueService queueService;
         private readonly IRepository<Queue> queueRepository;
         private readonly IBotConfiguration botConfiguration;
+        private readonly IDataSerializer dataSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateQueueMessageHandler"/> class.
@@ -29,17 +33,20 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="queueRepository">Queue repository to use.</param>
         /// <param name="botConfiguration">Bot configuration to rely on.</param>
+        /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
         public CreateQueueMessageHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
             IRepository<Queue> queueRepository,
-            IBotConfiguration botConfiguration)
+            IBotConfiguration botConfiguration,
+            IDataSerializer dataSerializer)
             : base(chatService, userService)
         {
             this.queueService = queueService;
             this.queueRepository = queueRepository;
             this.botConfiguration = botConfiguration;
+            this.dataSerializer = dataSerializer;
         }
 
         /// <inheritdoc/>
@@ -117,7 +124,18 @@ namespace Enqueuer.Messages.MessageHandlers
                 };
 
                 await this.queueRepository.AddAsync(queue);
-                var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", $"/enqueueme {queue.Id}"));
+                var callbackButtonData = new CallbackData()
+                {
+                    Command = CallbackConstants.EnqueueMeCommand,
+                    ChatId = chat.Id,
+                    QueueData = new QueueData()
+                    {
+                        QueueId = queue.Id,
+                    },
+                };
+
+                var serializedButtonData = this.dataSerializer.Serialize(callbackButtonData);
+                var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", serializedButtonData));
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully created a new queue '<b>{queue.Name}</b>'!",

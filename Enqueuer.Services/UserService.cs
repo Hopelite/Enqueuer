@@ -46,9 +46,8 @@ namespace Enqueuer.Services
         /// <inheritdoc/>
         public IEnumerable<Chat> GetUserChats(long userId)
         {
-            var result = this.userRepository.GetAll()
-                .FirstOrDefault(user => user.UserId == userId);
-            return result?.Chats;
+            return this.userRepository.GetAll()
+                .FirstOrDefault(user => user.UserId == userId)?.Chats;
         }
     }
 }

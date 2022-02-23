@@ -89,7 +89,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 var callbackData = new CallbackData()
                 {
                     Command = CallbackConstants.GetChatCommand,
-                    ChatId = chats[chatIndex].ChatId,
+                    ChatId = chats[chatIndex].Id,
                 };
 
                 var serializedCallbackData = this.dataSerializer.Serialize(callbackData);

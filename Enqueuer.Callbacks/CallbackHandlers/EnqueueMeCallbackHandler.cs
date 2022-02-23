@@ -52,7 +52,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 if (queue is null)
                 {
                     return await botClient.EditMessageTextAsync(
-                        callbackData.ChatId,
+                        callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
                         "This queue has been deleted. Please, create a new one to participate in.",
                         ParseMode.Html);
@@ -68,25 +68,25 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         {
             var user = await this.AddUserAndChatToDBAsync(callbackQuery, callbackData.ChatId);
             var userInReplyMessage = GetUserName(telegramUser);
-            if (DoesUserNotParticipateInQueue(queue, telegramUser))
+            if (DoesUserNotParticipateInQueue(queue, user))
             {
                 var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
                 await this.userInQueueService.AddUserToQueue(user, queue, positionInQueue);
                 return await botClient.SendTextMessageAsync(
-                    callbackData.ChatId,
+                    callbackQuery.Message.Chat,
                     $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html);
             }
 
             return await botClient.SendTextMessageAsync(
-                    callbackData.ChatId,
+                    callbackQuery.Message.Chat,
                     $"<b>{userInReplyMessage}</b>, you're already participating in queue '<b>{queue.Name}</b>'!",
                     ParseMode.Html);
         }
 
-        private static bool DoesUserNotParticipateInQueue(Queue queue, Telegram.Bot.Types.User telegramUser)
+        private static bool DoesUserNotParticipateInQueue(Queue queue, User user)
         {
-            return !queue.Users.Any(queueUser => queueUser.UserId == telegramUser.Id);
+            return !queue.Users.Any(queueUser => queueUser.UserId == user.Id);
         }
 
         private static string GetUserName(Telegram.Bot.Types.User telegramUser)
@@ -94,7 +94,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
         }
 
-        private async Task<User> AddUserAndChatToDBAsync(CallbackQuery callbackQuery, long chatId)
+        private async Task<User> AddUserAndChatToDBAsync(CallbackQuery callbackQuery, int chatId)
         {
             var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
             var chat = this.chatService.GetChatByChatId(chatId);

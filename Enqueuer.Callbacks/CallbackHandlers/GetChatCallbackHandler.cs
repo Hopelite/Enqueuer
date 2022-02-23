@@ -61,7 +61,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     replyMarkup: replyMarkup);
         }
 
-        private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, long chatId)
+        private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, int chatId)
         {
             var replyButtons = new InlineKeyboardButton[chatQueues.Count + 1][];
             for (int i = 0; i < chatQueues.Count; i++)

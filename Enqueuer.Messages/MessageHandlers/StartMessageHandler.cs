@@ -1,4 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Enqueuer.Data;
+using Enqueuer.Data.Constants;
+using Enqueuer.Data.DataSerialization;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Utilities.Configuration;
 using Enqueuer.Utilities.Extensions;
@@ -13,17 +16,24 @@ namespace Enqueuer.Messages.MessageHandlers
     public class StartMessageHandler : MessageHandlerBase
     {
         private readonly IBotConfiguration botConfiguration;
+        private readonly IDataSerializer dataSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StartMessageHandler"/> class.
         /// </summary>
+        /// <param name="botConfiguration"><see cref="IBotConfiguration"/> with bot configuration.</param>
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="userService">User service to use.</param>
-        /// <param name="configuration"><see cref="IBotConfiguration"/> with bot configuration.</param>
-        public StartMessageHandler(IBotConfiguration botConfiguration, IChatService chatService, IUserService userService)
+        /// <param name="dataSerializer"><see cref="IDataDeserializer"/> to serialize data for callback handlers.</param>
+        public StartMessageHandler(
+            IBotConfiguration botConfiguration,
+            IChatService chatService,
+            IUserService userService,
+            IDataSerializer dataSerializer)
             : base(chatService, userService)
         {
             this.botConfiguration = botConfiguration;
+            this.dataSerializer = dataSerializer;
         }
 
         /// <inheritdoc/>
@@ -32,12 +42,17 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
-            await this.GetNewOrExistingUserAndChat(message);
             if (message.IsPrivateChat())
             {
+                var callbackButtonData = new CallbackData()
+                {
+                    Command = CallbackConstants.ListChatsCommand,
+                };
+
+                var serializedCallbackData = this.dataSerializer.Serialize(callbackButtonData);
                 var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
                 {
-                    InlineKeyboardButton.WithCallbackData("View chats", "/viewchats"),
+                    InlineKeyboardButton.WithCallbackData("View chats", serializedCallbackData),
                 });
 
                 return await botClient.SendTextMessageAsync(
@@ -49,6 +64,7 @@ namespace Enqueuer.Messages.MessageHandlers
                     replyMarkup: viewChatsButton);
             }
 
+            await this.GetNewOrExistingUserAndChat(message);
             return await botClient.SendTextMessageAsync(
                 message.Chat,
                 "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"

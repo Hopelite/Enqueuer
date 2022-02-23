@@ -75,7 +75,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var numberOfRows = availablePositions.Count / PositionsInRow;
             var positionButtons = new InlineKeyboardButton[numberOfRows + 2][];
 
-            positionButtons[0] = new InlineKeyboardButton[] { this.GetEnqueueAtButton(callbackData) };
+            positionButtons[0] = new InlineKeyboardButton[] { this.GetEnqueueAtButton(callbackData, "First available") };
             this.AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
             positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { this.GetReturnToQueueButton(callbackData) };
 
@@ -90,12 +90,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 for (int j = 0; j < PositionsInRow; j++, positionIndex++)
                 {
                     var position = availablePositions[positionIndex];
-                    positionButtons[i][j] = this.GetEnqueueAtButton(callbackData, position);
+                    positionButtons[i][j] = this.GetEnqueueAtButton(callbackData, position: position);
                 }
             }
         }
 
-        private InlineKeyboardButton GetEnqueueAtButton(CallbackData callbackData, int? position = null)
+        private InlineKeyboardButton GetEnqueueAtButton(CallbackData callbackData, string buttonText = null, int? position = null)
         {
             var buttonCallbackData = new CallbackData()
             {
@@ -109,7 +109,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             };
 
             var serializedCallbackData = this.dataSerializer.Serialize(buttonCallbackData);
-            return InlineKeyboardButton.WithCallbackData($"{position}", serializedCallbackData);
+            return InlineKeyboardButton.WithCallbackData($"{buttonText ?? position.ToString()}", serializedCallbackData);
         }
     }
 }

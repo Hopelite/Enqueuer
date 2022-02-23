@@ -118,7 +118,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             else
             {
                 responceMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has these participants:\n");
-                foreach (var queueParticipant in queue.Users)
+                foreach (var queueParticipant in queue.Users.OrderBy(userInQueue => userInQueue.Position))
                 {
                     responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
                 }

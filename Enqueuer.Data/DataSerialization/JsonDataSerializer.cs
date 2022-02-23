@@ -10,7 +10,10 @@ namespace Enqueuer.Data.DataSerialization
         /// <inheritdoc/>
         public string Serialize<T>(T data)
         {
-            return JsonConvert.SerializeObject(data);
+            return JsonConvert.SerializeObject(data, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
         }
     }
 }

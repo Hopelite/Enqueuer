@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Enqueuer.Utilities.Configuration;
+using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Messages
 {
@@ -53,9 +54,10 @@ namespace Enqueuer.Messages
                     {
                         await telegramBotClient.SendTextMessageAsync(
                             this.botConfiguration.DevelomentChatId,
-                            $"Exception thrown while handling '{message.Text}' from {message.From.Username ?? message.From.FirstName + message.From.LastName ?? string.Empty}"
-                            + $"Exception message: {ex.Message}"
-                            + $"Stack trace: {ex.StackTrace}");
+                            $"Exception thrown while handling '{message.Text}' from {message.From.Username ?? message.From.FirstName + message.From.LastName ?? string.Empty}\n"
+                            + $"<b>Exception message:</b> {ex.Message}\n"
+                            + $"<b>Stack trace:</b> {ex.StackTrace}",
+                            ParseMode.Html);
                     }
                 }
             }
