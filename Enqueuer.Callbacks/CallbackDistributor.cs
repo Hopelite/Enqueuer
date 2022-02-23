@@ -2,15 +2,14 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Enqueuer.Callbacks.Factories;
+using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
+using Enqueuer.Data;
+using Enqueuer.Data.DataSerialization;
+using Enqueuer.Utilities.Configuration;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Callbacks.Factories;
-using Microsoft.Extensions.Logging;
-using Enqueuer.Data;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Utilities.Configuration;
-using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Callbacks
 {
@@ -56,9 +55,8 @@ namespace Enqueuer.Callbacks
                     await telegramBotClient.SendTextMessageAsync(
                         this.botConfiguration.DevelomentChatId,
                         $"Exception thrown while handling callback '{callbackQuery.Data}' from {callbackQuery.From.Username ?? callbackQuery.From.FirstName + callbackQuery.From.LastName ?? string.Empty}\n"
-                        + $"<b>Exception message:</b> {ex.Message}\n"
-                        + $"<b>Stack trace:</b> {ex.StackTrace}",
-                        ParseMode.Html);
+                        + $"Exception message: {ex.Message}\n"
+                        + $"Stack trace: {ex.StackTrace}");
                 }
             }
         }
