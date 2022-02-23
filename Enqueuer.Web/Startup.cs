@@ -7,6 +7,7 @@ using Enqueuer.Persistence;
 using Enqueuer.Utilities.Configuration;
 using Enqueuer.Web.Configuration;
 using Enqueuer.Web.Extensions;
+using Enqueuer.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -81,6 +82,7 @@ namespace Enqueuer.Web
         /// <param name="app">Application builder.</param>
         public void Configure(IApplicationBuilder app)
         {
+            app.UseMiddleware<SendExceptionsToChatMiddleware>();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
