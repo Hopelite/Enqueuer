@@ -28,5 +28,15 @@
         {
             return string.Join(separator: Whitespace, query[startIndex..^1]);
         }
+
+        /// <summary>
+        /// Checks if <paramref name="query"/> has parameters provided.
+        /// </summary>
+        /// <param name="query">Query to check.</param>
+        /// <returns>True, if <paramref name="query"/> has parameters; false otherwise.</returns>
+        public static bool HasParameters(this string[] query)
+        {
+            return query.Length > 1;
+        }
     }
 }

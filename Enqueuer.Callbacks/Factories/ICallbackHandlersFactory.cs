@@ -1,5 +1,5 @@
-﻿using Enqueuer.Callbacks.CallbackHandlers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 
 namespace Enqueuer.Callbacks.Factories
 {

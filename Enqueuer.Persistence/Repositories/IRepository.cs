@@ -13,7 +13,7 @@ namespace Enqueuer.Persistence.Repositories
         /// Gets an entity with specified <paramref name="id"/>.
         /// </summary>
         /// <param name="id">Entity ID.</param>
-        /// <returns></returns>
+        /// <returns><typeparamref name="T"/> with specified <paramref name="id"/> if exists; false otherwise.</returns>
         public T Get(int id);
 
         /// <summary>

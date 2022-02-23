@@ -6,7 +6,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace Enqueuer.Bot
+namespace Enqueuer.Web
 {
     /// <inheritdoc/>
     public class UpdateHandler : IUpdateHandler
@@ -20,7 +20,7 @@ namespace Enqueuer.Bot
         /// </summary>
         /// <param name="telegramBotClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="messageDistributor">Lazy <see cref="IMessageDistributor"/> to handle incoming messages.</param>
-        /// <param name="callbackDistributor">Lazy <see cref="ICallbackDistributor"/> to handler incoming callback.</param>
+        /// <param name="callbackDistributor">Lazy <see cref="ICallbackDistributor"/> to handle incoming callback.</param>
         public UpdateHandler(ITelegramBotClient telegramBotClient, Lazy<IMessageDistributor> messageDistributor, Lazy<ICallbackDistributor> callbackDistributor)
         {
             this.telegramBotClient = telegramBotClient;

@@ -1,13 +1,15 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Enqueuer.Messages.Exceptions;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Utilities.Extensions;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Microsoft.Extensions.Logging;
+using Enqueuer.Utilities.Configuration;
+using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Messages
 {
@@ -16,38 +18,22 @@ namespace Enqueuer.Messages
     {
         private readonly SortedDictionary<string, IMessageHandler> messageHandlers;
         private readonly ILogger<IMessageDistributor> logger;
+        private readonly IBotConfiguration botConfiguration;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageDistributor"/> class.
-        /// </summary>
-        /// <param name="logger"><see cref="ILogger"/> to log info.</param>
-        public MessageDistributor(ILogger<IMessageDistributor> logger)
-        {
-            this.messageHandlers = new SortedDictionary<string, IMessageHandler>();
-            this.logger = logger;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MessageDistributor"/> class and adds <see cref="IMessageHandler"/> using <paramref name="messageHandlersFactory"/>.
+        /// Initializes a new instance of the <see cref="MessageDistributor"/> class and adds message handlers using <paramref name="messageHandlersFactory"/>.
         /// </summary>
         /// <param name="messageHandlersFactory"><see cref="IMessageHandlersFactory"/> which provides distibutor with <see cref="IMessageHandler"/>.</param>
-        /// <param name="logger"><see cref="ILogger"/> to log info.</param>
-        public MessageDistributor(IMessageHandlersFactory messageHandlersFactory, ILogger<IMessageDistributor> logger)
+        /// <param name="logger"><see cref="ILogger"/> to log with.</param>
+        /// <param name="botConfiguration"><see cref="IBotConfiguration"/> to rely on.</param>
+        public MessageDistributor(IMessageHandlersFactory messageHandlersFactory, ILogger<IMessageDistributor> logger, IBotConfiguration botConfiguration)
         {
             this.messageHandlers = new SortedDictionary<string, IMessageHandler>(
                 messageHandlersFactory
                 .CreateMessageHandlers()
                 .ToDictionary(messageHandler => messageHandler.Command));
             this.logger = logger;
-        }
-
-        /// <inheritdoc/>
-        public void AddMessageHandler(IMessageHandler messageHandler)
-        {
-            if (!this.messageHandlers.TryAdd(messageHandler.Command, messageHandler))
-            {
-                throw new MessageHandlerAlreadyInUseException(messageHandler);
-            }
+            this.botConfiguration = botConfiguration;
         }
 
         /// <inheritdoc/>
@@ -56,11 +42,23 @@ namespace Enqueuer.Messages
             var command = message.Text?.SplitToWords()[0];
             if (command is not null)
             {
-                var messageHandler = this.messageHandlers.FirstOrDefault(pair => command.Contains(pair.Key));
-                if (messageHandler.Value is not null)
+                var messageHandler = this.messageHandlers.FirstOrDefault(pair => command.Contains(pair.Key, StringComparison.InvariantCultureIgnoreCase)).Value;
+                if (messageHandler is not null)
                 {
-                    var sentMessage = await messageHandler.Value.HandleMessageAsync(telegramBotClient, message);
-                    this.logger.LogInformation($"Sent message '{sentMessage.Text}' to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}");
+                    try
+                    {
+                        var sentMessage = await messageHandler.HandleMessageAsync(telegramBotClient, message);
+                        this.logger.LogInformation($"Sent message '{sentMessage.Text}' to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}");
+                    }
+                    catch (Exception ex)
+                    {
+                        await telegramBotClient.SendTextMessageAsync(
+                            this.botConfiguration.DevelomentChatId,
+                            $"Exception thrown while handling '{message.Text}' from {message.From.Username ?? message.From.FirstName + message.From.LastName ?? string.Empty}\n"
+                            + $"<b>Exception message:</b> {ex.Message}\n"
+                            + $"<b>Stack trace:</b> {ex.StackTrace}",
+                            ParseMode.Html);
+                    }
                 }
             }
         }

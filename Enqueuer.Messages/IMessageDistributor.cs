@@ -11,13 +11,7 @@ namespace Enqueuer.Messages
     public interface IMessageDistributor
     {
         /// <summary>
-        /// Adds <see cref="IMessageHandler"/> to message handlers <see cref="IMessageDistributor"/> will spread incoming messages.
-        /// </summary>
-        /// <param name="messageHandler"></param>
-        public void AddMessageHandler(IMessageHandler messageHandler);
-
-        /// <summary>
-        /// Distributes <paramref name="message"/> to one of <see cref="IMessageHandler"/> with specified command if exists.
+        /// Distributes <paramref name="message"/> to one of the <see cref="IMessageHandler"/> with specified command if exists.
         /// </summary>
         /// <param name="telegramBotClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="message"><see cref="Message"/> to distribute.</param>

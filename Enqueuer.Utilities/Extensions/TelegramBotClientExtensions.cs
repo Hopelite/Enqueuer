@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Utilities.Extensions
 {
@@ -10,7 +11,7 @@ namespace Enqueuer.Utilities.Extensions
     public static class TelegramBotClientExtensions
     {
         /// <summary>
-        /// Sends <see cref="Message"/> with text, that opeations in private chats currently are not supported.
+        /// Sends <see cref="Message"/> with text, that commands in private chats are not supported.
         /// </summary>
         /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="message"><see cref="Message"/> to get <see cref="Chat"/> from.</param>
@@ -19,7 +20,8 @@ namespace Enqueuer.Utilities.Extensions
         {
             return await botClient.SendTextMessageAsync(
                 message.Chat,
-                "Currently bot does not support private chats. Please, add it to your group chat to get access to it's functionality.");
+                "Bot does not support commands in private chats except '<b>/start</b>'. Please, use interface it provides.",
+                ParseMode.Html);
         }
     }
 }

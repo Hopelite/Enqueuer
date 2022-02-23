@@ -1,6 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
@@ -13,13 +12,9 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
-    /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/enqueue' command.
-    /// </summary>
-    public class EnqueueMessageHandler : IMessageHandler
+    /// <inheritdoc/>
+    public class EnqueueMessageHandler : MessageHandlerBase
     {
-        private readonly IChatService chatService;
-        private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
         private readonly IRepository<UserInQueue> userInQueueRepository;
@@ -38,38 +33,29 @@ namespace Enqueuer.Messages.MessageHandlers
             IQueueService queueService,
             IUserInQueueService userInQueueService,
             IRepository<UserInQueue> userInQueueRepository)
+            : base(chatService, userService)
         {
-            this.chatService = chatService;
-            this.userService = userService;
             this.queueService = queueService;
             this.userInQueueService = userInQueueService;
             this.userInQueueRepository = userInQueueRepository;
         }
 
         /// <inheritdoc/>
-        public string Command => "/enqueue";
+        public override string Command => "/enqueue";
 
-        /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/enqueue' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
-        public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        /// <inheritdoc/>
+        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             if (message.IsPrivateChat())
             {
                 return await botClient.SendUnsupportedOperationMessage(message);
             }
 
-            var messageWords = message.Text.SplitToWords() ?? throw new ArgumentNullException("Message with null text passed to message handler.");
-            if (messageWords.Length > 1)
+            var messageWords = message.Text.SplitToWords();
+            if (messageWords.HasParameters())
             {
-                var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
-                var user = await this.userService.GetNewOrExistingUserAsync(message.From);
-                await this.chatService.AddUserToChat(user, chat);
-
-                return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
+                var userAndChat = await this.GetNewOrExistingUserAndChat(message);
+                return await HandleMessageWithParameters(botClient, message, messageWords, userAndChat.user, userAndChat.chat);
             }
 
             return await botClient.SendTextMessageAsync(
@@ -82,7 +68,7 @@ namespace Enqueuer.Messages.MessageHandlers
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
             var queueNameAndPosition = GetQueueNameAndPosition(messageWords);
-            if (queueNameAndPosition.UserPosition.HasValue && queueNameAndPosition.UserPosition.Value <= 0)
+            if (IsUserPositionInvalid(queueNameAndPosition.UserPosition))
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
@@ -101,34 +87,9 @@ namespace Enqueuer.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            if (!queue.Users.Any(queueUser => queueUser.UserId == user.Id))
+            if (!user.IsParticipatingIn(queue))
             {
-                if (queueNameAndPosition.UserPosition.HasValue)
-                {
-                    if (this.userInQueueService.IsPositionReserved(queue, queueNameAndPosition.UserPosition.Value))
-                    {
-                        return await botClient.SendTextMessageAsync(
-                                chat.ChatId,
-                                $"Position '<b>{queueNameAndPosition.UserPosition.Value}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.",
-                                ParseMode.Html,
-                                replyToMessageId: message.MessageId);
-                    }
-                }
-
-                int userPostion = queueNameAndPosition.UserPosition ?? this.userInQueueService.GetFirstAvailablePosition(queue);
-                var userInQueue = new UserInQueue()
-                {
-                    Position = userPostion,
-                    UserId = user.Id,
-                    QueueId = queue.Id,
-                };
-
-                await this.userInQueueRepository.AddAsync(userInQueue);
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPostion}</b>!",
-                    ParseMode.Html,
-                    replyToMessageId: message.MessageId);
+                return await HandleMessageWithUserNotParticipatingInQueue(botClient, message, user, chat, queue, queueNameAndPosition.UserPosition);
             }
 
             return await botClient.SendTextMessageAsync(
@@ -138,7 +99,34 @@ namespace Enqueuer.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
         }
 
-        private (string QueueName, int? UserPosition) GetQueueNameAndPosition(string[] messageWords)
+        private async Task<Message> HandleMessageWithUserNotParticipatingInQueue(ITelegramBotClient botClient, Message message, User user, Chat chat, Queue queue, int? position)
+        {
+            if (position.HasValue && this.userInQueueService.IsPositionReserved(queue, position.Value))
+            {
+                return await botClient.SendTextMessageAsync(
+                        chat.ChatId,
+                        $"Position '<b>{position.Value}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.",
+                        ParseMode.Html,
+                        replyToMessageId: message.MessageId);
+            }
+
+            int userPosition = position ?? this.userInQueueService.GetFirstAvailablePosition(queue);
+            var userInQueue = new UserInQueue()
+            {
+                Position = userPosition,
+                UserId = user.Id,
+                QueueId = queue.Id,
+            };
+
+            await this.userInQueueRepository.AddAsync(userInQueue);
+            return await botClient.SendTextMessageAsync(
+                chat.ChatId,
+                $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPosition}</b>!",
+                ParseMode.Html,
+                replyToMessageId: message.MessageId);
+        }
+
+        private static (string QueueName, int? UserPosition) GetQueueNameAndPosition(string[] messageWords)
         {
             (string QueueName, int? UserPosition) result;
             if (int.TryParse(messageWords[^1], out int position))
@@ -153,6 +141,11 @@ namespace Enqueuer.Messages.MessageHandlers
             }
 
             return result;
+        }
+
+        private static bool IsUserPositionInvalid(int? userPosition)
+        {
+            return userPosition.HasValue && userPosition.Value <= 0;
         }
     }
 }

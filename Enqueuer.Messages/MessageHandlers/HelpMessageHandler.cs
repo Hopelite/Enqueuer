@@ -5,20 +5,13 @@ using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
-    /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/help' command.
-    /// </summary>
+    /// <inheritdoc/>
     public class HelpMessageHandler : IMessageHandler
     {
         /// <inheritdoc/>
         public string Command => "/help";
 
-        /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/help' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <inheritdoc/>
         public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             return await botClient.SendTextMessageAsync(

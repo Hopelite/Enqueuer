@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enqueuer.Data\Enqueuer.Persistence.csproj" />
+    <ProjectReference Include="..\Enqueuer.Persistence\Enqueuer.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

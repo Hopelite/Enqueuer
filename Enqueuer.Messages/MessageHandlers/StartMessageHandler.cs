@@ -1,38 +1,70 @@
-﻿using Enqueuer.Utilities.Configuration;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Enqueuer.Data;
+using Enqueuer.Data.Constants;
+using Enqueuer.Data.DataSerialization;
+using Enqueuer.Services.Interfaces;
+using Enqueuer.Utilities.Configuration;
+using Enqueuer.Utilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
-    /// <summary>
-    /// Handles incoming <see cref="Message"/> with '/start' command.
-    /// </summary>
-    public class StartMessageHandler : IMessageHandler
+    /// <inheritdoc/>
+    public class StartMessageHandler : MessageHandlerBase
     {
         private readonly IBotConfiguration botConfiguration;
+        private readonly IDataSerializer dataSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StartMessageHandler"/> class.
         /// </summary>
-        /// <param name="configuration"><see cref="IBotConfiguration"/> with bot configuration.</param>
-        public StartMessageHandler(IBotConfiguration botConfiguration)
+        /// <param name="botConfiguration"><see cref="IBotConfiguration"/> with bot configuration.</param>
+        /// <param name="chatService">Chat service to use.</param>
+        /// <param name="userService">User service to use.</param>
+        /// <param name="dataSerializer"><see cref="IDataDeserializer"/> to serialize data for callback handlers.</param>
+        public StartMessageHandler(
+            IBotConfiguration botConfiguration,
+            IChatService chatService,
+            IUserService userService,
+            IDataSerializer dataSerializer)
+            : base(chatService, userService)
         {
             this.botConfiguration = botConfiguration;
+            this.dataSerializer = dataSerializer;
         }
 
         /// <inheritdoc/>
-        public string Command => "/start";
+        public override string Command => "/start";
 
-        /// <summary>
-        /// Handles incoming <see cref="Message"/> with '/start' command.
-        /// </summary>
-        /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
-        /// <param name="message">Incoming <see cref="Message"/> to handle.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
-        public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        /// <inheritdoc/>
+        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
+            if (message.IsPrivateChat())
+            {
+                var callbackButtonData = new CallbackData()
+                {
+                    Command = CallbackConstants.ListChatsCommand,
+                };
+
+                var serializedCallbackData = this.dataSerializer.Serialize(callbackButtonData);
+                var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
+                {
+                    InlineKeyboardButton.WithCallbackData("View chats", serializedCallbackData),
+                });
+
+                return await botClient.SendTextMessageAsync(
+                    message.Chat.Id,
+                    "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
+                    + "And your personal queue manager too!\n"
+                    + "Start by pressing the button below:",
+                    ParseMode.Html,
+                    replyMarkup: viewChatsButton);
+            }
+
+            await this.GetNewOrExistingUserAndChat(message);
             return await botClient.SendTextMessageAsync(
                 message.Chat,
                 "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"

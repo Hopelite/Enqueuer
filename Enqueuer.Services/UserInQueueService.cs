@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
@@ -8,6 +10,7 @@ namespace Enqueuer.Services
     /// <inheritdoc/>
     public class UserInQueueService : IUserInQueueService
     {
+        private const int NumberOfPositions = 20;
         private readonly IRepository<UserInQueue> userInQueueRepository;
 
         /// <summary>
@@ -17,6 +20,48 @@ namespace Enqueuer.Services
         public UserInQueueService(IRepository<UserInQueue> userInQueueRepository)
         {
             this.userInQueueRepository = userInQueueRepository;
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<int> GetAvailablePositions(Queue queue)
+        {
+            var maxPosition = this.GetMaxPositionInQueue(queue);
+            var availablePositions = this.GetAvailablePositions(queue, maxPosition);
+
+            if (availablePositions.Count < NumberOfPositions)
+            {
+                for (int i = maxPosition + 1; availablePositions.Count < NumberOfPositions; i++)
+                {
+                    availablePositions.Add(i);
+                }
+            }
+
+            return availablePositions;
+        }
+
+        private int GetMaxPositionInQueue(Queue queue)
+        {
+            int? maxPosition = this.userInQueueRepository.GetAll()
+                .Where(userInQueue => userInQueue.QueueId == queue.Id)
+                .Select(userInQueue => userInQueue.Position)
+                .DefaultIfEmpty()
+                .Max(userInQueue => userInQueue);
+
+            return maxPosition ?? NumberOfPositions;
+        }
+
+        private List<int> GetAvailablePositions(Queue queue, int maxPosition)
+        {
+            // TODO: optimize the algorithm
+            var positionsToSearchIn = Enumerable.Range(1, maxPosition);
+            var postionsReserved = this.userInQueueRepository.GetAll()
+                .Where(userInQueue => userInQueue.QueueId == queue.Id)
+                .OrderBy(userInQueue => userInQueue.Position)
+                .Select(userInQueue => userInQueue.Position);
+
+            return positionsToSearchIn
+                .Except(postionsReserved)
+                .Take(NumberOfPositions).ToList();
         }
 
         /// <inheritdoc/>
@@ -48,6 +93,19 @@ namespace Enqueuer.Services
             return this.userInQueueRepository.GetAll()
                 .Any(userInQueue => userInQueue.QueueId == queue.Id
                                  && userInQueue.Position == position);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddUserToQueue(User user, Queue queue, int position)
+        {
+            var userInQueue = new UserInQueue()
+            {
+                Position = position,
+                UserId = user.Id,
+                QueueId = queue.Id,
+            };
+
+            await this.userInQueueRepository.AddAsync(userInQueue);
         }
     }
 }
