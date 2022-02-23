@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using Enqueuer.Data.DataSerialization;
+using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Utilities.Configuration;
 
 namespace Enqueuer.Messages.Factories
@@ -17,6 +18,7 @@ namespace Enqueuer.Messages.Factories
         private readonly IUserInQueueService userInQueueService;
         private readonly IRepository<UserInQueue> userInQueueRepository;
         private readonly IBotConfiguration botConfiguration;
+        private readonly IDataSerializer dataSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageHandlersFactory"/> class.
@@ -28,6 +30,7 @@ namespace Enqueuer.Messages.Factories
         /// <param name="userInQueueService">User in queue service to use.</param>
         /// <param name="userInQueueRepository">User in queue repository to use.</param>
         /// <param name="botConfiguration">Bot configuration to rely on.</param>
+        /// <param name="dataSerializer"><see cref="IDataDeserializer"/> to serialize data for callback handlers.</param>
         public MessageHandlersFactory(
             IChatService chatService,
             IUserService userService,
@@ -35,7 +38,8 @@ namespace Enqueuer.Messages.Factories
             IRepository<Queue> queueRepository,
             IUserInQueueService userInQueueService,
             IRepository<UserInQueue> userInQueueRepository,
-            IBotConfiguration botConfiguration)
+            IBotConfiguration botConfiguration,
+            IDataSerializer dataSerializer)
         {
             this.chatService = chatService;
             this.userService = userService;
@@ -44,6 +48,7 @@ namespace Enqueuer.Messages.Factories
             this.userInQueueService = userInQueueService;
             this.userInQueueRepository = userInQueueRepository;
             this.botConfiguration = botConfiguration;
+            this.dataSerializer = dataSerializer;
         }
 
         /// <inheritdoc/>
@@ -51,13 +56,13 @@ namespace Enqueuer.Messages.Factories
         {
             return new IMessageHandler[]
             {
-                new StartMessageHandler(this.botConfiguration),
+                new StartMessageHandler(this.botConfiguration, this.chatService, this.userService, this.dataSerializer),
                 new HelpMessageHandler(),
-                new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository, this.botConfiguration),
+                new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository, this.botConfiguration, this.dataSerializer),
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService),
                 new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService, this.userInQueueRepository),
-                new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository),
-                new DequeueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository)
+                new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService),
+                new DequeueMessageHandler(this.chatService, this.userService, this.queueService)
             };
         }
     }

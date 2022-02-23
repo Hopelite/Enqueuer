@@ -1,4 +1,6 @@
 ﻿using Enqueuer.Persistence.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Enqueuer.Services.Interfaces
 {
@@ -21,5 +23,20 @@ namespace Enqueuer.Services.Interfaces
         /// <param name="position">Position to check.</param>
         /// <returns>True, if <paramref name="position"/> is reserved; false otherwise.</returns>
         public bool IsPositionReserved(Queue queue, int position);
+
+        /// <summary>
+        /// Returns available positions in queue.
+        /// </summary>
+        /// <param name="queue">Queue, which positions to check.</param>
+        /// <returns>Available positions.</returns>
+        public IEnumerable<int> GetAvailablePositions(Queue queue);
+
+        /// <summary>
+        /// Adds <paramref name="user"/> to <paramref name="queue"/> at the specified <paramref name="position"/>.
+        /// </summary>
+        /// <param name="user"><see cref="User"/> to add.</param>
+        /// <param name="queue"><see cref="Queue"/> to add into.</param>
+        /// <param name="position">Position to add <paramref name="user"/> at.</param>
+        public Task AddUserToQueue(User user, Queue queue, int position);
     }
 }

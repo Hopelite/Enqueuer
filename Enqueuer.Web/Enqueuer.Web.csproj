@@ -17,7 +17,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enqueuer.Bot\Enqueuer.Bot.csproj" />
+    <Folder Include="UpdateHandling\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Enqueuer.Callbacks\Enqueuer.Callbacks.csproj" />
+    <ProjectReference Include="..\Enqueuer.Messages\Enqueuer.Messages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Enqueuer.Callbacks">
+      <HintPath>..\Enqueuer.Callbacks\bin\Debug\net6.0\Enqueuer.Callbacks.dll</HintPath>
+    </Reference>
+    <Reference Include="Enqueuer.Messages">
+      <HintPath>..\Enqueuer.Messages\bin\Debug\net6.0\Enqueuer.Messages.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

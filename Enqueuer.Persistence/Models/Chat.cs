@@ -21,6 +21,12 @@ namespace Enqueuer.Persistence.Models
         public long ChatId { get; set; }
 
         /// <summary>
+        /// Gets or sets chat name.
+        /// </summary>
+        [Required]
+        public string Name { get; set; }
+
+        /// <summary>
         /// Gets or sets users participating in this chat.
         /// </summary>
         public virtual ICollection<User> Users { get; set; } = new List<User>();
@@ -34,7 +40,8 @@ namespace Enqueuer.Persistence.Models
         {
             return new Chat() 
             { 
-                ChatId = chat.Id
+                ChatId = chat.Id,
+                Name = chat.Title
             };
         }
     }

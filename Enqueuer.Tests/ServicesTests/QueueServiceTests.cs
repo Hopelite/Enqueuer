@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services;
@@ -281,6 +282,65 @@ namespace Enqueuer.Tests.ServicesTests
 
             // Assert
             Assert.IsEmpty(actual);
+        }
+
+        [Test]
+        public async Task QueueServiceTests_RemoveUserAsync_UserExists_RemovesUser()
+        {
+            // Arrange
+            const int userId = 3;
+            var users = new List<UserInQueue>()
+            {
+                new UserInQueue() { UserId = 1 },
+                new UserInQueue() { UserId = 2 },
+                new UserInQueue() { UserId = userId },
+                new UserInQueue() { UserId = 4 },
+                new UserInQueue() { UserId = 5 },
+            };
+
+            var queue = new Queue()
+            {
+                Users = users
+            };
+
+            var userToRemove = new User() { Id = userId };
+
+            this.queueRepositoryMock.Setup(repository => repository.UpdateAsync(It.IsAny<Queue>()));
+
+            // Act
+            await this.queueService.RemoveUserAsync(queue, userToRemove);
+
+            // Assert
+            this.queueRepositoryMock.Verify(repository => repository.UpdateAsync(queue), Times.Once);
+        }
+
+        [Test]
+        public async Task QueueServiceTests_RemoveUserAsync_UserDoesNotExist_DoesntRemoveUser()
+        {
+            // Arrange
+            const int userId = 3;
+            var users = new List<UserInQueue>()
+            {
+                new UserInQueue() { UserId = 1 },
+                new UserInQueue() { UserId = 2 },
+                new UserInQueue() { UserId = 4 },
+                new UserInQueue() { UserId = 5 },
+            };
+
+            var queue = new Queue()
+            {
+                Users = users
+            };
+
+            var userToRemove = new User() { Id = userId };
+
+            this.queueRepositoryMock.Setup(repository => repository.UpdateAsync(It.IsAny<Queue>()));
+
+            // Act
+            await this.queueService.RemoveUserAsync(queue, userToRemove);
+
+            // Assert
+            this.queueRepositoryMock.Verify(repository => repository.UpdateAsync(queue), Times.Never);
         }
     }
 }

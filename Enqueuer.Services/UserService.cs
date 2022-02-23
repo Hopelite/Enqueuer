@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using User = Enqueuer.Persistence.Models.User;
@@ -39,6 +41,13 @@ namespace Enqueuer.Services
         {
             return this.userRepository.GetAll()
                     .FirstOrDefault(user => user.UserId == userId);
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<Chat> GetUserChats(long userId)
+        {
+            return this.userRepository.GetAll()
+                .FirstOrDefault(user => user.UserId == userId)?.Chats;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Enqueuer.Bot;
 using Enqueuer.Callbacks;
 using Enqueuer.Callbacks.Factories;
 using Enqueuer.Messages;
@@ -61,6 +60,7 @@ namespace Enqueuer.Web
                 .AddTypedClient<ITelegramBotClient>(httpClient
                     => new TelegramBotClient(BotConfiguration.AccessToken, httpClient));
 
+            services.ConfigureSerialization();
             services.ConfigureRepositories();
             services.ConfigureServices();
             services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();

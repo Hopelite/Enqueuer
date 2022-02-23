@@ -23,19 +23,19 @@ namespace Enqueuer.Services
         /// <inheritdoc/>
         public async Task<Chat> GetNewOrExistingChatAsync(Telegram.Bot.Types.Chat telegramChat)
         {
-            var chat = this.GetChatByChatId(telegramChat.Id);
+            var chat = this.GetChatByTelegramChatId(telegramChat.Id);
 
             if (chat is null)
             {
                 await this.chatRepository.AddAsync(telegramChat);
-                return this.GetChatByChatId(telegramChat.Id);
+                return this.GetChatByTelegramChatId(telegramChat.Id);
             }
 
             return chat;
         }
 
         /// <inheritdoc/>
-        public async Task AddUserToChat(User user, Chat chat)
+        public async Task AddUserToChatIfNotAlready(User user, Chat chat)
         {
             if (chat.Users.FirstOrDefault(chatUser => chatUser.UserId == user.UserId) is null)
             {
@@ -49,14 +49,19 @@ namespace Enqueuer.Services
         {
             return this.chatRepository.GetAll()
                 .First(chat => chat.ChatId == chatId)
-                .Queues.Count();
+                .Queues.Count;
         }
 
         /// <inheritdoc/>
-        public Chat GetChatByChatId(long chatId)
+        public Chat GetChatByTelegramChatId(long chatId)
         {
             return this.chatRepository.GetAll()
                     .FirstOrDefault(chat => chat.ChatId == chatId);
+        }
+
+        public Chat GetChatByChatId(int id)
+        {
+            return this.chatRepository.Get(id);
         }
     }
 }

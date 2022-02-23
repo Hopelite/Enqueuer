@@ -12,8 +12,15 @@ namespace Enqueuer.Services.Interfaces
         /// Gets <see cref="Chat"/> with specified <paramref name="chatId"/>.
         /// </summary>
         /// <param name="chatId">Telegram chat ID to get <see cref="Chat"/> by.</param>
-        /// <returns></returns>
-        public Chat GetChatByChatId(long chatId);
+        /// <returns><see cref="Chat"/> with specified <paramref name="chatId"/></returns>
+        public Chat GetChatByTelegramChatId(long chatId);
+
+        /// <summary>
+        /// Gets <see cref="Chat"/> with specified <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">Database chat ID to get <see cref="Chat"/> by.</param>
+        /// <returns><see cref="Chat"/> with specified <paramref name="id"/></returns>
+        public Chat GetChatByChatId(int id);
 
         /// <summary>
         /// Gets already existing <see cref="Chat"/> or creates new one.
@@ -28,7 +35,7 @@ namespace Enqueuer.Services.Interfaces
         /// <param name="user"><see cref="User"/> to add into <paramref name="chat"/>.</param>
         /// <param name="chat"><see cref="Chat"/> where <paramref name="user"/> should be added.</param>
         /// <returns>Task in return.</returns>
-        public Task AddUserToChat(User user, Chat chat);
+        public Task AddUserToChatIfNotAlready(User user, Chat chat);
 
         /// <summary>
         /// Gets number of <see cref="Queue"/> is <see cref="Chat"/> with specified <paramref name="chatId"/>.
