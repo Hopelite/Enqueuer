@@ -4,7 +4,7 @@ using Enqueuer.Callbacks.Factories;
 using Enqueuer.Messages;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Persistence;
-using Enqueuer.Utilities.Configuration;
+using Enqueuer.Data.Configuration;
 using Enqueuer.Web.Configuration;
 using Enqueuer.Web.Extensions;
 using Enqueuer.Web.Middleware;

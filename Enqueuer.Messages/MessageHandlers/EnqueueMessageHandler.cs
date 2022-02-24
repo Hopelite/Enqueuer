@@ -3,7 +3,7 @@ using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Extensions;
+using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -54,8 +54,8 @@ namespace Enqueuer.Messages.MessageHandlers
             var messageWords = message.Text.SplitToWords();
             if (messageWords.HasParameters())
             {
-                var userAndChat = await this.GetNewOrExistingUserAndChat(message);
-                return await HandleMessageWithParameters(botClient, message, messageWords, userAndChat.user, userAndChat.chat);
+                var (user, chat) = await this.GetNewOrExistingUserAndChat(message);
+                return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(
@@ -67,8 +67,8 @@ namespace Enqueuer.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
         {
-            var queueNameAndPosition = GetQueueNameAndPosition(messageWords);
-            if (IsUserPositionInvalid(queueNameAndPosition.UserPosition))
+            var (queueName, userPosition) = GetQueueNameAndPosition(messageWords);
+            if (IsUserPositionInvalid(userPosition))
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
@@ -77,19 +77,19 @@ namespace Enqueuer.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            var queue = this.queueService.GetChatQueueByName(queueNameAndPosition.QueueName, chat.ChatId);
+            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"There is no queue with name '<b>{queueNameAndPosition.QueueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
+                    $"There is no queue with name '<b>{queueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
             if (!user.IsParticipatingIn(queue))
             {
-                return await HandleMessageWithUserNotParticipatingInQueue(botClient, message, user, chat, queue, queueNameAndPosition.UserPosition);
+                return await HandleMessageWithUserNotParticipatingInQueue(botClient, message, user, chat, queue, userPosition);
             }
 
             return await botClient.SendTextMessageAsync(

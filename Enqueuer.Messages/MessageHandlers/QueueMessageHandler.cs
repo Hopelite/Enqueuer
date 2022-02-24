@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Extensions;
+using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -43,14 +43,14 @@ namespace Enqueuer.Messages.MessageHandlers
                 return await botClient.SendUnsupportedOperationMessage(message);
             }
 
-            var userAndChat = await this.GetNewOrExistingUserAndChat(message);
+            var (_, chat) = await this.GetNewOrExistingUserAndChat(message);
             var messageWords = message.Text.SplitToWords();
             if (messageWords.HasParameters())
             {
-                return await this.HandleMessageWithParameters(botClient, message, messageWords, userAndChat.chat);
+                return await this.HandleMessageWithParameters(botClient, message, messageWords, chat);
             }
 
-            return await this.HandleMessageWithoutParameters(botClient, message, userAndChat.chat);
+            return await this.HandleMessageWithoutParameters(botClient, message, chat);
         }
 
         private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, Chat chat)
@@ -84,7 +84,7 @@ namespace Enqueuer.Messages.MessageHandlers
         private async Task<Message> HandleMessageWithoutParameters(ITelegramBotClient botClient, Message message, Chat chat)
         {
             var chatQueues = this.queueService.GetTelegramChatQueues(chat.ChatId);
-            if (chatQueues.Count() == 0)
+            if (!chatQueues.Any())
             {
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,

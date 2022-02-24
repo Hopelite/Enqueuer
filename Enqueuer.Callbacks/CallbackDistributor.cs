@@ -6,7 +6,7 @@ using Enqueuer.Callbacks.Factories;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Data;
 using Enqueuer.Data.DataSerialization;
-using Enqueuer.Utilities.Configuration;
+using Enqueuer.Data.Configuration;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -48,7 +48,7 @@ namespace Enqueuer.Callbacks
                 try
                 {
                     var sentMessage = await callbackHandler.HandleCallbackAsync(telegramBotClient, callbackQuery, callbackData);
-                    this.logger.LogInformation($"Sent message '{sentMessage.Text}' on user's callback to {sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username}.");
+                    this.logger.LogInformation("Sent message '{Text}' on user's callback to {To}.", sentMessage.Text, sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username);
                 }
                 catch (Exception ex)
                 {

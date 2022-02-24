@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Enqueuer.Utilities.Extensions
+namespace Enqueuer.Messages.Extensions
 {
     /// <summary>
     /// Contains extension methods for <see cref="string"/>.

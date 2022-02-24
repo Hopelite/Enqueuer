@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Utilities.Configuration
+﻿namespace Enqueuer.Data.Configuration
 {
     /// <summary>
     /// Contains bot configuration.
