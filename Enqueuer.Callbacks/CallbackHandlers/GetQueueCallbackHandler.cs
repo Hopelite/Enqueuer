@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Exceptions;
+using Enqueuer.Callbacks.Extensions;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
@@ -64,7 +65,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
             var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
-            var replyMarkup = this.BuildReplyMarkup(user, queue, callbackData);
+            var replyMarkup = await this.BuildReplyMarkup(botClient, user, queue, callbackData);
             var responceMessage = BuildResponceMessage(queue);
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
@@ -74,7 +75,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 replyMarkup: replyMarkup);
         }
 
-        private InlineKeyboardMarkup BuildReplyMarkup(User user, Queue queue, CallbackData callbackData)
+        private async Task<InlineKeyboardMarkup> BuildReplyMarkup(ITelegramBotClient botClient, User user, Queue queue, CallbackData callbackData)
         {
             var replyMarkupButtons = new List<InlineKeyboardButton[]>()
             {
@@ -83,7 +84,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 : new InlineKeyboardButton[] { this.GetQueueRelatedButton("Enqueue me", CallbackConstants.EnqueueCommand, callbackData, queue.Id) }
             };
 
-            if (IsUserQueueCreator(user, queue))
+            if (queue.IsQueueCreator(user) || await botClient.IsChatAdmin(user.UserId, queue.Chat.ChatId))
             {
                 replyMarkupButtons.Add(new InlineKeyboardButton[] { this.GetRemoveQueueButton("Remove queue", callbackData) });
             }
@@ -125,11 +126,6 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             }
 
             return responceMessage.ToString();
-        }
-
-        private static bool IsUserQueueCreator(User user, Queue queue)
-        {
-            return queue.CreatorId == user.Id;
         }
     }
 }
