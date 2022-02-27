@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Extensions;
+using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -44,8 +44,8 @@ namespace Enqueuer.Messages.MessageHandlers
             var messageWords = message.Text.SplitToWords();
             if (messageWords.HasParameters())
             {
-                var userAndChat = await this.GetNewOrExistingUserAndChat(message);
-                return await HandleMessageWithParameters(botClient, message, messageWords, userAndChat.user, userAndChat.chat);
+                var (user, chat) = await this.GetNewOrExistingUserAndChat(message);
+                return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(

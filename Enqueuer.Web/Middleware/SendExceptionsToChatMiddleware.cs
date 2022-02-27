@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Enqueuer.Utilities.Configuration;
+using Enqueuer.Data.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;

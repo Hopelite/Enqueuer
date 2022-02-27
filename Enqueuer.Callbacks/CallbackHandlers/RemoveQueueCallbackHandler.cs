@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Exceptions;
+using Enqueuer.Callbacks.Extensions;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
+using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
@@ -78,7 +80,18 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         {
             if (callbackData.QueueData.IsUserAgreed.Value)
             {
+                var userId = callbackQuery.From.Id;
                 var chat = queue.Chat;
+                if (!queue.IsQueueCreator(userId) && !await botClient.IsChatAdmin(userId, chat.ChatId))
+                {
+                    return await botClient.EditMessageTextAsync(
+                        callbackQuery.Message.Chat,
+                        callbackQuery.Message.MessageId,
+                        $"Unable to delete <b>'{queue.Name}'</b> queue: you are not queue creator or the chat admin.",
+                        ParseMode.Html,
+                        replyMarkup: this.GetReturnToQueueButton(callbackData));
+                }
+
                 await this.queueService.DeleteQueueAsync(queue);
 
                 await botClient.SendTextMessageAsync(

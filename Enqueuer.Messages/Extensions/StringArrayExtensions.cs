@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Utilities.Extensions
+﻿namespace Enqueuer.Messages.Extensions
 {
     /// <summary>
     /// Contains extesnion methods for array of strings.

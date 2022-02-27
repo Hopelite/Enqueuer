@@ -6,8 +6,8 @@ using Enqueuer.Messages.Constants;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
-using Enqueuer.Utilities.Configuration;
-using Enqueuer.Utilities.Extensions;
+using Enqueuer.Data.Configuration;
+using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -63,8 +63,8 @@ namespace Enqueuer.Messages.MessageHandlers
             var messageWords = message.Text.SplitToWords();
             if (messageWords.HasParameters())
             {
-                var userAndChat = await this.GetNewOrExistingUserAndChat(message);
-                return await HandleMessageWithParameters(botClient, messageWords, userAndChat.user, userAndChat.chat);
+                var (user, chat) = await this.GetNewOrExistingUserAndChat(message);
+                return await HandleMessageWithParameters(botClient, messageWords, user, chat);
             }
 
             return await botClient.SendTextMessageAsync(
@@ -85,13 +85,13 @@ namespace Enqueuer.Messages.MessageHandlers
 
             if (QueueHasNumberAtTheEnd(messageWords))
             {
-                return await this.HandleMessageWithNumberAtTheEndInName(botClient, messageWords, chat);
+                return await HandleMessageWithNumberAtTheEndInName(botClient, messageWords, chat);
             }
 
             return await this.HandleMessageWithQueueName(botClient, messageWords, user, chat);
         }
 
-        private async Task<Message> HandleMessageWithNumberAtTheEndInName(ITelegramBotClient botClient, string[] messageWords, Chat chat)
+        private static async Task<Message> HandleMessageWithNumberAtTheEndInName(ITelegramBotClient botClient, string[] messageWords, Chat chat)
         {
             var responceMessage = messageWords.Length > 2
                                 ? "Unable to create a queue with a number at the last position of its name. Please concat the queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number."
