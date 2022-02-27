@@ -20,7 +20,7 @@ namespace Enqueuer.Services.Interfaces
         /// </summary>
         /// <param name="id">Database chat ID to get <see cref="Chat"/> by.</param>
         /// <returns><see cref="Chat"/> with specified <paramref name="id"/></returns>
-        public Chat GetChatByChatId(int id);
+        public Chat GetChatById(int id);
 
         /// <summary>
         /// Gets already existing <see cref="Chat"/> or creates new one.

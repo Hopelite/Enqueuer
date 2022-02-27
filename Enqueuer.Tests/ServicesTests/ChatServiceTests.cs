@@ -157,7 +157,7 @@ namespace Enqueuer.Tests.ServicesTests
         }
 
         [Test]
-        public void ChatServiceTests_GetChatByChatId_ReturnsChat()
+        public void ChatServiceTests_GetChatByTelegramChatId_ReturnsChat()
         {
             // Arrange
             const long chatId = 2;
@@ -181,7 +181,7 @@ namespace Enqueuer.Tests.ServicesTests
         }
 
         [Test]
-        public void ChatServiceTests_GetChatByChatId_ChatDoesNotExist_ReturnsNull()
+        public void ChatServiceTests_GetChatByTelegramChatId_ChatDoesNotExist_ReturnsNull()
         {
             // Arrange
             const long chatId = 1;
@@ -192,6 +192,40 @@ namespace Enqueuer.Tests.ServicesTests
 
             // Act
             var actual = this.chatService.GetChatByTelegramChatId(chatId);
+
+            // Assert
+            Assert.IsNull(actual);
+        }
+
+        [Test]
+        public void ChatServiceTests_GetChatById_ReturnsChat()
+        {
+            // Arrange
+            const int id = 2;
+            var comparer = new ChatComparer();
+            var expected = new Chat() { Id = id };
+
+            this.chatRepositoryMock.Setup(repository => repository.Get(id))
+                .Returns(expected);
+
+            // Act
+            var actual = this.chatService.GetChatById(id);
+
+            // Assert
+            Assert.IsTrue(comparer.Equals(expected, actual));
+        }
+
+        [Test]
+        public void ChatServiceTests_GetChatById_ChatDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            const int id = 1;
+            Chat nullResult = null;
+            this.chatRepositoryMock.Setup(repository => repository.Get(id))
+                .Returns(nullResult);
+
+            // Act
+            var actual = this.chatService.GetChatById(id);
 
             // Assert
             Assert.IsNull(actual);

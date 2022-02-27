@@ -37,7 +37,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <inheritdoc/>
         public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
-            var chatQueues = this.chatService.GetChatByChatId(callbackData.ChatId)?.Queues.ToList();
+            var chatQueues = this.chatService.GetChatById(callbackData.ChatId)?.Queues.ToList();
             if (chatQueues is null)
             {
                 return await botClient.EditMessageTextAsync(
