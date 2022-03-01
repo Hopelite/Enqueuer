@@ -13,9 +13,9 @@ namespace Enqueuer.Tests.Utilities.Comparers
             {
                 (_, null) => false,
                 (null, _) => false,
-                _ => x.Name.Equals(y.Name)
+                _ => object.Equals(x.Name, y.Name)
                 && x.ChatId == y.ChatId
-                && x.CreatorId == y.CreatorId
+                && x?.CreatorId == y?.CreatorId
             };
         }
 

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services;
 using Enqueuer.Tests.Utilities.Comparers;
+using Enqueuer.Tests.Utilities.Wrappers;
 using Moq;
 using NUnit.Framework;
 using User = Enqueuer.Persistence.Models.User;
@@ -128,6 +130,63 @@ namespace Enqueuer.Tests.ServicesTests
 
             // Assert
             Assert.IsNull(actual);
+        }
+
+        [Test]
+        public void UserServiceTests_GetUserChats_ReturnsUserChats()
+        {
+            // Arrange
+            const long userId = 1;
+            var comparer = new ChatComparer();
+            var expected = new Chat[]
+            {
+                new Chat() { Id = 1 },
+                new Chat() { Id = 2 },
+                new Chat() { Id = 3 },
+                new Chat() { Id = 4 },
+                new Chat() { Id = 5 },
+            };
+
+            var user = new User()
+            {
+                UserId = userId,
+                Chats = expected,
+            };
+
+            var users = new List<User>() { user }.AsQueryable();
+            this.userRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(users);
+
+            // Act
+            var actual = this.userService.GetUserChats(userId);
+
+            // Assert
+            AssertWrapper.StrictMultipleEquals(expected, actual, comparer);
+        }
+
+        [Test]
+        public void UserServiceTests_GetUserChats_UserHasNoChats_ReturnsEmptyEnumerable()
+        {
+            // Arrange
+            const long userId = 1;
+            var comparer = new ChatComparer();
+            var expected = Enumerable.Empty<Chat>().ToList();
+
+            var user = new User()
+            {
+                UserId = userId,
+                Chats = expected,
+            };
+
+            var users = new List<User>() { user }.AsQueryable();
+            this.userRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(users);
+
+            // Act
+            var actual = this.userService.GetUserChats(userId);
+
+            // Assert
+            Assert.IsEmpty(actual);
         }
     }
 }
