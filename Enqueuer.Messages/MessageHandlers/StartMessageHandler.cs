@@ -42,6 +42,7 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
+            await this.GetNewOrExistingUserAndChat(message);
             if (message.IsPrivateChat())
             {
                 var callbackButtonData = new CallbackData()
