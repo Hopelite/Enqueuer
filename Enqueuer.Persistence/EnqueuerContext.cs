@@ -26,7 +26,7 @@ namespace Enqueuer.Persistence
         /// <summary>
         /// Gets or sets queryable set of <see cref="UserInQueue"/> entities.
         /// </summary>
-        public DbSet<UserInQueue> UsersInQueues { get; set; }
+        public DbSet<UserInQueue> UserInQueue { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnqueuerContext"/> class.
