@@ -1,40 +1,43 @@
 ﻿using System.Threading.Tasks;
-using Enqueuer.Persistence.Extensions;
-using Enqueuer.Services.Interfaces;
 using Enqueuer.Messages.Extensions;
+using Enqueuer.Persistence.Models;
+using Enqueuer.Persistence.Repositories;
+using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Chat = Enqueuer.Persistence.Models.Chat;
-using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
     /// <inheritdoc/>
-    public class DequeueMessageHandler : MessageHandlerBase
+    public class DynamicQueueMessageHandler : MessageHandlerBase
     {
         private readonly IQueueService queueService;
+        private readonly IRepository<Queue> queueRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DequeueMessageHandler"/> class.
+        /// Initializes a new instance of the <see cref="DynamicQueueMessageHandler"/> class.
         /// </summary>
         /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
+        /// <param name="userService">User service to use.</param
         /// <param name="queueService">Queue service to use.</param>
-        public DequeueMessageHandler(
+        /// <param name="queueRepository">Queue repository </param>
+        public DynamicQueueMessageHandler(
             IChatService chatService,
             IUserService userService,
-            IQueueService queueService)
+            IQueueService queueService,
+            IRepository<Queue> queueRepository)
             : base(chatService, userService)
         {
             this.queueService = queueService;
+            this.queueRepository = queueRepository;
         }
 
         /// <inheritdoc/>
-        public override string Command => "/dequeue";
+        public override string Command => "/dynamiq";
 
         /// <inheritdoc/>
-        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        public async override Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             if (message.IsPrivateChat())
             {
@@ -55,7 +58,7 @@ namespace Enqueuer.Messages.MessageHandlers
                 replyToMessageId: message.MessageId);
         }
 
-        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
+        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, Persistence.Models.User user, Persistence.Models.Chat chat)
         {
             var queueName = messageWords.GetQueueName();
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
@@ -68,26 +71,27 @@ namespace Enqueuer.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            if (user.IsParticipatingIn(queue))
+            if (queue.IsDynamic)
             {
-                if (queue.IsDynamic)
-                {
-
-                }
-
-                await this.queueService.RemoveUserAsync(queue, user);
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Successfully removed from queue '<b>{queue.Name}</b>'!",
+                    $"'<b>{queueName}</b>' queue is already dynamic.",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
 
+            await this.MakeQueueDynamic(queue);
             return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"You're not participating in queue '<b>{queue.Name}</b>'.",
-                    ParseMode.Html,
-                    replyToMessageId: message.MessageId);
+                chat.ChatId,
+                $"Successfully made '<b>{queueName}</b>' queue dynamic.",
+                ParseMode.Html,
+                replyToMessageId: message.MessageId);
+        }
+
+        private async Task MakeQueueDynamic(Queue queue)
+        {
+            queue.IsDynamic = true;
+            await this.queueRepository.UpdateAsync(queue);
         }
     }
 }

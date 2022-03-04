@@ -44,5 +44,10 @@
         /// Gets enqueue at command.
         /// </summary>
         public static string EnqueueAtCommand => "/eqa";
+
+        /// <summary>
+        /// Gets dynamic queue command.
+        /// </summary>
+        public static string DynamicQueueCommand => "/dyq";
     }
 }
