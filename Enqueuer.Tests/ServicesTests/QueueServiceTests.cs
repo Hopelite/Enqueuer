@@ -156,7 +156,7 @@ namespace Enqueuer.Tests.ServicesTests
             var actual = this.queueService.GetChatQueues(chatId);
 
             // Assert
-            AssertWrapper.StrictMultipleEquals(expected, actual);
+            AssertWrapper.StrictMultipleEquals(expected, actual, comparer);
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace Enqueuer.Tests.ServicesTests
             var actual = this.queueService.GetChatQueues(chatId);
 
             // Assert
-            AssertWrapper.MultipleEquals(expected, actual);
+            AssertWrapper.MultipleEquals(expected, actual, comparer);
         }
 
         [Test]
@@ -188,7 +188,6 @@ namespace Enqueuer.Tests.ServicesTests
         {
             // Arrange
             const int chatId = 1;
-            var comparer = new QueueComparer();
             var queues = new List<Queue>()
             {
                 new Queue() { Name = "TestQueue", ChatId = 2 },
@@ -230,7 +229,7 @@ namespace Enqueuer.Tests.ServicesTests
             var actual = this.queueService.GetTelegramChatQueues(chatId);
 
             // Assert
-            AssertWrapper.StrictMultipleEquals(expected, actual);
+            AssertWrapper.StrictMultipleEquals(expected, actual, comparer);
         }
 
         [Test]
@@ -257,7 +256,7 @@ namespace Enqueuer.Tests.ServicesTests
             var actual = this.queueService.GetTelegramChatQueues(chatId);
 
             // Assert
-            AssertWrapper.MultipleEquals(expected, actual);
+            AssertWrapper.MultipleEquals(expected, actual, comparer);
         }
 
         [Test]
@@ -265,7 +264,6 @@ namespace Enqueuer.Tests.ServicesTests
         {
             // Arrange
             const int chatId = 1;
-            var comparer = new QueueComparer();
             var chat = new Chat() { ChatId = 2 };
             var queues = new List<Queue>()
             {
@@ -341,6 +339,57 @@ namespace Enqueuer.Tests.ServicesTests
 
             // Assert
             this.queueRepositoryMock.Verify(repository => repository.UpdateAsync(queue), Times.Never);
+        }
+
+
+        [Test]
+        public void QueueServiceTests_GetQueueById_ReturnsQueue()
+        {
+            // Arrange
+            const int id = 1;
+            var comparer = new QueueComparer();
+            var expected = new Queue() { Id = id };
+
+            this.queueRepositoryMock.Setup(repository => repository.Get(id))
+                .Returns(expected);
+
+            // Act
+            var actual = this.queueService.GetQueueById(id);
+
+            // Assert
+            Assert.IsTrue(comparer.Equals(expected, actual));
+        }
+
+
+        [Test]
+        public void QueueServiceTests_GetQueueById_QueueDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            const int id = 1;
+            Queue nullResult = null;
+            this.queueRepositoryMock.Setup(repository => repository.Get(id))
+                .Returns(nullResult);
+
+            // Act
+            var actual = this.queueService.GetQueueById(id);
+
+            // Assert
+            Assert.IsNull(actual);
+        }
+
+        [Test]
+        public async Task QueueServiceTests_DeleteQueueAsync_DeletesQueue()
+        {
+            // Arrange
+            const int id = 1;
+            var queue = new Queue() { Id = id };
+            this.queueRepositoryMock.Setup(repository => repository.DeleteAsync(It.IsAny<Queue>()));
+
+            // Act
+            await this.queueService.DeleteQueueAsync(queue);
+
+            // Assert
+            this.queueRepositoryMock.Verify(repository => repository.DeleteAsync(queue), Times.Once);
         }
     }
 }

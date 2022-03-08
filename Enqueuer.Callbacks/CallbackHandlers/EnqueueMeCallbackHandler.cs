@@ -97,7 +97,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         private async Task<User> AddUserAndChatToDBAsync(CallbackQuery callbackQuery, int chatId)
         {
             var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
-            var chat = this.chatService.GetChatByChatId(chatId);
+            var chat = this.chatService.GetChatById(chatId);
             await this.chatService.AddUserToChatIfNotAlready(user, chat);
             return user;
         }

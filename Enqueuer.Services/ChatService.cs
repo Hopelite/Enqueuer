@@ -59,7 +59,7 @@ namespace Enqueuer.Services
                     .FirstOrDefault(chat => chat.ChatId == chatId);
         }
 
-        public Chat GetChatByChatId(int id)
+        public Chat GetChatById(int id)
         {
             return this.chatRepository.Get(id);
         }

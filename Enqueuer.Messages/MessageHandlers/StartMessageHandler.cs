@@ -44,6 +44,7 @@ namespace Enqueuer.Messages.MessageHandlers
         {
             if (message.IsPrivateChat())
             {
+                await this.userService.GetNewOrExistingUserAsync(message.From);
                 var callbackButtonData = new CallbackData()
                 {
                     Command = CallbackConstants.ListChatsCommand,
