@@ -1,6 +1,6 @@
 # Enqueuer
 
-This is the repository of **Enqueuer** Telegram bot (@enqueuer_bot), the master of creating and managing queues. Just add it to your chat and write the */start* command to begin, or write the same command in direct messages with it.
+This is the repository of **Enqueuer** Telegram bot (*@enqueuer_bot*), the master of creating and managing queues. Just add it to your chat and write the */start* command to begin, or write the same command in direct messages with it.
 
 ## Command List
 All of these commands, except the */start* are available only in group chats - use convenient user interface in direct messages with bot.
