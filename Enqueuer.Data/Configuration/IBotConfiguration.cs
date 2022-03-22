@@ -26,8 +26,8 @@
         public string BotVersion { get; set; }
 
         /// <summary>
-        /// Gets or sets bot develoment chat ID to send errors to.
+        /// Gets or sets bot development chat ID to send errors to.
         /// </summary>
-        public long DevelomentChatId { get; set; }
+        public long DevelopmentChatId { get; set; }
     }
 }

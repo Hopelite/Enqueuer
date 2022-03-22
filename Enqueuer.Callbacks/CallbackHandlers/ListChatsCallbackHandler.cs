@@ -92,7 +92,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     ChatId = chats[chatIndex].Id,
                 };
 
-                var serializedCallbackData = this.dataSerializer.Serialize(callbackData);
+                var serializedCallbackData = this.DataSerializer.Serialize(callbackData);
                 replyButtons[row][i] = InlineKeyboardButton.WithCallbackData($"{chats[chatIndex].Name}", serializedCallbackData);
             }
         }

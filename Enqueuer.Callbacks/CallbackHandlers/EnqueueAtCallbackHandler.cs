@@ -57,13 +57,13 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                         replyMarkup: this.GetReturnToChatButton(callbackData));
                 }
 
-                return await HandleCallbackWithExistionQueueAsync(botClient, callbackQuery, queue, callbackData);
+                return await HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, callbackData);
             }
 
             throw new CallbackMessageHandlingException("Null queue data passed to callback handler.");
         }
 
-        private async Task<Message> HandleCallbackWithExistionQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
+        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
             var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
             if (user.IsParticipatingIn(queue))

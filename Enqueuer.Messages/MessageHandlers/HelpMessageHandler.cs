@@ -24,7 +24,7 @@ namespace Enqueuer.Messages.MessageHandlers
                 + "<b>/enqueue</b> - add yourself to the end of a queue or to a specified position\n"
                 + "<b>/dequeue</b> - remove yourself from a queue\n"
                 + "<b>/removequeue</b> - delete a queue\n"
-                + "To get slightly more detailed info about one of them, write the appopriate command.",
+                + "To get slightly more detailed info about one of them, write the appropriate command.",
                 ParseMode.Html);
         }
     }

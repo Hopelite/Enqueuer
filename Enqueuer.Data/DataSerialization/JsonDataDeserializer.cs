@@ -3,7 +3,7 @@
 namespace Enqueuer.Data.DataSerialization
 {
     /// <summary>
-    /// Deerializes JSON data.
+    /// Deserializes JSON data.
     /// </summary>
     public class JsonDataDeserializer : IDataDeserializer
     {

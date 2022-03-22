@@ -2,7 +2,7 @@ namespace Enqueuer.Messages.Constants
 {
     /// <summary>
     /// Contains constants for message handlers.
-    /// <summary>
+    /// </summary>
     public static class MessageHandlersConstants
     {
         /// <summary>

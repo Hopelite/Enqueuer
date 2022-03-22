@@ -21,7 +21,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
         /// <param name="botClient"><see cref="ITelegramBotClient"/> to use.</param>
         /// <param name="callbackQuery">Incoming <see cref="CallbackQuery"/> to handle.</param>
         /// <param name="callbackData"><see cref="CallbackData"/> from <paramref name="callbackQuery"/> to work with.</param>
-        /// <returns><see cref="Message"/> which was sent in responce.</returns>
+        /// <returns><see cref="Message"/> which was sent in response.</returns>
         public Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData);
     }
 }

@@ -17,7 +17,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class GetChatCallbackHandler : CallbackHandlerBase
     {
-        const string UnableToCreateQueueMessage = "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>";
+        private const string UnableToCreateQueueMessage = "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>";
         private readonly IChatService chatService;
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                         replyMarkup: this.GetReturnButton());
             }
 
-            var responceMessage = (chatQueues.Count == 0
+            var responseMessage = (chatQueues.Count == 0
                 ? "This chat has no queues. Are you thinking of creating one?"
                 : "This chat has these queues. You can manage any one of them be selecting it.")
                 + UnableToCreateQueueMessage;
@@ -56,7 +56,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return await botClient.EditMessageTextAsync(
                     callbackQuery.Message.Chat,
                     callbackQuery.Message.MessageId,
-                    responceMessage,
+                    responseMessage,
                     ParseMode.Html,
                     replyMarkup: replyMarkup);
         }
@@ -76,7 +76,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     },
                 };
 
-                var serializedCallbackData = this.dataSerializer.Serialize(callbackData);
+                var serializedCallbackData = this.DataSerializer.Serialize(callbackData);
                 replyButtons[i] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData($"'{chatQueues[i].Name}'", serializedCallbackData) };
             }
 
@@ -91,7 +91,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 Command = CallbackConstants.ListChatsCommand,
             };
 
-            var serializedCallbackData = this.dataSerializer.Serialize(callbackData);
+            var serializedCallbackData = this.DataSerializer.Serialize(callbackData);
             return InlineKeyboardButton.WithCallbackData("Return", serializedCallbackData);
         }
     }
