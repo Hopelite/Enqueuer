@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enqueuer.Services\Enqueuer.Services.csproj" />
+    <ProjectReference Include="..\..\src\Enqueuer.Services\Enqueuer.Services.csproj" />
   </ItemGroup>
 
 </Project>

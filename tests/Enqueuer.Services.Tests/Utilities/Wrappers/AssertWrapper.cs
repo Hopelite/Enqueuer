@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
-namespace Enqueuer.Tests.Utilities.Wrappers
+namespace Enqueuer.Services.Tests.Utilities.Wrappers
 {
     /// <summary>
     /// Extends <see cref="Assert"/> class.

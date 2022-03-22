@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Persistence.Models;
 
-namespace Enqueuer.Tests.Utilities.Comparers
+namespace Enqueuer.Services.Tests.Utilities.Comparers
 {
     internal class QueueComparer : IEqualityComparer<Queue>
     {
