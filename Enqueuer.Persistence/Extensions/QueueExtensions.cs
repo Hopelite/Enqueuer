@@ -8,7 +8,7 @@ namespace Enqueuer.Persistence.Extensions
     public static class QueueExtensions
     {
         /// <summary>
-        /// Checks whether user with specified <paramref name="userId"/> is <paramref name="queue"/> creator.
+        /// Checks whether <paramref name="user"/> is the <paramref name="queue"/> creator.
         /// </summary>
         /// <param name="queue"><see cref="Queue"/> which creator to check.</param>
         /// <param name="user">Telegram user to check.</param>

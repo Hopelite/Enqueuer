@@ -74,10 +74,10 @@ namespace Enqueuer.Messages.MessageHandlers
                     ParseMode.Html);
             }
 
-            var responceMessage = BuildResponceMessageWithQueueParticipants(queue);
+            var responseMessage = BuildResponseMessageWithQueueParticipants(queue);
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                responceMessage,
+                responseMessage,
                 ParseMode.Html);
         }
 
@@ -93,14 +93,14 @@ namespace Enqueuer.Messages.MessageHandlers
                         replyToMessageId: message.MessageId);
             }
 
-            var replyMessage = BuildResponceMessageWithChatQueues(chatQueues);
+            var replyMessage = BuildResponseMessageWithChatQueues(chatQueues);
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
                 replyMessage,
                 ParseMode.Html);
         }
 
-        private static string BuildResponceMessageWithChatQueues(IEnumerable<Queue> chatQueues)
+        private static string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)
         {
             var replyMessage = new StringBuilder("This chat has these queues:\n");
             foreach (var queue in chatQueues)
@@ -112,17 +112,17 @@ namespace Enqueuer.Messages.MessageHandlers
             return replyMessage.ToString();
         }
 
-        private static string BuildResponceMessageWithQueueParticipants(Queue queue)
+        private static string BuildResponseMessageWithQueueParticipants(Queue queue)
         {
-            var responceMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
+            var responseMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
             var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
                 .Select(queueUser => (queueUser.Position, queueUser.User));
             foreach (var queueParticipant in queueParticipants)
             {
-                responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
+                responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
             }
 
-            return responceMessage.ToString();
+            return responseMessage.ToString();
         }
     }
 }

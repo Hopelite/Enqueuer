@@ -32,7 +32,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
                 ChatId = callbackData.ChatId,
             };
 
-            var serializedCallbackData = this.dataSerializer.Serialize(buttonCallbackData);
+            var serializedCallbackData = this.DataSerializer.Serialize(buttonCallbackData);
             return InlineKeyboardButton.WithCallbackData("Return", serializedCallbackData);
         }
     }

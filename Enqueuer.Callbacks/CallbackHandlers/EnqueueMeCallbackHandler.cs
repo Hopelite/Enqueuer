@@ -66,7 +66,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, Telegram.Bot.Types.User telegramUser, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
-            var user = await this.AddUserAndChatToDBAsync(callbackQuery, callbackData.ChatId);
+            var user = await this.AddUserAndChatToDbAsync(callbackQuery, callbackData.ChatId);
             var userInReplyMessage = GetUserName(telegramUser);
             if (DoesUserNotParticipateInQueue(queue, user))
             {
@@ -94,7 +94,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
         }
 
-        private async Task<User> AddUserAndChatToDBAsync(CallbackQuery callbackQuery, int chatId)
+        private async Task<User> AddUserAndChatToDbAsync(CallbackQuery callbackQuery, int chatId)
         {
             var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
             var chat = this.chatService.GetChatById(chatId);

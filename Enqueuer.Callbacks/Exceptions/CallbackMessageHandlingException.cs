@@ -3,7 +3,7 @@
 namespace Enqueuer.Callbacks.Exceptions
 {
     /// <summary>
-    /// Represents an exception which occurs durin callback handling.
+    /// Represents an exception which occurs during callback handling.
     /// </summary>
     public class CallbackMessageHandlingException : Exception
     {

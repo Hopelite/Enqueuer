@@ -24,7 +24,7 @@ namespace Enqueuer.Callbacks
         /// <summary>
         /// Initializes a new instance of the <see cref="CallbackDistributor"/> class and adds <see cref="ICallbackHandler"/> using <paramref name="callbackHandlersFactory"/>.
         /// </summary>
-        /// <param name="callbackHandlersFactory"><see cref="ICallbackHandlersFactory"/> which provides distibutor with <see cref="ICallbackHandler"/>.</param>
+        /// <param name="callbackHandlersFactory"><see cref="ICallbackHandlersFactory"/> which provides distributor with <see cref="ICallbackHandler"/>.</param>
         /// <param name="logger"><see cref="ILogger"/> to log info.</param>
         /// <param name="dataDeserializer"><see cref="IDataDeserializer"/> to deserialize callback data.</param>
         /// <param name="botConfiguration"><see cref="IBotConfiguration"/> to rely on.</param>
@@ -53,7 +53,7 @@ namespace Enqueuer.Callbacks
                 catch (Exception ex)
                 {
                     await telegramBotClient.SendTextMessageAsync(
-                        this.botConfiguration.DevelomentChatId,
+                        this.botConfiguration.DevelopmentChatId,
                         $"Exception thrown while handling callback '{callbackQuery.Data}' from {callbackQuery.From.Username ?? callbackQuery.From.FirstName + callbackQuery.From.LastName ?? string.Empty}\n"
                         + $"Exception message: {ex.Message}\n"
                         + $"Stack trace: {ex.StackTrace}");

@@ -54,13 +54,13 @@ namespace Enqueuer.Services
         {
             // TODO: optimize the algorithm
             var positionsToSearchIn = Enumerable.Range(1, maxPosition);
-            var postionsReserved = this.userInQueueRepository.GetAll()
+            var positionsReserved = this.userInQueueRepository.GetAll()
                 .Where(userInQueue => userInQueue.QueueId == queue.Id)
                 .OrderBy(userInQueue => userInQueue.Position)
                 .Select(userInQueue => userInQueue.Position);
 
             return positionsToSearchIn
-                .Except(postionsReserved)
+                .Except(positionsReserved)
                 .Take(NumberOfPositions).ToList();
         }
 
@@ -73,7 +73,7 @@ namespace Enqueuer.Services
                 .OrderBy(position => position)
                 .ToList();
 
-            int firstAvailablePosition = 1;
+            var firstAvailablePosition = 1;
             for (int i = 0; i < positions.Count; i++)
             {
                 if (firstAvailablePosition != positions[i])

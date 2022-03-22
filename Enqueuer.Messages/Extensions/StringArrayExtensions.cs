@@ -1,7 +1,7 @@
 ﻿namespace Enqueuer.Messages.Extensions
 {
     /// <summary>
-    /// Contains extesnion methods for array of strings.
+    /// Contains extension methods for array of strings.
     /// </summary>
     public static class StringArrayExtensions
     {

@@ -15,7 +15,7 @@ namespace Enqueuer.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="QueueService"/> class.
         /// </summary>
-        /// <param name="chatRepository"><see cref="IRepository{T}"/> with <see cref="Queue"/> entities.</param>
+        /// <param name="queueRepository"><see cref="IRepository{T}"/> with <see cref="Queue"/> entities.</param>
         public QueueService(IRepository<Queue> queueRepository)
         {
             this.queueRepository = queueRepository;

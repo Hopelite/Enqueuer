@@ -26,24 +26,28 @@ namespace Enqueuer.Persistence.Repositories
         /// Adds <paramref name="entity"/> to database.
         /// </summary>
         /// <param name="entity">Entity to add.</param>
+        /// <returns>Awaitable <see cref="Task"/>.</returns>
         public Task AddAsync(T entity);
 
         /// <summary>
         /// Updates <paramref name="entity"/> in database.
         /// </summary>
         /// <param name="entity">Entity update.</param>
+        /// <returns>Awaitable <see cref="Task"/>.</returns>
         public Task UpdateAsync(T entity);
 
         /// <summary>
-        /// Deletes <paramref name="entity"/> with specified ID from database.
+        /// Deletes entity with specified <paramref name="id"/> from database.
         /// </summary>
         /// <param name="id">ID of entity to delete.</param>
+        /// <returns>Awaitable <see cref="Task"/>.</returns>
         public Task DeleteAsync(int id);
 
         /// <summary>
         /// Deletes <paramref name="entity"/> from database.
         /// </summary>
         /// <param name="entity">Entity to delete.</param>
+        /// <returns>Awaitable <see cref="Task"/>.</returns>
         public Task DeleteAsync(T entity);
     }
 }

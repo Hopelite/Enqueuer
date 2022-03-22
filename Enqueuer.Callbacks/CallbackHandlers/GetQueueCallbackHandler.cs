@@ -66,11 +66,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         {
             var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
             var replyMarkup = await this.BuildReplyMarkup(botClient, user, queue, callbackData);
-            var responceMessage = BuildResponceMessage(queue);
+            var responseMessage = BuildResponseMessage(queue);
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                responceMessage,
+                responseMessage,
                 ParseMode.Html,
                 replyMarkup: replyMarkup);
         }
@@ -105,27 +105,27 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 }
             };
 
-            var serializedCallbackData = this.dataSerializer.Serialize(buttonCallbackData);
+            var serializedCallbackData = this.DataSerializer.Serialize(buttonCallbackData);
             return InlineKeyboardButton.WithCallbackData(buttonText, serializedCallbackData);
         }
 
-        private static string BuildResponceMessage(Queue queue)
+        private static string BuildResponseMessage(Queue queue)
         {
-            StringBuilder responceMessage;
-            if (queue.Users.Count() == 0)
+            StringBuilder responseMessage;
+            if (!queue.Users.Any())
             {
-                responceMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has no participants.");
+                responseMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has no participants.");
             }
             else
             {
-                responceMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has these participants:\n");
+                responseMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has these participants:\n");
                 foreach (var queueParticipant in queue.Users.OrderBy(userInQueue => userInQueue.Position))
                 {
-                    responceMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
+                    responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
                 }
             }
 
-            return responceMessage.ToString();
+            return responseMessage.ToString();
         }
     }
 }

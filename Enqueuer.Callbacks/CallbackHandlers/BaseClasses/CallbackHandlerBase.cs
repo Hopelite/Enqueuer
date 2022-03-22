@@ -11,7 +11,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
     /// </summary>
     public abstract class CallbackHandlerBase : ICallbackHandler
     {
-        protected readonly IDataSerializer dataSerializer;
+        protected readonly IDataSerializer DataSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CallbackHandlerBase"/> class.
@@ -19,7 +19,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
         /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
         public CallbackHandlerBase(IDataSerializer dataSerializer)
         {
-            this.dataSerializer = dataSerializer;
+            this.DataSerializer = dataSerializer;
         }
 
         /// <inheritdoc/>

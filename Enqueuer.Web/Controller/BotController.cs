@@ -5,7 +5,7 @@ using Telegram.Bot.Types;
 namespace Enqueuer.Web.Controller
 {
     /// <summary>
-    /// Contoller, that handles bot requests.
+    /// Controller, that handles bot requests.
     /// </summary>
     public class BotController : ControllerBase
     {
@@ -24,7 +24,7 @@ namespace Enqueuer.Web.Controller
         /// Handles incoming telegram <see cref="Update"/>.
         /// </summary>
         /// <param name="update">Incoming telegram <see cref="Update"/> to handle/</param>
-        /// <returns><see cref="OkResult"/> in responce.</returns>
+        /// <returns><see cref="OkResult"/> in response.</returns>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Update update)
         {

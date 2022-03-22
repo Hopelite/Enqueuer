@@ -39,7 +39,7 @@ namespace Enqueuer.Web.Middleware
                 var botClient = context.RequestServices.GetService<ITelegramBotClient>();
                 var botConfiguration = context.RequestServices.GetService<IBotConfiguration>();
                 await botClient.SendTextMessageAsync(
-                    botConfiguration.DevelomentChatId,
+                    botConfiguration.DevelopmentChatId,
                     $"Exception thrown during application work.\n"
                     + $"Exception message: {ex.Message}\n"
                     + $"Stack trace: {ex.StackTrace}");

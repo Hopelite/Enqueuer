@@ -22,7 +22,7 @@ namespace Enqueuer.Messages
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageDistributor"/> class and adds message handlers using <paramref name="messageHandlersFactory"/>.
         /// </summary>
-        /// <param name="messageHandlersFactory"><see cref="IMessageHandlersFactory"/> which provides distibutor with <see cref="IMessageHandler"/>.</param>
+        /// <param name="messageHandlersFactory"><see cref="IMessageHandlersFactory"/> which provides distributor with <see cref="IMessageHandler"/>.</param>
         /// <param name="logger"><see cref="ILogger"/> to log with.</param>
         /// <param name="botConfiguration"><see cref="IBotConfiguration"/> to rely on.</param>
         public MessageDistributor(IMessageHandlersFactory messageHandlersFactory, ILogger<IMessageDistributor> logger, IBotConfiguration botConfiguration)
@@ -52,8 +52,8 @@ namespace Enqueuer.Messages
                     catch (Exception ex)
                     {
                         await telegramBotClient.SendTextMessageAsync(
-                            this.botConfiguration.DevelomentChatId,
-                            $"Exception thrown while handling '{message.Text}' from {message.From.Username ?? message.From.FirstName + message.From.LastName ?? string.Empty}\n"
+                            this.botConfiguration.DevelopmentChatId,
+                            $"Exception thrown while handling '{message.Text}' from {message.From?.Username ?? message.From?.FirstName + message.From?.LastName}\n"
                             + $"Exception message: {ex.Message}\n"
                             + $"Stack trace: {ex.StackTrace}");
                     }

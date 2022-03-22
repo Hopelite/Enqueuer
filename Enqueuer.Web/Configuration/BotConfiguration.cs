@@ -6,7 +6,7 @@ namespace Enqueuer.Web.Configuration
     /// <inheritdoc/>
     public class BotConfiguration : IBotConfiguration
     {
-        private const string botConfigurationSectionName = "BotConfiguration";
+        private const string BotConfigurationSectionName = "BotConfiguration";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BotConfiguration"/> class.
@@ -14,11 +14,11 @@ namespace Enqueuer.Web.Configuration
         /// <param name="configuration"><see cref="IConfiguration"/> with application configuration.</param>
         public BotConfiguration(IConfiguration configuration)
         {
-            var botSection = configuration.GetSection(botConfigurationSectionName);
+            var botSection = configuration.GetSection(BotConfigurationSectionName);
             this.AccessToken = botSection.GetRequiredSection("AccessToken").Value;
             this.QueuesPerChat = int.Parse(botSection.GetRequiredSection("QueuesPerChat").Value);
             this.BotVersion = botSection.GetRequiredSection("BotVersion").Value;
-            this.DevelomentChatId = long.Parse(botSection.GetRequiredSection("DevelomentChatId").Value);
+            this.DevelopmentChatId = long.Parse(botSection.GetRequiredSection("DevelopmentChatId").Value);
         }
 
         /// <inheritdoc/>
@@ -34,6 +34,6 @@ namespace Enqueuer.Web.Configuration
         public string BotVersion { get; set; }
 
         /// <inheritdoc/>
-        public long DevelomentChatId { get; set; }
+        public long DevelopmentChatId { get; set; }
     }
 }

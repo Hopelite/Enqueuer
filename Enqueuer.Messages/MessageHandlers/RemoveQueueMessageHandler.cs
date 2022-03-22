@@ -87,7 +87,7 @@ namespace Enqueuer.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
         }
 
-        private async static Task<bool> IsUserAnAdmin(ITelegramBotClient botClient, Chat chat, User user)
+        private static async Task<bool> IsUserAnAdmin(ITelegramBotClient botClient, Chat chat, User user)
         {
             var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
             return admins.Any(admin => admin.User.Id == user.UserId);
