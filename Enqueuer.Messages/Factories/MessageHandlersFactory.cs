@@ -62,7 +62,8 @@ namespace Enqueuer.Messages.Factories
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService),
                 new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService, this.userInQueueRepository),
                 new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService),
-                new DequeueMessageHandler(this.chatService, this.userService, this.queueService)
+                new DequeueMessageHandler(this.chatService, this.userService, this.queueService),
+                new DynamicQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository)
             };
         }
     }

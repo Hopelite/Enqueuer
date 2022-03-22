@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Messages.Extensions;
@@ -67,15 +69,25 @@ namespace Enqueuer.Messages.MessageHandlers
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
-
+            
+            // Double enumeration. TODO: fix it
             if (user.IsParticipatingIn(queue))
             {
                 if (queue.IsDynamic)
                 {
-
+                    var position = queue.Users.FirstOrDefault(userInQueue => userInQueue.UserId == user.Id)?.Position ?? throw new Exception("ALERT");
+                    await this.queueService.RemoveUserAsync(queue, user);
+                    foreach (var userInQueue in queue.Users.Where(userInQueue => userInQueue.Position > position))
+                    {
+                        userInQueue.Position--;
+                    }
                 }
 
-                await this.queueService.RemoveUserAsync(queue, user);
+                if (queue.IsDynamic)
+                {
+                    await this.queueService.RemoveUserAsync(queue, user);
+                }
+
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
                     $"Successfully removed from queue '<b>{queue.Name}</b>'!",

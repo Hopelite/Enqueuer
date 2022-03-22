@@ -37,7 +37,7 @@ namespace Enqueuer.Messages.MessageHandlers
         public override string Command => "/dynamiq";
 
         /// <inheritdoc/>
-        public async override Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
         {
             if (message.IsPrivateChat())
             {

@@ -89,6 +89,15 @@ namespace Enqueuer.Messages.MessageHandlers
 
             if (!user.IsParticipatingIn(queue))
             {
+                if (queue.IsDynamic && userPosition.HasValue)
+                {
+                    return await botClient.SendTextMessageAsync(
+                        chat.ChatId,
+                        "You can't specify position in dynamic queue! Only first available position is allowed'.",
+                        ParseMode.Html,
+                        replyToMessageId: message.MessageId);
+                }
+
                 return await HandleMessageWithUserNotParticipatingInQueue(botClient, message, user, chat, queue, userPosition);
             }
 
