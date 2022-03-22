@@ -8,7 +8,7 @@ using Telegram.Bot;
 namespace Enqueuer.Web.Middleware
 {
     /// <summary>
-    /// Catches all exceptions occuring during request handling and logs the by sending them to telegram chat.
+    /// Catches all exceptions occurring during request handling and logs the by sending them to telegram chat.
     /// </summary>
     public class SendExceptionsToChatMiddleware
     {
