@@ -3,13 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
-using Enqueuer.Services;
-using Enqueuer.Tests.Utilities.Comparers;
-using Enqueuer.Tests.Utilities.Wrappers;
+using Enqueuer.Services.Tests.Utilities.Comparers;
+using Enqueuer.Services.Tests.Utilities.Wrappers;
 using Moq;
 using NUnit.Framework;
 
-namespace Enqueuer.Tests.ServicesTests
+namespace Enqueuer.Services.Tests
 {
     [TestFixture]
     public class QueueServiceTests

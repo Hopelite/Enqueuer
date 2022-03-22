@@ -1,33 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A5EEB613-B9D0-4CC5-B03B-A77A502520DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Persistence", "src\Enqueuer.Persistence\Enqueuer.Persistence.csproj", "{7C8E0C7C-167D-4142-908C-173B20596AE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Persistence", "src\Enqueuer.Persistence\Enqueuer.Persistence.csproj", "{7C8E0C7C-167D-4142-908C-173B20596AE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Services", "src\Enqueuer.Services\Enqueuer.Services.csproj", "{9A7E86C4-8A83-4400-9049-1394FA93DE27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Services", "src\Enqueuer.Services\Enqueuer.Services.csproj", "{9A7E86C4-8A83-4400-9049-1394FA93DE27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Messages", "src\Enqueuer.Messages\Enqueuer.Messages.csproj", "{4D2C6BAA-E081-4427-A354-518E38D5135F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Messages", "src\Enqueuer.Messages\Enqueuer.Messages.csproj", "{4D2C6BAA-E081-4427-A354-518E38D5135F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Data", "src\Enqueuer.Data\Enqueuer.Data.csproj", "{91609246-CD68-421B-8E89-5C782085CA16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Data", "src\Enqueuer.Data\Enqueuer.Data.csproj", "{91609246-CD68-421B-8E89-5C782085CA16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Callbacks", "src\Enqueuer.Callbacks\Enqueuer.Callbacks.csproj", "{88A90FC8-CC9D-44B3-A191-D55CCECE96B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Callbacks", "src\Enqueuer.Callbacks\Enqueuer.Callbacks.csproj", "{88A90FC8-CC9D-44B3-A191-D55CCECE96B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Web", "src\Enqueuer.Web\Enqueuer.Web.csproj", "{A7A5217C-D86C-4C46-A8E1-EDBEE342B5C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Web", "src\Enqueuer.Web\Enqueuer.Web.csproj", "{A7A5217C-D86C-4C46-A8E1-EDBEE342B5C0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4318B105-138E-4DBC-A46F-9675C1E0448C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Tests", "tests\Enqueuer.Tests\Enqueuer.Tests.csproj", "{CA9342E6-A614-4138-9593-EAA4CEE25EFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Services.Tests", "tests\Enqueuer.Services.Tests\Enqueuer.Services.Tests.csproj", "{11576868-22DE-4F55-8730-2D759E35AE9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{7C8E0C7C-167D-4142-908C-173B20596AE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -54,10 +51,13 @@ Global
 		{A7A5217C-D86C-4C46-A8E1-EDBEE342B5C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7A5217C-D86C-4C46-A8E1-EDBEE342B5C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7A5217C-D86C-4C46-A8E1-EDBEE342B5C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CA9342E6-A614-4138-9593-EAA4CEE25EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CA9342E6-A614-4138-9593-EAA4CEE25EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CA9342E6-A614-4138-9593-EAA4CEE25EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CA9342E6-A614-4138-9593-EAA4CEE25EFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11576868-22DE-4F55-8730-2D759E35AE9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11576868-22DE-4F55-8730-2D759E35AE9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11576868-22DE-4F55-8730-2D759E35AE9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11576868-22DE-4F55-8730-2D759E35AE9E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7C8E0C7C-167D-4142-908C-173B20596AE6} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
@@ -66,6 +66,9 @@ Global
 		{91609246-CD68-421B-8E89-5C782085CA16} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
 		{88A90FC8-CC9D-44B3-A191-D55CCECE96B4} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
 		{A7A5217C-D86C-4C46-A8E1-EDBEE342B5C0} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
-		{CA9342E6-A614-4138-9593-EAA4CEE25EFE} = {4318B105-138E-4DBC-A46F-9675C1E0448C}
+		{11576868-22DE-4F55-8730-2D759E35AE9E} = {4318B105-138E-4DBC-A46F-9675C1E0448C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {351A2A60-7B1A-4B59-89E1-62711E231147}
 	EndGlobalSection
 EndGlobal
