@@ -74,7 +74,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 await this.userInQueueService.AddUserToQueue(user, queue, positionInQueue);
                 return await botClient.SendTextMessageAsync(
                     callbackQuery.Message.Chat,
-                    $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>'!",
+                    $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>' at the '<b>{positionInQueue}</b>' position!",
                     ParseMode.Html);
             }
 

@@ -67,6 +67,7 @@ namespace Enqueuer.Services
         /// <inheritdoc/>
         public int GetFirstAvailablePosition(Queue queue)
         {
+            // TODO: optimize the algorithm
             var positions = this.userInQueueRepository.GetAll()
                 .Where(userInQueue => userInQueue.QueueId == queue.Id)
                 .Select(userInQueue => userInQueue.Position)
