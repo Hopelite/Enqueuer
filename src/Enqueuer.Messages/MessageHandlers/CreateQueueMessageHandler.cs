@@ -111,8 +111,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "This queue name is too long. Please, provide it with a name shorter than 50 symbols."
-                );
+                    "This queue name is too long. Please, provide it with a name shorter than 50 symbols.");
             }
 
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);

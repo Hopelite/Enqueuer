@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Data.Configuration;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Messages.MessageHandlers;
-using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
-using Enqueuer.Services;
 using Enqueuer.Services.Interfaces;
 using Moq;
 using NUnit.Framework;
@@ -33,6 +27,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
         private Mock<IDataSerializer> dataSerializerMock;
         private CreateQueueMessageHandler messageHandler;
         private Mock<ITelegramBotClient> botClientMock;
+        public const char Whitespace = ' ';
 
         [SetUp]
         public void SetUp()
@@ -73,11 +68,11 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
         public async Task CreateQueueMessageHandlerTests_HandleMessageAsync_ChatHasTheMaximumNumberOfQueues_SendsMessageWithSuggestionToDeleteExistingQueue()
         {
             // Arrange
-            var queueName = "Test";
-            var chatId = 1L;
+            const string queueName = "Test";
+            const long chatId = 1L;
+            const int maxNumberOfQueues = 5;
             var chat = new Chat() {Id = chatId, Type = ChatType.Group};
-            var maxNumberOfQueues = 5;
-            var message = new Message() { Text = string.Join(' ', this.messageHandler.Command, queueName), Chat = chat };
+            var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
             
             this.botConfigurationMock.Setup(configuration => configuration.QueuesPerChat)
                 .Returns(maxNumberOfQueues);
@@ -99,6 +94,80 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
 
             // Assert
             this.botClientMock.Verify();
+        }
+
+        [Test]
+        public async Task CreateQueueMessageHandlerTests_HandleMessageAsync_ChatHasQueueWithSameName_DoesNotCreateNewQueue()
+        {
+            // Arrange
+            const string queueName = "Test";
+            const long chatId = 1L;
+            const int maxNumberOfQueues = 5;
+            const int queuesInChat = 1;
+            var chat = new Chat() { Id = chatId, Type = ChatType.Group };
+            var existingQueue = new Queue() {Name = queueName};
+            var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
+
+            this.botConfigurationMock.Setup(configuration => configuration.QueuesPerChat)
+                .Returns(maxNumberOfQueues);
+
+            this.chatServiceMock.Setup(chatService => chatService.GetNumberOfQueues(chatId))
+                .Returns(queuesInChat);
+            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+                .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
+
+            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+                .Returns(Task.FromResult(It.IsAny<Persistence.Models.User>()));
+
+            this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default));
+
+            this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
+                .Returns(existingQueue);
+            this.queueRepositoryMock.Setup(queueRepository => queueRepository.AddAsync(It.IsAny<Queue>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+
+            // Assert
+            this.queueRepositoryMock.Verify(queueRepository => queueRepository.AddAsync(It.IsAny<Queue>()), Times.Never());
+        }
+
+        [Test]
+        public async Task CreateQueueMessageHandlerTests_HandleMessageAsync_AddsNewQueueWithSpecifiedName()
+        {
+            // Arrange
+            const string queueName = "Test";
+            const long chatId = 1L;
+            const int userId = 1;
+            const int maxNumberOfQueues = 5;
+            const int queuesInChat = 1;
+            var chat = new Chat() { Id = chatId, Type = ChatType.Group };
+            var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
+
+            this.botConfigurationMock.Setup(configuration => configuration.QueuesPerChat)
+                .Returns(maxNumberOfQueues);
+
+            this.chatServiceMock.Setup(chatService => chatService.GetNumberOfQueues(chatId))
+                .Returns(queuesInChat);
+            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+                .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
+
+            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+                .Returns(Task.FromResult(new Persistence.Models.User() {Id = userId}));
+
+            this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default));
+
+            this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
+                .Returns<Queue>(null);
+            this.queueRepositoryMock.Setup(queueRepository => queueRepository.AddAsync(It.Is<Queue>(queue => queue.Name.Equals(queueName))))
+                .Verifiable();
+
+            // Act
+            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+
+            // Assert
+            this.queueRepositoryMock.Verify();
         }
     }
 }
