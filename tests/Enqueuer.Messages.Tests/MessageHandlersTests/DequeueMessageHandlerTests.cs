@@ -89,5 +89,69 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             // Assert
             this.botClientMock.Verify();
         }
+
+        [Test]
+        public async Task DequeueMessageHandlerTests_HandleMessageAsync_UserDoesNotParticipateInQueue()
+        {
+            // Arrange
+            const string queueName = "Test";
+            const long chatId = 1L;
+            var queue = new Queue() {Name = queueName};
+            var expectedMessageText = $"You're not participating in queue '<b>{queue.Name}</b>'.";
+            var chat = new Chat() { Id = chatId, Type = ChatType.Group };
+            var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
+
+            this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
+                .Returns(queue);
+
+            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+                .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
+
+            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+                .Returns(Task.FromResult(It.IsAny<Persistence.Models.User>()));
+
+            this.botClientMock.Setup(client => client.MakeRequestAsync(
+                    It.Is<SendMessageRequest>(
+                        request => request.Text.Equals(expectedMessageText)), default))
+                .Verifiable();
+
+            // Act
+            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+
+            // Assert
+            this.botClientMock.Verify();
+        }
+
+        [Test]
+        public async Task DequeueMessageHandlerTests_HandleMessageAsync_RemovesUserFromQueue()
+        {
+            // Arrange
+            const string queueName = "Test";
+            const long chatId = 1L;
+            const int userId = 1;
+            var user = new Persistence.Models.User() {Id = userId};
+            var queue = new Queue() { Name = queueName, Users = new List<UserInQueue>() { new() {UserId = userId} } };
+            var chat = new Chat() { Id = chatId, Type = ChatType.Group };
+            var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
+
+            this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
+                .Returns(queue);
+            this.queueServiceMock.Setup(queueService => queueService.RemoveUserAsync(queue, user))
+                .Verifiable();
+
+            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+                .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
+
+            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+                .Returns(Task.FromResult(user));
+
+            this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default));
+
+            // Act
+            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+
+            // Assert
+            this.queueServiceMock.Verify();
+        }
     }
 }
