@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Enqueuer.Data.Constants;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -9,7 +10,7 @@ namespace Enqueuer.Messages.MessageHandlers
     public class HelpMessageHandler : IMessageHandler
     {
         /// <inheritdoc/>
-        public string Command => "/help";
+        public string Command => MessageConstants.HelpCommand;
 
         /// <inheritdoc/>
         public async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)

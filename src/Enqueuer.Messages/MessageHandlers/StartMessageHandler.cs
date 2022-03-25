@@ -37,7 +37,7 @@ namespace Enqueuer.Messages.MessageHandlers
         }
 
         /// <inheritdoc/>
-        public override string Command => "/start";
+        public override string Command => MessageConstants.StartCommand;
 
         /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
