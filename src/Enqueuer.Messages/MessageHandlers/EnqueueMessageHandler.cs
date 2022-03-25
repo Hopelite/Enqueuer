@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
@@ -17,7 +16,6 @@ namespace Enqueuer.Messages.MessageHandlers
     {
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
-        private readonly IRepository<UserInQueue> userInQueueRepository;
         public const string PassQueueNameMessage = "To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.";
         public const string InvalidQueuePositionMessage = "Please, use positive numbers for user position.";
 
@@ -28,18 +26,15 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="userInQueueRepository">User in queue repository to use.</param>
         public EnqueueMessageHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IUserInQueueService userInQueueService,
-            IRepository<UserInQueue> userInQueueRepository)
+            IUserInQueueService userInQueueService)
             : base(chatService, userService)
         {
             this.queueService = queueService;
             this.userInQueueService = userInQueueService;
-            this.userInQueueRepository = userInQueueRepository;
         }
 
         /// <inheritdoc/>
