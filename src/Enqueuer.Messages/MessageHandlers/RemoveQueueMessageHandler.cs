@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Enqueuer.Data.Constants;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
@@ -31,7 +32,7 @@ namespace Enqueuer.Messages.MessageHandlers
         }
 
         /// <inheritdoc/>
-        public override string Command => "/removequeue";
+        public override string Command => MessageConstants.RemoveQueueCommand;
 
         /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)

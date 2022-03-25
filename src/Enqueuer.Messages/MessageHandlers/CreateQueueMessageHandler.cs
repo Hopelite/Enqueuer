@@ -50,7 +50,7 @@ namespace Enqueuer.Messages.MessageHandlers
         }
 
         /// <inheritdoc/>
-        public override string Command => "/createqueue";
+        public override string Command => MessageConstants.CreateQueueCommand;
 
         /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
