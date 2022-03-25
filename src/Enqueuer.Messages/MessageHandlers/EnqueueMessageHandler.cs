@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Enqueuer.Data.Constants;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Persistence.Repositories;
@@ -41,7 +42,7 @@ namespace Enqueuer.Messages.MessageHandlers
         }
 
         /// <inheritdoc/>
-        public override string Command => "/enqueue";
+        public override string Command => MessageConstants.EnqueueCommand;
 
         /// <inheritdoc/>
         public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
