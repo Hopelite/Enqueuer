@@ -18,6 +18,8 @@ namespace Enqueuer.Messages.MessageHandlers
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
         private readonly IRepository<UserInQueue> userInQueueRepository;
+        public const string PassQueueNameMessage = "To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.";
+        public const string InvalidQueuePositionMessage = "Please, use positive numbers for user position.";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnqueueMessageHandler"/> class.
@@ -60,7 +62,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                $"To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.",
+                PassQueueNameMessage,
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -72,7 +74,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Please, use positive numbers for user position.",
+                    InvalidQueuePositionMessage,
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
@@ -111,14 +113,8 @@ namespace Enqueuer.Messages.MessageHandlers
             }
 
             int userPosition = position ?? this.userInQueueService.GetFirstAvailablePosition(queue);
-            var userInQueue = new UserInQueue()
-            {
-                Position = userPosition,
-                UserId = user.Id,
-                QueueId = queue.Id,
-            };
 
-            await this.userInQueueRepository.AddAsync(userInQueue);
+            await this.userInQueueService.AddUserToQueue(user, queue, userPosition);
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
                 $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPosition}</b>!",
