@@ -14,4 +14,4 @@ All of these commands, except the */start* are available only in group chats - u
 - */removequeue [queue name]* - deletes a queue with specified name
 
 ## Support and Feedback
-If any error or a bug occures, please open an issue here or message the developer (*@hopelite*). Please share your feedback same way too!
+If any error or a bug occures, please open an issue here or message the developer (*@VadimK.ok*). Please share your feedback same way too!
