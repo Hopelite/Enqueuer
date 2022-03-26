@@ -15,6 +15,7 @@ namespace Enqueuer.Messages.MessageHandlers
     public class DequeueMessageHandler : MessageHandlerBase
     {
         private readonly IQueueService queueService;
+        public const string PassQueueNameMessage = "Please write the command this way: '/<b>dequeue</b> <i>[queue_name]</i>'.";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DequeueMessageHandler"/> class.
@@ -51,7 +52,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                $"Please write the command this way: '/<b>dequeue</b> <i>[queue_name]</i>'.",
+                PassQueueNameMessage,
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }

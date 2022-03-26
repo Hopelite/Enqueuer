@@ -2,7 +2,6 @@
 using Enqueuer.Data.Constants;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
 using Enqueuer.Services.Interfaces;
 using Enqueuer.Messages.Extensions;
 using Telegram.Bot;
@@ -18,7 +17,8 @@ namespace Enqueuer.Messages.MessageHandlers
     {
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
-        private readonly IRepository<UserInQueue> userInQueueRepository;
+        public const string PassQueueNameMessage = "To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.";
+        public const string InvalidQueuePositionMessage = "Please, use positive numbers for user position.";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnqueueMessageHandler"/> class.
@@ -27,18 +27,15 @@ namespace Enqueuer.Messages.MessageHandlers
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="userInQueueRepository">User in queue repository to use.</param>
         public EnqueueMessageHandler(
             IChatService chatService,
             IUserService userService,
             IQueueService queueService,
-            IUserInQueueService userInQueueService,
-            IRepository<UserInQueue> userInQueueRepository)
+            IUserInQueueService userInQueueService)
             : base(chatService, userService)
         {
             this.queueService = queueService;
             this.userInQueueService = userInQueueService;
-            this.userInQueueRepository = userInQueueRepository;
         }
 
         /// <inheritdoc/>
@@ -61,7 +58,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                $"To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.",
+                PassQueueNameMessage,
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -73,7 +70,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"Please, use positive numbers for user position.",
+                    InvalidQueuePositionMessage,
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
@@ -112,14 +109,8 @@ namespace Enqueuer.Messages.MessageHandlers
             }
 
             int userPosition = position ?? this.userInQueueService.GetFirstAvailablePosition(queue);
-            var userInQueue = new UserInQueue()
-            {
-                Position = userPosition,
-                UserId = user.Id,
-                QueueId = queue.Id,
-            };
 
-            await this.userInQueueRepository.AddAsync(userInQueue);
+            await this.userInQueueService.AddUserToQueue(user, queue, userPosition);
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
                 $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPosition}</b>!",

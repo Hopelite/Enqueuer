@@ -24,6 +24,8 @@ namespace Enqueuer.Messages.MessageHandlers
         private readonly IRepository<Queue> queueRepository;
         private readonly IBotConfiguration botConfiguration;
         private readonly IDataSerializer dataSerializer;
+        public const string PassQueueNameMessage = "To create a new queue, please write the command this way: '<b>/createqueue</b> <i>[queue_name]</i>'.";
+        public const string ChatReachedMaximumQueuesMessage = "This chat has reached its maximum number of queues. Please remove one using the '<b>/removequeue</b>' command before adding a new one.";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateQueueMessageHandler"/> class.
@@ -69,7 +71,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
             return await botClient.SendTextMessageAsync(
                     message.Chat.Id,
-                    "To create a new queue, please write the command this way: '<b>/createqueue</b> <i>[queue_name]</i>'.",
+                    PassQueueNameMessage,
                     ParseMode.Html);
         }
 
@@ -79,7 +81,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "This chat has reached its maximum number of queues. Please remove one using the '<b>/removequeue</b>' command before adding a new one.",
+                    ChatReachedMaximumQueuesMessage,
                     ParseMode.Html);
             }
 
@@ -93,12 +95,12 @@ namespace Enqueuer.Messages.MessageHandlers
 
         private static async Task<Message> HandleMessageWithNumberAtTheEndInName(ITelegramBotClient botClient, string[] messageWords, Chat chat)
         {
-            var responceMessage = messageWords.Length > 2
+            var responseMessage = messageWords.Length > 2
                                 ? "Unable to create a queue with a number at the last position of its name. Please concat the queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number."
                                 : "Unable to create a queue with only a number in its name. Please add some nice words.";
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                responceMessage,
+                responseMessage,
                 ParseMode.Html);
         }
 
@@ -109,8 +111,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    "This queue name is too long. Please, provide it with a name shorter than 50 symbols."
-                );
+                    "This queue name is too long. Please, provide it with a name shorter than 50 symbols.");
             }
 
             var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);

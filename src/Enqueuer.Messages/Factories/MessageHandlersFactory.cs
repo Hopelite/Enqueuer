@@ -16,7 +16,6 @@ namespace Enqueuer.Messages.Factories
         private readonly IQueueService queueService;
         private readonly IRepository<Queue> queueRepository;
         private readonly IUserInQueueService userInQueueService;
-        private readonly IRepository<UserInQueue> userInQueueRepository;
         private readonly IBotConfiguration botConfiguration;
         private readonly IDataSerializer dataSerializer;
 
@@ -28,7 +27,6 @@ namespace Enqueuer.Messages.Factories
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="queueRepository">Queue repository to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="userInQueueRepository">User in queue repository to use.</param>
         /// <param name="botConfiguration">Bot configuration to rely on.</param>
         /// <param name="dataSerializer"><see cref="IDataDeserializer"/> to serialize data for callback handlers.</param>
         public MessageHandlersFactory(
@@ -37,7 +35,6 @@ namespace Enqueuer.Messages.Factories
             IQueueService queueService,
             IRepository<Queue> queueRepository,
             IUserInQueueService userInQueueService,
-            IRepository<UserInQueue> userInQueueRepository,
             IBotConfiguration botConfiguration,
             IDataSerializer dataSerializer)
         {
@@ -46,7 +43,6 @@ namespace Enqueuer.Messages.Factories
             this.queueService = queueService;
             this.queueRepository = queueRepository;
             this.userInQueueService = userInQueueService;
-            this.userInQueueRepository = userInQueueRepository;
             this.botConfiguration = botConfiguration;
             this.dataSerializer = dataSerializer;
         }
@@ -60,7 +56,7 @@ namespace Enqueuer.Messages.Factories
                 new HelpMessageHandler(),
                 new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository, this.botConfiguration, this.dataSerializer),
                 new QueueMessageHandler(this.chatService, this.userService, this.queueService),
-                new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService, this.userInQueueRepository),
+                new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService),
                 new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService),
                 new DequeueMessageHandler(this.chatService, this.userService, this.queueService)
             };
