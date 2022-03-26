@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Callbacks", "src\E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Web", "src\Enqueuer.Web\Enqueuer.Web.csproj", "{A7A5217C-D86C-4C46-A8E1-EDBEE342B5C0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4318B105-138E-4DBC-A46F-9675C1E0448C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4318B105-138E-4DBC-A46F-9675C1E0448C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Services.Tests", "tests\Enqueuer.Services.Tests\Enqueuer.Services.Tests.csproj", "{11576868-22DE-4F55-8730-2D759E35AE9E}"
 EndProject
