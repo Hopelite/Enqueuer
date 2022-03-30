@@ -75,13 +75,8 @@ namespace Enqueuer.Services
                 .ToList();
 
             var firstAvailablePosition = 1;
-            for (int i = 0; i < positions.Count; i++)
+            while (positions.Contains(firstAvailablePosition))
             {
-                if (firstAvailablePosition != positions[i])
-                {
-                    break;
-                }
-
                 firstAvailablePosition++;
             }
 
