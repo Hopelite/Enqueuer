@@ -46,7 +46,7 @@ namespace Enqueuer.Callbacks.Factories
                 new ListChatsCallbackHandler(_userService, _dataSerializer),
                 new EnqueueCallbackHandler(_queueService, _userInQueueService, _dataSerializer),
                 new EnqueueAtCallbackHandler(_userService, _queueService, _userInQueueService, _dataSerializer),
-                new DequeueMeCallbackHandler(_userService, _queueService, _dataSerializer),
+                new DequeueMeCallbackHandler(_userService, _queueService, _userInQueueService, _dataSerializer),
                 new RemoveQueueCallbackHandler(_queueService, _dataSerializer),
                 new SwitchQueueDynamicHandler(_queueService, _userInQueueService, _dataSerializer),
             };

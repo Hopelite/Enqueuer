@@ -103,7 +103,8 @@ namespace Enqueuer.Services
         {
             var usersInQueue = userInQueueRepository.GetAll()
                 .Where(userInQueue => userInQueue.QueueId == queue.Id)
-                .OrderBy(userInQueue => userInQueue.Position);
+                .OrderBy(userInQueue => userInQueue.Position)
+                .ToList();
 
             int currentPosition = 1;
             foreach (var userInQueue in usersInQueue)

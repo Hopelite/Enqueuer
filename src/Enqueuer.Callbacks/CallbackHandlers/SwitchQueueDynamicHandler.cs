@@ -66,11 +66,10 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             await _queueService.UpdateQueueAsync(queue);
             await _userInQueueService.CompressQueuePositionsAsync(queue);
 
-            // TODO: send message to chat
             var chat = queue.Chat;
             await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                $"{callbackQuery.From.FirstName} {callbackQuery.From.LastName + ' ' ?? string.Empty}deleted <b>'{queue.Name}'</b> queue. I shall miss it.",
+                $"{callbackQuery.From.FirstName} {callbackQuery.From.LastName + ' ' ?? string.Empty}made <b>'{queue.Name}'</b> queue dynamic. Keep up!",
                 ParseMode.Html);
 
             return await botClient.EditMessageTextAsync(

@@ -269,7 +269,7 @@ namespace Enqueuer.Services.Tests
             this.userInQueueRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<UserInQueue>()));
 
             // Act
-            await this.userInQueueService.AddUserToQueue(user, queue, position);
+            await this.userInQueueService.AddUserToQueueAsync(user, queue, position);
 
             // Assert
             this.userInQueueRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<UserInQueue>()), Times.Once());
