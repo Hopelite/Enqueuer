@@ -6,43 +6,48 @@
     public static class CallbackConstants
     {
         /// <summary>
-        /// Gets list chats command.
+        /// Gets the list chats command.
         /// </summary>
         public static string ListChatsCommand => "/l";
 
         /// <summary>
-        /// Gets get chat command.
+        /// Gets the get chat command.
         /// </summary>
         public static string GetChatCommand => "/gc";
 
         /// <summary>
-        /// Gets get queue command.
+        /// Gets the get queue command.
         /// </summary>
         public static string GetQueueCommand => "/gq";
 
         /// <summary>
-        /// Gets dequeue me command.
+        /// Gets the dequeue me command.
         /// </summary>
         public static string DequeueMeCommand => "/dq";
 
         /// <summary>
-        /// Gets enqueue command.
+        /// Gets the enqueue command.
         /// </summary>
         public static string EnqueueCommand => "/eq";
 
         /// <summary>
-        /// Gets remove queue command.
+        /// Gets the remove queue command.
         /// </summary>
         public static string RemoveQueueCommand => "/rq";
 
         /// <summary>
-        /// Gets enqueue me command.
+        /// Gets the enqueue me command.
         /// </summary>
         public static string EnqueueMeCommand => "/eqm";
 
         /// <summary>
-        /// Gets enqueue at command.
+        /// Gets the enqueue at command.
         /// </summary>
         public static string EnqueueAtCommand => "/eqa";
+
+        /// <summary>
+        /// Gets the switch queue dynamic status command.
+        /// </summary>
+        public static string SwitchQueueDynamicCommand => "/sqd";
     }
 }

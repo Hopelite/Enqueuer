@@ -71,7 +71,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             if (DoesUserNotParticipateInQueue(queue, user))
             {
                 var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
-                await this.userInQueueService.AddUserToQueue(user, queue, positionInQueue);
+                await this.userInQueueService.AddUserToQueueAsync(user, queue, positionInQueue);
                 return await botClient.SendTextMessageAsync(
                     callbackQuery.Message.Chat,
                     $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>' at the '<b>{positionInQueue}</b>' position!",

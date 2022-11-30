@@ -82,7 +82,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(It.IsAny<Persistence.Models.User>()));
 
-            this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.AddUserToQueue(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), invalidPosition))
+            this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.AddUserToQueueAsync(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), invalidPosition))
                 .Verifiable();
 
             this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default)).Verifiable();
@@ -92,7 +92,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
 
             // Assert
             this.userInQueueServiceMock.Verify(userInQueueService => userInQueueService
-                .AddUserToQueue(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()), Times.Never);
+                .AddUserToQueueAsync(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()), Times.Never);
         }
 
         [TestCase(-1)]
@@ -184,7 +184,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Returns(queue);
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService
-                    .AddUserToQueue(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()))
+                    .AddUserToQueueAsync(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()))
                 .Verifiable();
 
             this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default))
@@ -195,7 +195,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
 
             // Assert
             this.userInQueueServiceMock.Verify(userInQueueService => userInQueueService
-                .AddUserToQueue(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()), Times.Never);
+                .AddUserToQueueAsync(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()), Times.Never);
         }
 
         [Test]
@@ -257,7 +257,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.IsPositionReserved(queue, reservedPosition))
                 .Returns(true);
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService
-                    .AddUserToQueue(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()))
+                    .AddUserToQueueAsync(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()))
                 .Verifiable();
 
             this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default))
@@ -268,7 +268,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
 
             // Assert
             this.userInQueueServiceMock.Verify(userInQueueService => userInQueueService
-                .AddUserToQueue(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()), Times.Never);
+                .AddUserToQueueAsync(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), It.IsAny<int>()), Times.Never);
         }
 
         [Test]
@@ -333,7 +333,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Returns(queue);
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService
-                    .AddUserToQueue(user, queue, position))
+                    .AddUserToQueueAsync(user, queue, position))
                 .Verifiable();
 
             this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default))
@@ -371,7 +371,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Returns(queue);
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService
-                    .AddUserToQueue(user, queue, expectedPosition))
+                    .AddUserToQueueAsync(user, queue, expectedPosition))
                 .Verifiable();
 
             this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default))

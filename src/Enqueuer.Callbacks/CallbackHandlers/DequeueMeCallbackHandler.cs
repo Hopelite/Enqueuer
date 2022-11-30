@@ -18,6 +18,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     {
         private readonly IUserService userService;
         private readonly IQueueService queueService;
+        private readonly IUserInQueueService userInQueueService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DequeueMeCallbackHandler"/> class.
@@ -25,11 +26,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <param name="userService">User service to use.</param>
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
-        public DequeueMeCallbackHandler(IUserService userService, IQueueService queueService, IDataSerializer dataSerializer)
+        public DequeueMeCallbackHandler(IUserService userService, IQueueService queueService, IUserInQueueService userInQueueService, IDataSerializer dataSerializer)
             : base(dataSerializer)
         {
             this.userService = userService;
             this.queueService = queueService;
+            this.userInQueueService = userInQueueService;
         }
 
         /// <inheritdoc/>
@@ -59,11 +61,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
-            var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
+            var user = userService.GetUserByUserId(callbackQuery.From.Id);
             string responseMessage;
-            if (user.IsParticipatingIn(queue))
+            if (user.TryGetUserPosition(queue, out var position))
             {
-                await this.queueService.RemoveUserAsync(queue, user);
+                await queueService.RemoveUserAsync(queue, user);
+                await userInQueueService.CompressQueuePositionsAsync(queue, position);
                 responseMessage = $"Successfully removed from the '<b>{queue.Name}</b>' queue!";
             }
             else
@@ -71,7 +74,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 responseMessage = $"You've already dequeued from the '<b>{queue.Name}</b>' queue.";
             }
 
-            var returnButton = this.GetReturnToQueueButton(callbackData);
+            var returnButton = GetReturnToQueueButton(callbackData);
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
