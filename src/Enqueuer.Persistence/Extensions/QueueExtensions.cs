@@ -1,4 +1,5 @@
 ﻿using Enqueuer.Persistence.Models;
+using System.Linq;
 
 namespace Enqueuer.Persistence.Extensions
 {
@@ -27,6 +28,23 @@ namespace Enqueuer.Persistence.Extensions
         public static bool IsQueueCreator(this Queue queue, long userId)
         {
             return queue.Creator.UserId == userId;
+        }
+
+        /// <summary>
+        /// Tries to get <paramref name="user"/> position in <paramref name="queue"/>.
+        /// </summary>
+        /// <returns>True, if <paramref name="user"/> participates in <paramref name="queue"/>; false otherwise.</returns>
+        public static bool TryGetUserPosition(this Queue queue, User user, out int position)
+        {
+            position = -1;
+            var userInQueue = queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
+            if (userInQueue == null)
+            {
+                return false;
+            }
+
+            position = userInQueue.Position;
+            return true;
         }
     }
 }

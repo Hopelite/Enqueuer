@@ -61,12 +61,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
-            var user = this.userService.GetUserByUserId(callbackQuery.From.Id);
+            var user = userService.GetUserByUserId(callbackQuery.From.Id);
             string responseMessage;
-            if (user.IsParticipatingIn(queue))
+            if (user.TryGetUserPosition(queue, out var position))
             {
-                await this.queueService.RemoveUserAsync(queue, user);
-                await userInQueueService.CompressQueuePositionsAsync(queue);
+                await queueService.RemoveUserAsync(queue, user);
+                await userInQueueService.CompressQueuePositionsAsync(queue, position);
                 responseMessage = $"Successfully removed from the '<b>{queue.Name}</b>' queue!";
             }
             else
@@ -74,7 +74,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 responseMessage = $"You've already dequeued from the '<b>{queue.Name}</b>' queue.";
             }
 
-            var returnButton = this.GetReturnToQueueButton(callbackData);
+            var returnButton = GetReturnToQueueButton(callbackData);
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
