@@ -18,8 +18,8 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
     {
         private const int PositionsInRow = 4;
-        private readonly IQueueService queueService;
-        private readonly IUserInQueueService userInQueueService;
+        private readonly IQueueService _queueService;
+        private readonly IUserInQueueService _userInQueueService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetQueueCallbackHandler"/> class.
@@ -30,8 +30,8 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         public EnqueueCallbackHandler(IQueueService queueService, IUserInQueueService userInQueueService, IDataSerializer dataSerializer)
             : base(dataSerializer)
         {
-            this.queueService = queueService;
-            this.userInQueueService = userInQueueService;
+            _queueService = queueService;
+            _userInQueueService = userInQueueService;
         }
 
         /// <inheritdoc/>
@@ -42,14 +42,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         {
             if (callbackData.QueueData is not null)
             {
-                var queue = this.queueService.GetQueueById(callbackData.QueueData.QueueId);
+                var queue = _queueService.GetQueueById(callbackData.QueueData.QueueId);
                 if (queue is null)
                 {
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
                         "This queue has been deleted.",
-                        replyMarkup: this.GetReturnToChatButton(callbackData));
+                        replyMarkup: GetReturnToChatButton(callbackData));
                 }
 
                 return await HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, callbackData);
@@ -60,8 +60,21 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
-            var availablePositions = this.userInQueueService.GetAvailablePositions(queue) as List<int>;
-            var replyButtons = this.BuildKeyboardMarkup(availablePositions, callbackData);
+            InlineKeyboardMarkup replyButtons;
+            if (queue.IsDynamic)
+            {
+                replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[]
+                {
+                    GetEnqueueAtButton(callbackData, "First available"),
+                    GetReturnToQueueButton(callbackData)
+                });
+            }
+            else
+            {
+                var availablePositions = _userInQueueService.GetAvailablePositions(queue) as List<int>;
+                replyButtons = BuildKeyboardMarkup(availablePositions, callbackData);
+            }
+
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
@@ -75,9 +88,9 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var numberOfRows = availablePositions.Count / PositionsInRow;
             var positionButtons = new InlineKeyboardButton[numberOfRows + 2][];
 
-            positionButtons[0] = new InlineKeyboardButton[] { this.GetEnqueueAtButton(callbackData, "First available") };
-            this.AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
-            positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { this.GetReturnToQueueButton(callbackData) };
+            positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, "First available") };
+            AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
+            positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };
 
             return new InlineKeyboardMarkup(positionButtons);
         }
@@ -90,7 +103,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 for (int j = 0; j < PositionsInRow; j++, positionIndex++)
                 {
                     var position = availablePositions[positionIndex];
-                    positionButtons[i][j] = this.GetEnqueueAtButton(callbackData, position: position);
+                    positionButtons[i][j] = GetEnqueueAtButton(callbackData, position: position);
                 }
             }
         }
@@ -108,7 +121,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 },
             };
 
-            var serializedCallbackData = this.DataSerializer.Serialize(buttonCallbackData);
+            var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
             return InlineKeyboardButton.WithCallbackData($"{buttonText ?? position.ToString()}", serializedCallbackData);
         }
     }
