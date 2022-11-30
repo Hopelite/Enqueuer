@@ -99,10 +99,12 @@ namespace Enqueuer.Services
             await userInQueueRepository.AddAsync(userInQueue);
         }
 
-        public async Task CompressQueuePositionsAsync(Queue queue, int startingAtPosition = 0)
+        public async Task CompressQueuePositionsAsync(Queue queue, int startingAtPosition = 1)
         {
             var usersInQueue = userInQueueRepository.GetAll()
-                .Where(userInQueue => userInQueue.QueueId == queue.Id)
+                .Where(userInQueue
+                    => userInQueue.QueueId == queue.Id
+                    && userInQueue.Position >= startingAtPosition)
                 .OrderBy(userInQueue => userInQueue.Position)
                 .ToList();
 

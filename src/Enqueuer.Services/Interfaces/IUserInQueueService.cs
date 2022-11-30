@@ -42,6 +42,6 @@ namespace Enqueuer.Services.Interfaces
         /// <summary>
         /// Compresses all positions in <paramref name="queue"/> starting from <paramref name="startingAtPosition"/>.
         /// </summary>
-        public Task CompressQueuePositionsAsync(Queue queue, int startingAtPosition = 0);
+        public Task CompressQueuePositionsAsync(Queue queue, int startingAtPosition = 1);
     }
 }
