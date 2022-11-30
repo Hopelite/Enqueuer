@@ -108,7 +108,7 @@ namespace Enqueuer.Services
                 .OrderBy(userInQueue => userInQueue.Position)
                 .ToList();
 
-            int currentPosition = 1;
+            var currentPosition = startingAtPosition;
             foreach (var userInQueue in usersInQueue)
             {
                 if (userInQueue.Position != currentPosition)

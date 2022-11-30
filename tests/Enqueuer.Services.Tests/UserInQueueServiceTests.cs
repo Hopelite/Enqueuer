@@ -184,7 +184,7 @@ namespace Enqueuer.Services.Tests
         }
 
         [Test]
-        public void UGetAvailablePositions_SomePositionsInFirstTwentyReserved()
+        public void GetAvailablePositions_SomePositionsInFirstTwentyReserved()
         {
             // Arrange
             var queue = new Queue() { Id = 1 };
@@ -260,7 +260,7 @@ namespace Enqueuer.Services.Tests
         }
 
         [Test]
-        public async Task UserInQueueServiceTests_AddUserToQueue_AddsUserToQueue()
+        public async Task AddUserToQueue_AddsUserToQueue()
         {
             // Arrange
             const int position = 1;
@@ -277,7 +277,7 @@ namespace Enqueuer.Services.Tests
         }
 
         [Test]
-        public async Task UserInQueueServiceTests_CompressQueuePositionsAsync_CompressesPositions()
+        public async Task CompressQueuePositionsAsync_CompressesPositions()
         {
             // Arrange
             const int numberOfUsers = 25;
@@ -293,6 +293,45 @@ namespace Enqueuer.Services.Tests
 
             // Assert
             AssertAreCompressed(usersInQueue);
+        }
+
+        [Test]
+        public async Task CompressQueuePositionsAsync_StartingFromPosition_CompressesPositionsStartingFromSpecifiedOne()
+        {
+            // Arrange
+            const int startingPosition = 10;
+            var queue = new Queue() { Id = 1 };
+            var usersInQueue = new UserInQueue[]
+            {
+                new UserInQueue() { Position = 4, QueueId = 1 },
+                new UserInQueue() { Position = 8, QueueId = 1 },
+                new UserInQueue() { Position = 6, QueueId = 1 },
+                new UserInQueue() { Position = startingPosition, QueueId = 1 },
+                new UserInQueue() { Position = 14, QueueId = 1 },
+                new UserInQueue() { Position = 19, QueueId = 1 },
+                new UserInQueue() { Position = 34, QueueId = 1 },
+            };
+
+            var expectedUncompressedUsers = usersInQueue.Where(u => u.Position < startingPosition).ToArray();
+
+            _userInQueueRepositoryMock.Setup(repository => repository.GetAll())
+                .Returns(usersInQueue.AsQueryable());
+
+            // Act
+            await _userInQueueService.CompressQueuePositionsAsync(queue, startingPosition);
+
+            // Assert
+            for (int i = 0; i < expectedUncompressedUsers.Length; i++)
+            {
+                Assert.AreEqual(expectedUncompressedUsers[i].Position, usersInQueue[i].Position);
+            }
+
+            var expectedPosition = startingPosition;
+            for (int i = expectedUncompressedUsers.Length; i < usersInQueue.Length; i++)
+            {
+                Assert.AreEqual(expectedPosition, usersInQueue[i].Position);
+                expectedPosition++;
+            }
         }
 
         private static List<int> GenerateAvailablePositions(IEnumerable<UserInQueue> usersInQueues, int positionsToGet)
