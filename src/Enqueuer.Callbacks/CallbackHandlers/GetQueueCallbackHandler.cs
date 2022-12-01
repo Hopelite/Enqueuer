@@ -147,6 +147,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
             }
 
+            if (queue.IsDynamic)
+            {
+                responseMessage.AppendLine($"Queue is <i>dynamic</i>");
+            }
+
             return responseMessage.ToString();
         }
     }
