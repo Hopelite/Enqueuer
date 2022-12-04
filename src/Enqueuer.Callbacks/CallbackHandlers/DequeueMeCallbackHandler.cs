@@ -66,7 +66,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             if (user.TryGetUserPosition(queue, out var position))
             {
                 await queueService.RemoveUserAsync(queue, user);
-                await userInQueueService.CompressQueuePositionsAsync(queue, position);
+                if (queue.IsDynamic)
+                {
+                    await userInQueueService.CompressQueuePositionsAsync(queue, position);
+                }
+
                 responseMessage = $"Successfully removed from the '<b>{queue.Name}</b>' queue!";
             }
             else

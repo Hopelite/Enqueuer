@@ -72,16 +72,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             {
                 var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
                 await this.userInQueueService.AddUserToQueueAsync(user, queue, positionInQueue);
-                return await botClient.SendTextMessageAsync(
-                    callbackQuery.Message.Chat,
-                    $"<b>{userInReplyMessage}</b> successfully added to queue '<b>{queue.Name}</b>' at the '<b>{positionInQueue}</b>' position!",
-                    ParseMode.Html);
+                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"Successfully added to queue '{queue.Name}' at the '{positionInQueue}' position!");
+                return null;
             }
 
-            return await botClient.SendTextMessageAsync(
-                    callbackQuery.Message.Chat,
-                    $"<b>{userInReplyMessage}</b>, you're already participating in queue '<b>{queue.Name}</b>'!",
-                    ParseMode.Html);
+            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"You're already participating in queue '{queue.Name}'!");
+            return null;
         }
 
         private static bool DoesUserNotParticipateInQueue(Queue queue, User user)
