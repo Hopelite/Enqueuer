@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Persistence.Extensions;
-using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -145,6 +143,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             foreach (var queueParticipant in queue.Users.OrderBy(userInQueue => userInQueue.Position))
             {
                 responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
+            }
+
+            if (queue.IsDynamic)
+            {
+                responseMessage.AppendLine($"Queue is <i>dynamic</i>");
             }
 
             return responseMessage.ToString();
