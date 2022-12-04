@@ -18,7 +18,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     public class ListChatsCallbackHandler : CallbackHandlerBase
     {
         private const int MaxChatsPerRow = 2;
-        private readonly IUserService userService;
+        private readonly IUserService _userService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ListChatsCallbackHandler"/> class.
@@ -28,16 +28,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         public ListChatsCallbackHandler(IUserService userService, IDataSerializer dataSerializer)
             : base(dataSerializer)
         {
-            this.userService = userService;
+            _userService = userService;
         }
 
-        /// <inheritdoc/>
         public override string Command => CallbackConstants.ListChatsCommand;
 
-        /// <inheritdoc/>
-        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
-            var chats = this.userService.GetUserChats(callbackQuery.From.Id)?.ToList();
+            var chats = _userService.GetUserChats(callbackQuery.From.Id)?.ToList();
             if (chats is null || chats.Count == 0)
             {
                 return await botClient.EditMessageTextAsync(
@@ -49,7 +47,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     ParseMode.Html);
             }
 
-            var replyMarkup = this.BuildReplyMarkup(chats);
+            var replyMarkup = BuildReplyMarkup(chats);
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
@@ -68,10 +66,10 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             for (int i = 0; i < rowsTotal - 1; i++)
             {
                 replyButtons[i] = new InlineKeyboardButton[MaxChatsPerRow];
-                this.AddButtonsRow(replyButtons, i, MaxChatsPerRow, chats, ref chatsIndex);
+                AddButtonsRow(replyButtons, i, MaxChatsPerRow, chats, ref chatsIndex);
             }
 
-            this.AddLastButtonsRow(replyButtons, rowsTotal, buttonsAtTheLastRow, chats, chatsIndex);
+            AddLastButtonsRow(replyButtons, rowsTotal, buttonsAtTheLastRow, chats, chatsIndex);
             return new InlineKeyboardMarkup(replyButtons);
         }
 

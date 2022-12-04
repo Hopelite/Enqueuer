@@ -38,7 +38,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         public override string Command => CallbackConstants.GetQueueCommand;
 
-        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
             if (callbackData.QueueData is not null)
             {
@@ -90,6 +90,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 });
             }
 
+            replyMarkupButtons.Add(new InlineKeyboardButton[] { GetRefreshButton(callbackData) });
             replyMarkupButtons.Add(new InlineKeyboardButton[] { GetReturnToChatButton(callbackData) });
             return new InlineKeyboardMarkup(replyMarkupButtons);
         }
