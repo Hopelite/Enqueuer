@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Exceptions;
 using Enqueuer.Data;
@@ -27,7 +26,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         public override string Command => CallbackConstants.SwitchQueueDynamicCommand;
 
-        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
             if (callbackData.QueueData is not null)
             {

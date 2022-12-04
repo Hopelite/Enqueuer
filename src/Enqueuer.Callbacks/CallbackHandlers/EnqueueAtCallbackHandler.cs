@@ -40,7 +40,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         public override string Command => CallbackConstants.EnqueueAtCommand;
 
-        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
             if (callbackData.QueueData is not null)
             {

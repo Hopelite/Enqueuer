@@ -1,13 +1,15 @@
-﻿using Enqueuer.Data;
-using Enqueuer.Data.DataSerialization;
 using System.Threading.Tasks;
+using Enqueuer.Data;
+using Enqueuer.Data.DataSerialization;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
 {
     /// <summary>
-    /// Contains basic implementation for callback handlers.
+    /// Contains the basic implementation for callback handlers with refresh button.
     /// </summary>
     public abstract class CallbackHandlerBase : ICallbackHandler
     {
@@ -19,13 +21,30 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
         /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
         public CallbackHandlerBase(IDataSerializer dataSerializer)
         {
-            this.DataSerializer = dataSerializer;
+            DataSerializer = dataSerializer;
         }
 
-        /// <inheritdoc/>
         public abstract string Command { get; }
 
-        /// <inheritdoc/>
-        public abstract Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData);
+        public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        {
+            try
+            {
+                return await HandleCallbackAsyncImplementation(botClient, callbackQuery, callbackData);
+            }
+            catch (ApiRequestException ex) when (ex.Message.Contains("Bad Request: message is not modified"))
+            {
+                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Everything is up to date.");
+                return null;
+            }
+        }
+
+        protected abstract Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData);
+
+        protected InlineKeyboardButton GetRefreshButton(CallbackData callbackData)
+        {
+            var serializedCallbackData = DataSerializer.Serialize(callbackData);
+            return InlineKeyboardButton.WithCallbackData("Refresh", serializedCallbackData);
+        }
     }
 }

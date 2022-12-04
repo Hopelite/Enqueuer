@@ -34,11 +34,9 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             _userInQueueService = userInQueueService;
         }
 
-        /// <inheritdoc/>
         public override string Command => CallbackConstants.EnqueueCommand;
 
-        /// <inheritdoc/>
-        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
             if (callbackData.QueueData is not null)
             {
@@ -86,11 +84,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         private InlineKeyboardMarkup BuildKeyboardMarkup(List<int> availablePositions, CallbackData callbackData)
         {
             var numberOfRows = availablePositions.Count / PositionsInRow;
-            var positionButtons = new InlineKeyboardButton[numberOfRows + 2][];
+            var positionButtons = new InlineKeyboardButton[numberOfRows + 3][];
 
             positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, "First available") };
             AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
-            positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };
+            positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
+            positionButtons[numberOfRows + 2] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };
 
             return new InlineKeyboardMarkup(positionButtons);
         }

@@ -18,7 +18,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
     {
-        private readonly IQueueService queueService;
+        private readonly IQueueService _queueService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RemoveQueueCallbackHandler"/> class.
@@ -28,28 +28,26 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         public RemoveQueueCallbackHandler(IQueueService queueService, IDataSerializer dataSerializer)
             : base(dataSerializer)
         {
-            this.queueService = queueService;
+            _queueService = queueService;
         }
 
-        /// <inheritdoc/>
         public override string Command => CallbackConstants.RemoveQueueCommand;
 
-        /// <inheritdoc/>
-        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
             if (callbackData.QueueData is not null)
             {
-                var queue = this.queueService.GetQueueById(callbackData.QueueData.QueueId);
+                var queue = _queueService.GetQueueById(callbackData.QueueData.QueueId);
                 if (queue is null)
                 {
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
                         "This queue has already been deleted.",
-                        replyMarkup: this.GetReturnToChatButton(callbackData));
+                        replyMarkup: GetReturnToChatButton(callbackData));
                 }
 
-                return await this.HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, callbackData, queue);
+                return await HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, callbackData, queue);
             }
 
             throw new CallbackMessageHandlingException("Invalid queue ID passed to message handler.");
@@ -59,13 +57,13 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         {
             if (HasUserAgreement(callbackData))
             {
-                return await this.HandleCallbackWithUserAgreementAsync(botClient, callbackQuery, callbackData, queue);
+                return await HandleCallbackWithUserAgreementAsync(botClient, callbackQuery, callbackData, queue);
             }
 
             var replyMarkup = new InlineKeyboardButton[][]
             {
-                new InlineKeyboardButton[] { this.GetRemoveQueueButton("Yes, delete it", callbackData, true) },
-                new InlineKeyboardButton[] { this.GetReturnToQueueButton(callbackData) }
+                new InlineKeyboardButton[] { GetRemoveQueueButton("Yes, delete it", callbackData, true) },
+                new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) }
             };
 
             return await botClient.EditMessageTextAsync(
@@ -89,10 +87,10 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                         callbackQuery.Message.MessageId,
                         $"Unable to delete <b>'{queue.Name}'</b> queue: you are not queue creator or the chat admin.",
                         ParseMode.Html,
-                        replyMarkup: this.GetReturnToQueueButton(callbackData));
+                        replyMarkup: GetReturnToQueueButton(callbackData));
                 }
 
-                await this.queueService.DeleteQueueAsync(queue);
+                await _queueService.DeleteQueueAsync(queue);
 
                 await botClient.SendTextMessageAsync(
                     chat.ChatId,
@@ -104,13 +102,13 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     callbackQuery.Message.MessageId,
                     $"Successfully deleted the <b>'{queue.Name}'</b> queue.",
                     ParseMode.Html,
-                    replyMarkup: this.GetReturnToChatButton(callbackData));
+                    replyMarkup: GetReturnToChatButton(callbackData));
             }
 
             throw new CallbackMessageHandlingException("False 'IsUserAgreed' value passed to message handler.");
         }
 
-        private bool HasUserAgreement(CallbackData callbackData)
+        private static bool HasUserAgreement(CallbackData callbackData)
         {
             return callbackData.QueueData.IsUserAgreed.HasValue;
         }
