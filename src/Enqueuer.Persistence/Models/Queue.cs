@@ -45,6 +45,11 @@ namespace Enqueuer.Persistence.Models
         public virtual User Creator { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether queue is dynamic or not.
+        /// </summary>
+        public bool IsDynamic { get; set; }
+
+        /// <summary>
         /// Gets or sets users in this queue.
         /// </summary>
         public virtual ICollection<UserInQueue> Users { get; set; } = new List<UserInQueue>();

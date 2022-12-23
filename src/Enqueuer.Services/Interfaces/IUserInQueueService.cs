@@ -37,6 +37,11 @@ namespace Enqueuer.Services.Interfaces
         /// <param name="user"><see cref="User"/> to add.</param>
         /// <param name="queue"><see cref="Queue"/> to add into.</param>
         /// <param name="position">Position to add <paramref name="user"/> at.</param>
-        public Task AddUserToQueue(User user, Queue queue, int position);
+        public Task AddUserToQueueAsync(User user, Queue queue, int position);
+
+        /// <summary>
+        /// Compresses all positions in <paramref name="queue"/> starting from <paramref name="startingAtPosition"/>.
+        /// </summary>
+        public Task CompressQueuePositionsAsync(Queue queue, int startingAtPosition = 1);
     }
 }

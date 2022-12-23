@@ -18,7 +18,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     public class GetChatCallbackHandler : CallbackHandlerBase
     {
         private const string UnableToCreateQueueMessage = "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>";
-        private readonly IChatService chatService;
+        private readonly IChatService _chatService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetChatCallbackHandler"/> class.
@@ -28,23 +28,21 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         public GetChatCallbackHandler(IChatService chatService, IDataSerializer dataSerializer)
             : base(dataSerializer)
         {
-            this.chatService = chatService;
+            _chatService = chatService;
         }
 
-        /// <inheritdoc/>
         public override string Command => CallbackConstants.GetChatCommand;
 
-        /// <inheritdoc/>
-        public override async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
         {
-            var chatQueues = this.chatService.GetChatById(callbackData.ChatId)?.Queues.ToList();
+            var chatQueues = _chatService.GetChatById(callbackData.ChatId)?.Queues.ToList();
             if (chatQueues is null)
             {
                 return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
                         "This chat has been deleted.",
-                        replyMarkup: this.GetReturnButton());
+                        replyMarkup: GetReturnButton());
             }
 
             var responseMessage = (chatQueues.Count == 0
@@ -52,7 +50,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 : "This chat has these queues. You can manage any one of them be selecting it.")
                 + UnableToCreateQueueMessage;
 
-            var replyMarkup = this.BuildReplyMarkup(chatQueues, callbackData.ChatId);
+            var replyMarkup = BuildReplyMarkup(chatQueues, callbackData, callbackData.ChatId);
             return await botClient.EditMessageTextAsync(
                     callbackQuery.Message.Chat,
                     callbackQuery.Message.MessageId,
@@ -61,12 +59,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     replyMarkup: replyMarkup);
         }
 
-        private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, int chatId)
+        private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, int chatId)
         {
-            var replyButtons = new InlineKeyboardButton[chatQueues.Count + 1][];
+            var replyButtons = new InlineKeyboardButton[chatQueues.Count + 2][];
             for (int i = 0; i < chatQueues.Count; i++)
             {
-                var callbackData = new CallbackData()
+                var newCallbackData = new CallbackData()
                 {
                     Command = CallbackConstants.GetQueueCommand,
                     ChatId = chatId,
@@ -76,11 +74,12 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     },
                 };
 
-                var serializedCallbackData = this.DataSerializer.Serialize(callbackData);
+                var serializedCallbackData = DataSerializer.Serialize(newCallbackData);
                 replyButtons[i] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData($"'{chatQueues[i].Name}'", serializedCallbackData) };
             }
 
-            replyButtons[^1] = new InlineKeyboardButton[] { this.GetReturnButton() };
+            replyButtons[^2] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
+            replyButtons[^1] = new InlineKeyboardButton[] { GetReturnButton() };
             return new InlineKeyboardMarkup(replyButtons);
         }
 

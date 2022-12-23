@@ -48,7 +48,10 @@ namespace Enqueuer.Callbacks
                 try
                 {
                     var sentMessage = await callbackHandler.HandleCallbackAsync(telegramBotClient, callbackQuery, callbackData);
-                    this.logger.LogInformation("Sent message '{Text}' on user's callback to {To}.", sentMessage.Text, sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username);
+                    if (sentMessage != null)
+                    {
+                        this.logger.LogInformation("Sent message '{Text}' on user's callback to {To}.", sentMessage.Text, sentMessage.Chat.Title ?? "@" + sentMessage.Chat.Username);
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -15,8 +15,8 @@ namespace Enqueuer.Messages.MessageHandlers
     /// <inheritdoc/>
     public class EnqueueMessageHandler : MessageHandlerBase
     {
-        private readonly IQueueService queueService;
-        private readonly IUserInQueueService userInQueueService;
+        private readonly IQueueService _queueService;
+        private readonly IUserInQueueService _userInQueueService;
         public const string PassQueueNameMessage = "To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.";
         public const string InvalidQueuePositionMessage = "Please, use positive numbers for user position.";
 
@@ -34,8 +34,8 @@ namespace Enqueuer.Messages.MessageHandlers
             IUserInQueueService userInQueueService)
             : base(chatService, userService)
         {
-            this.queueService = queueService;
-            this.userInQueueService = userInQueueService;
+            _queueService = queueService;
+            _userInQueueService = userInQueueService;
         }
 
         /// <inheritdoc/>
@@ -75,7 +75,7 @@ namespace Enqueuer.Messages.MessageHandlers
                     replyToMessageId: message.MessageId);
             }
 
-            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
+            var queue = _queueService.GetChatQueueByName(queueName, chat.ChatId);
             if (queue is null)
             {
                 return await botClient.SendTextMessageAsync(
@@ -99,7 +99,7 @@ namespace Enqueuer.Messages.MessageHandlers
 
         private async Task<Message> HandleMessageWithUserNotParticipatingInQueue(ITelegramBotClient botClient, Message message, User user, Chat chat, Queue queue, int? position)
         {
-            if (position.HasValue && this.userInQueueService.IsPositionReserved(queue, position.Value))
+            if (position.HasValue && _userInQueueService.IsPositionReserved(queue, position.Value))
             {
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,
@@ -108,9 +108,18 @@ namespace Enqueuer.Messages.MessageHandlers
                         replyToMessageId: message.MessageId);
             }
 
-            int userPosition = position ?? this.userInQueueService.GetFirstAvailablePosition(queue);
+            if (position != null && queue.IsDynamic)
+            {
+                return await botClient.SendTextMessageAsync(
+                    chat.ChatId,
+                    $"Queue '<b>{queue.Name}</b>' is dynamic - you can enqueue yourself only at the end of queue.",
+                    ParseMode.Html,
+                    replyToMessageId: message.MessageId);
+            }
 
-            await this.userInQueueService.AddUserToQueue(user, queue, userPosition);
+            var userPosition = position ?? _userInQueueService.GetFirstAvailablePosition(queue);
+
+            await _userInQueueService.AddUserToQueueAsync(user, queue, userPosition);
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
                 $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{userPosition}</b>!",
