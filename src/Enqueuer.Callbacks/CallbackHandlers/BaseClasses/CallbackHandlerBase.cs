@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.DataSerialization;
+using Enqueuer.Data.Exceptions;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -32,7 +32,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
             {
                 return await HandleCallbackAsyncImplementation(botClient, callbackQuery, callbackData);
             }
-            catch (ApiRequestException ex) when (ex.Message.Contains("Bad Request: message is not modified"))
+            catch (MessageNotModifiedException)
             {
                 await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Everything is up to date.");
                 return null;
