@@ -21,27 +21,12 @@ namespace Enqueuer.Web
     /// </summary>
     public class Startup
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Startup"/> class.
-        /// </summary>
-        public Startup()
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-            this.Configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
-            this.BotConfiguration = new BotConfiguration(this.Configuration);
+            _configuration = configuration;
         }
-
-        /// <summary>
-        /// Gets application configuration.
-        /// </summary>
-        public IConfiguration Configuration { get; }
-
-        /// <summary>
-        /// Gets bot configuration.
-        /// </summary>
-        public IBotConfiguration BotConfiguration { get; }
 
         /// <summary>
         /// Configures application service.
@@ -50,15 +35,18 @@ namespace Enqueuer.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<EnqueuerContext>(options =>
-                   options.UseSqlServer(this.Configuration.GetConnectionString("Default")),
+                   options.UseSqlServer(_configuration.GetConnectionString("Default")),
                    contextLifetime: ServiceLifetime.Transient,
                    optionsLifetime: ServiceLifetime.Singleton);
 
-            services.AddTransient(_ => this.BotConfiguration);
+            services.AddTransient<IBotConfiguration, BotConfiguration>();
 
             services.AddHttpClient("Webhook")
-                .AddTypedClient<ITelegramBotClient>(httpClient
-                    => new TelegramBotClient(BotConfiguration.AccessToken, httpClient));
+                .AddTypedClient<ITelegramBotClient>((httpClient, serviceProvider) =>
+                {
+                    var botConfiguration = serviceProvider.GetService<IBotConfiguration>();
+                    return new TelegramBotClient(botConfiguration.AccessToken, httpClient);
+                });
 
             services.ConfigureSerialization();
             services.ConfigureRepositories();
@@ -86,9 +74,9 @@ namespace Enqueuer.Web
 
             app.UseEndpoints(endpoints =>
             {
-                var accessToken = this.BotConfiguration.AccessToken;
+                var botConfiguration = app.ApplicationServices.GetService<IBotConfiguration>();
                 endpoints.MapControllerRoute(name: "Webhook",
-                             pattern: $"bot{BotConfiguration.AccessToken}",
+                             pattern: $"bot{botConfiguration.AccessToken}",
                              new { controller = "Bot", action = "Post" });
                 endpoints.MapControllers();
             });
