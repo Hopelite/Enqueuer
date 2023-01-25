@@ -53,12 +53,12 @@ namespace Enqueuer.Messages.Factories
             return new IMessageHandler[]
             {
                 new StartMessageHandler(this.botConfiguration, this.chatService, this.userService, this.dataSerializer),
-                new HelpMessageHandler(),
+                //new HelpMessageHandler(),
                 new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository, this.botConfiguration, this.dataSerializer),
-                new QueueMessageHandler(this.chatService, this.userService, this.queueService),
-                new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService),
-                new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService),
-                new DequeueMessageHandler(this.chatService, this.userService, this.queueService)
+                //new QueueMessageHandler(this.chatService, this.userService, this.queueService),
+                //new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService),
+                //new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService),
+                //new DequeueMessageHandler(this.chatService, this.userService, this.queueService)
             };
         }
     }
