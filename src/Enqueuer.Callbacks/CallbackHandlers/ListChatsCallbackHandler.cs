@@ -41,9 +41,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 return await botClient.EditMessageTextAsync(
                     callbackQuery.Message.Chat,
                     callbackQuery.Message.MessageId,
-                    "I haven't seen you before. " +
-                    "Please, write any command in any chat with me, and I'll notice you there. " +
-                    "Then come here and write <b>'/start'</b> again.",
+                    "أنا لم أرك من قبل. من فضلك اكتب أي أمر في أي محادثة معي ، وسوف ألاحظك هناك. ثم تعال إلى هنا واكتب \"/commencer\" مرة أخرى.",
                     ParseMode.Html);
             }
 
@@ -51,8 +49,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                "I know that you do participate in these chats. " +
-                "If one of the chats is not presented, please write any command in this chat, and I'll notice you there.",
+                "أعلم أنك تشارك في هذه المحادثات. إذا لم يتم عرض إحدى المحادثات ، فيرجى كتابة أي أمر في هذه المحادثة ، وسوف ألاحظك هناك.",
                 replyMarkup: replyMarkup);
         }
 

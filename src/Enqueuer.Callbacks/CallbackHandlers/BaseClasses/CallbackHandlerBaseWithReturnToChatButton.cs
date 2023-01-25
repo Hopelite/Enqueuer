@@ -33,7 +33,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
             };
 
             var serializedCallbackData = this.DataSerializer.Serialize(buttonCallbackData);
-            return InlineKeyboardButton.WithCallbackData("Return", serializedCallbackData);
+            return InlineKeyboardButton.WithCallbackData("رجوع", serializedCallbackData);
         }
     }
 }

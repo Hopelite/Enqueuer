@@ -47,7 +47,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        "This queue has been deleted.",
+                        "تم حذف هذه القائمة .",
                         replyMarkup: returnButton);
                 }
 
@@ -69,11 +69,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     await _userInQueueService.CompressQueuePositionsAsync(queue, position);
                 }
 
-                responseMessage = $"Successfully removed from the '<b>{queue.Name}</b>' queue!";
+                responseMessage = $"تمت الإزالة بنجاح من القائمة <b>'{queue.Name}'</b>!";
             }
             else
             {
-                responseMessage = $"You've already dequeued from the '<b>{queue.Name}</b>' queue.";
+                responseMessage = $"لقد تم بالفعل إخراجك من القائمة <b>'{queue.Name}'</b>.";
             }
 
             var returnButton = GetReturnToQueueButton(callbackData);

@@ -43,7 +43,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        "This queue has already been deleted.",
+                        "تم حذف هذه القائمة .",
                         replyMarkup: GetReturnToChatButton(callbackData));
                 }
 
@@ -62,14 +62,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
             var replyMarkup = new InlineKeyboardButton[][]
             {
-                new InlineKeyboardButton[] { GetRemoveQueueButton("Yes, delete it", callbackData, true) },
+                new InlineKeyboardButton[] { GetRemoveQueueButton("نعم ، احذفها", callbackData, true) },
                 new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) }
             };
 
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                $"Do you really want to delete the <b>'{queue.Name}'</b> queue? This action cannot be undone.",
+                $"هل تريد حقًا حذف القائمة <b>'{queue.Name}'</b>؟ لا يمكن التراجع عن هذا الإجراء.",
                 ParseMode.Html,
                 replyMarkup: replyMarkup);
         }
@@ -85,7 +85,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        $"Unable to delete <b>'{queue.Name}'</b> queue: you are not queue creator or the chat admin.",
+                        $"يتعذر حذف القائمة '{queue.Name}': لست منشئ القائمة أو مشرف المحادثة.",
                         ParseMode.Html,
                         replyMarkup: GetReturnToQueueButton(callbackData));
                 }
@@ -94,13 +94,13 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
                 await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    $"{callbackQuery.From.FirstName} {callbackQuery.From.LastName + ' ' ?? string.Empty}deleted <b>'{queue.Name}'</b> queue. I shall miss it.",
+                    $"{callbackQuery.From.FirstName} {callbackQuery.From.LastName + ' ' ?? string.Empty} حذف القائمة '{queue.Name}'.",
                     ParseMode.Html);
 
                 return await botClient.EditMessageTextAsync(
                     callbackQuery.Message.Chat,
                     callbackQuery.Message.MessageId,
-                    $"Successfully deleted the <b>'{queue.Name}'</b> queue.",
+                    $"تم حذف القائمة '{queue.Name}' بنجاح.",
                     ParseMode.Html,
                     replyMarkup: GetReturnToChatButton(callbackData));
             }

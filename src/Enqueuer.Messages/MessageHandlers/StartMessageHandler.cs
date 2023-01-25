@@ -53,14 +53,12 @@ namespace Enqueuer.Messages.MessageHandlers
                 var serializedCallbackData = this.dataSerializer.Serialize(callbackButtonData);
                 var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
                 {
-                    InlineKeyboardButton.WithCallbackData("View chats", serializedCallbackData),
+                    InlineKeyboardButton.WithCallbackData("عرض المحادثات", serializedCallbackData),
                 });
 
                 return await botClient.SendTextMessageAsync(
                     message.Chat.Id,
-                    "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
-                    + "And your personal queue manager too!\n"
-                    + "Start by pressing the button below:",
+                    "أهلاً بك! أنا Enqueuer Bot ، روبوت لإنشاء وإدارة قوائم الانتظار. ومدير قائمة الانتظار الشخصي أيضًا! ابدأ بالضغط على الزر أدناه:",
                     ParseMode.Html,
                     replyMarkup: viewChatsButton);
             }

@@ -50,7 +50,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        "This queue has been deleted.",
+                        "تم حذف هذه القائمة .",
                         replyMarkup: GetReturnToChatButton(callbackData));
                 }
 
@@ -68,20 +68,20 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        $"You're already participating in queue '<b>{queue.Name}</b>'. To change your position, please, dequeue yourself first.",
+                        $"أنت في القائمة '{queue.Name}'. لتغيير وضعيك بالقائمة، من فضلك ، اشطب نفسك أولاً.",
                         ParseMode.Html,
                         replyMarkup: GetReturnToQueueButton(callbackData));
             }
 
-            if (HasSpecifiedPosition(callbackData) && queue.IsDynamic)
-            {
-                return await botClient.EditMessageTextAsync(
-                    callbackQuery.Message.Chat,
-                    callbackQuery.Message.MessageId,
-                    $"Queue '<b>{queue.Name}</b>' is now dynamic. Please, return and press the 'First available' button.",
-                    ParseMode.Html,
-                    replyMarkup: GetReturnToQueueButton(callbackData));
-            }
+            //if (HasSpecifiedPosition(callbackData) && queue.IsDynamic)
+            //{
+            //    return await botClient.EditMessageTextAsync(
+            //        callbackQuery.Message.Chat,
+            //        callbackQuery.Message.MessageId,
+            //        $"Queue '<b>{queue.Name}</b>' is now dynamic. Please, return and press the 'First available' button.",
+            //        ParseMode.Html,
+            //        replyMarkup: GetReturnToQueueButton(callbackData));
+            //}
 
             var (message, position) = HasSpecifiedPosition(callbackData)
                 ? HandleCallbackWithSpecifiedPosition(callbackData, queue)
@@ -105,18 +105,18 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var position = callbackData.QueueData.Position.Value;
             if (_userInQueueService.IsPositionReserved(queue, position))
             {
-                var notAvailableMessage = $"Position '<b>{position}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.";
+                var notAvailableMessage = $"الموضع رقم <b>'{position}'</b> في القائمة <b>'{queue.Name}'</b> محجوز. من فضلك ، احجز موضع آخر.";
                 return (notAvailableMessage, null);
             }
 
-            var message = $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{position}</b>!";
+            var message = $"تمت الإضافة بنجاح إلى قائمة الانتظار <b>'{queue.Name}'</b> في الموضع رقم <b>{position}</b>!";
             return (message, position);
         }
 
         private (string message, int position) HandleCallbackWithoutPositionProvided(Queue queue)
         {
             var firstPositionAvailable = _userInQueueService.GetFirstAvailablePosition(queue);
-            return ($"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{firstPositionAvailable}</b>!", firstPositionAvailable);
+            return ($"تمت الإضافة بنجاح إلى قائمة الانتظار <b>'{queue.Name}'</b> في الموضع رقم <b>{firstPositionAvailable}</b>!", firstPositionAvailable);
         }
 
         private static bool HasSpecifiedPosition(CallbackData callbackData)

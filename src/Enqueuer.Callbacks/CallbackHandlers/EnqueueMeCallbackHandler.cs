@@ -54,7 +54,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        "This queue has been deleted. Please, create a new one to participate in.",
+                        "تم حذف هذه القائمة .",
                         ParseMode.Html);
                 }
 
@@ -72,11 +72,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             {
                 var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
                 await this.userInQueueService.AddUserToQueueAsync(user, queue, positionInQueue);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"Successfully added to queue '{queue.Name}' at the '{positionInQueue}' position!");
+                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"تمت الإضافة بنجاح إلى قائمة الانتظار <b>'{queue.Name}'</b> في الموضع رقم <b>{positionInQueue}</b>!");
                 return null;
             }
 
-            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"You're already participating in queue '{queue.Name}'!");
+            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"أنت في القائمة <b>'{queue.Name}'</b>. لتغيير وضعيك بالقائمة، من فضلك ، اشطب نفسك أولاً.");
             return null;
         }
 

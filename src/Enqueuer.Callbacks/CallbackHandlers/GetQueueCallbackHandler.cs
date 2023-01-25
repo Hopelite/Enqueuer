@@ -49,7 +49,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        "This queue has been deleted.",
+                        "تم حذف هذه القائمة .",
                         replyMarkup: returnButton);
                 }
 
@@ -77,16 +77,16 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var replyMarkupButtons = new List<InlineKeyboardButton[]>()
             {
                 user.IsParticipatingIn(queue)
-                ? new InlineKeyboardButton[] { GetQueueRelatedButton("Dequeue me", CallbackConstants.DequeueMeCommand, callbackData, queue.Id) }
-                : new InlineKeyboardButton[] { GetQueueRelatedButton("Enqueue me", CallbackConstants.EnqueueCommand, callbackData, queue.Id) }
+                ? new InlineKeyboardButton[] { GetQueueRelatedButton("أخرجني من القائمة", CallbackConstants.DequeueMeCommand, callbackData, queue.Id) }
+                : new InlineKeyboardButton[] { GetQueueRelatedButton("ضعني في القائمة", CallbackConstants.EnqueueCommand, callbackData, queue.Id) }
             };
 
             if (queue.IsQueueCreator(user) || await botClient.IsChatAdmin(user.UserId, queue.Chat.ChatId))
             {
                 replyMarkupButtons.Add(new InlineKeyboardButton[] 
                 {
-                    GetRemoveQueueButton("Remove queue", callbackData),
-                    GetDynamicQueueButton(CallbackConstants.SwitchQueueDynamicCommand, callbackData, queue)
+                    GetRemoveQueueButton("إزالة القائمة", callbackData),
+                    //GetDynamicQueueButton(CallbackConstants.SwitchQueueDynamicCommand, callbackData, queue)
                 });
             }
 
@@ -132,24 +132,24 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         {
             if (!queue.Users.Any())
             {
-                if (queue.IsDynamic)
-                {
-                    return $"Queue <b>'{queue.Name}'</b> has no participants.\nQueue is <i>dynamic</i>";
-                }
+                //if (queue.IsDynamic)
+                //{
+                //    return $"Queue <b>'{queue.Name}'</b> has no participants.\nQueue is <i>dynamic</i>";
+                //}
 
-                return $"Queue <b>'{queue.Name}'</b> has no participants.";
+                return $"لا تحتوي القائمة \"{queue.Name}\" على مشاركين.";
             }
 
-            var responseMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has these participants:\n");
+            var responseMessage = new StringBuilder($"تضم القائمة \"{queue.Name}\" هؤلاء المشاركين:\n");
             foreach (var queueParticipant in queue.Users.OrderBy(userInQueue => userInQueue.Position))
             {
-                responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
+                responseMessage.AppendLine($"<b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b> ({queueParticipant.Position}");
             }
 
-            if (queue.IsDynamic)
-            {
-                responseMessage.AppendLine($"Queue is <i>dynamic</i>");
-            }
+            //if (queue.IsDynamic)
+            //{
+            //    responseMessage.AppendLine($"Queue is <i>dynamic</i>");
+            //}
 
             return responseMessage.ToString();
         }

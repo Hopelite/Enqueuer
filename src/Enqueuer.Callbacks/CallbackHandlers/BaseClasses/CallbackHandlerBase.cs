@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.Exceptions;
@@ -34,7 +34,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
             }
             catch (MessageNotModifiedException)
             {
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Everything is up to date.");
+                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "كل شيء محدث");
                 return null;
             }
         }
@@ -44,7 +44,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
         protected InlineKeyboardButton GetRefreshButton(CallbackData callbackData)
         {
             var serializedCallbackData = DataSerializer.Serialize(callbackData);
-            return InlineKeyboardButton.WithCallbackData("Refresh", serializedCallbackData);
+            return InlineKeyboardButton.WithCallbackData("تحديث", serializedCallbackData);
         }
     }
 }

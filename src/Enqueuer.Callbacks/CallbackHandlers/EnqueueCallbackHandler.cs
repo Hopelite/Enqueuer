@@ -46,7 +46,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        "This queue has been deleted.",
+                        "تم حذف هذه القائمة .",
                         replyMarkup: GetReturnToChatButton(callbackData));
                 }
 
@@ -63,7 +63,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             {
                 replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[]
                 {
-                    GetEnqueueAtButton(callbackData, "First available"),
+                    GetEnqueueAtButton(callbackData, "أول ما كان متاحًا"),
                     GetReturnToQueueButton(callbackData)
                 });
             }
@@ -76,7 +76,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return await botClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                $"Select an available position in queue <b>'{queue.Name}'</b>:",
+                $"حدد منصبًا متاحًا في القائمة <b>\"{queue.Name}\"</b>:",
                 ParseMode.Html,
                 replyMarkup: replyButtons);
         }
@@ -86,7 +86,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             var numberOfRows = availablePositions.Count / PositionsInRow;
             var positionButtons = new InlineKeyboardButton[numberOfRows + 3][];
 
-            positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, "First available") };
+            positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, "أول ما كان متاحًا") };
             AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
             positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
             positionButtons[numberOfRows + 2] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };

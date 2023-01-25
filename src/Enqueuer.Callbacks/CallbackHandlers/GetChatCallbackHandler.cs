@@ -17,7 +17,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class GetChatCallbackHandler : CallbackHandlerBase
     {
-        private const string UnableToCreateQueueMessage = "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>";
+        private const string UnableToCreateQueueMessage = "\nحاليًا ، يمكنك إنشاء قوائم انتظار فقط عن طريق كتابة الأمر \"/creerliste\" في هذه المحادثة ، لكنني سأتعلم كيفية إنشائها في الرسائل المباشرة قريبًا!";
         private readonly IChatService _chatService;
 
         /// <summary>
@@ -41,13 +41,13 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
                         callbackQuery.Message.MessageId,
-                        "This chat has been deleted.",
+                        "تم حذف هذه المحادثة.",
                         replyMarkup: GetReturnButton());
             }
 
             var responseMessage = (chatQueues.Count == 0
-                ? "This chat has no queues. Are you thinking of creating one?"
-                : "This chat has these queues. You can manage any one of them be selecting it.")
+                ? "هذه المحادثة ليس لديها قوائم انتظار. هل تفكر في إنشاء واحدة ؟"
+                : "هذه المحادثة لديها قوائم الانتظار هذه. يمكنك إدارة أي منهم عن طريق تحديدها.")
                 + UnableToCreateQueueMessage;
 
             var replyMarkup = BuildReplyMarkup(chatQueues, callbackData, callbackData.ChatId);
