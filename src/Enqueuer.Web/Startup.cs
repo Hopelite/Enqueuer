@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
+using Enqueuer.Data.Exceptions;
 
 namespace Enqueuer.Web
 {
@@ -45,7 +46,7 @@ namespace Enqueuer.Web
                 .AddTypedClient<ITelegramBotClient>((httpClient, serviceProvider) =>
                 {
                     var botConfiguration = serviceProvider.GetService<IBotConfiguration>();
-                    return new TelegramBotClient(botConfiguration.AccessToken, httpClient);
+                    return new TelegramBotClient(botConfiguration.AccessToken, httpClient) { ExceptionsParser = new TelegramExceptionsParser() };
                 });
 
             services.ConfigureSerialization();
