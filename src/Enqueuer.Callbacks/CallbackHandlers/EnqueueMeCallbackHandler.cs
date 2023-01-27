@@ -72,11 +72,11 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             {
                 var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
                 await this.userInQueueService.AddUserToQueueAsync(user, queue, positionInQueue);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"تمت الإضافة بنجاح إلى قائمة الانتظار <b>'{queue.Name}'</b> في الموضع رقم <b>{positionInQueue}</b>!");
+                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"تمت الإضافة بنجاح إلى قائمة الانتظار '{queue.Name}' في الموضع رقم {positionInQueue}!");
                 return null;
             }
 
-            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"أنت في القائمة <b>'{queue.Name}'</b>. لتغيير وضعيك بالقائمة، من فضلك ، اشطب نفسك أولاً.");
+            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"أنت في القائمة '{queue.Name}'. لتغيير وضعيك بالقائمة، من فضلك ، اشطب نفسك أولاً.");
             return null;
         }
 
