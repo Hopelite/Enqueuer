@@ -6,28 +6,23 @@
     public interface IBotConfiguration
     {
         /// <summary>
-        /// Gets or sets bot access token.
+        /// Gets the bot access token.
         /// </summary>
-        public string AccessToken { get; set; }
+        public string AccessToken { get; }
 
         /// <summary>
-        /// Gets or sets application host.
+        /// Gets the maximal number of queues per chat.
         /// </summary>
-        public string ApplicationHost { get; set;  }
+        public int QueuesPerChat { get; }
 
         /// <summary>
-        /// Gets or sets maximal number of queues per chat.
+        /// Gets the bot version.
         /// </summary>
-        public int QueuesPerChat { get; set; }
+        public string BotVersion { get; }
 
         /// <summary>
-        /// Gets or sets bot version.
+        /// Gets the bot development chat ID to send errors to.
         /// </summary>
-        public string BotVersion { get; set; }
-
-        /// <summary>
-        /// Gets or sets bot development chat ID to send errors to.
-        /// </summary>
-        public long DevelopmentChatId { get; set; }
+        public long DevelopmentChatId { get; }
     }
 }

@@ -35,7 +35,7 @@ namespace Enqueuer.Persistence
         public EnqueuerContext(DbContextOptions<EnqueuerContext> dbContextOptions)
             : base(dbContextOptions)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
