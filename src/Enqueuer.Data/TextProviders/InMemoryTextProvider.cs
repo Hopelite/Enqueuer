@@ -35,6 +35,14 @@ public class InMemoryTextProvider : IMessageProvider
             TextKeys.QueueCommand_PublicChat_DisplayQueue_Message => "• {QueueName}",
             TextKeys.QueueCommand_PublicChat_ListQueues_PostScriptum_Message => "To get info about one of them write '<b>/queue</b> <i>[queue_name]</i>'.",
 
+            TextKeys.EnqueueCommand_PublicChat_QueueNameIsNotProvided_Message => "To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.",
+            TextKeys.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message => "Please, use positive numbers for user position.",
+            TextKeys.EnqueueCommand_PublicChat_GetQueue_DoesNotExist_Message => "There is no queue with name '<b>{QueueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
+            TextKeys.EnqueueCommand_PublicChat_UserAlreadyParticipates_Message => "You're already participating in queue '<b>{QueueName}</b>'.",
+            TextKeys.EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message => "Queue '<b>{QueueName}</b>' is dynamic - you can enqueue yourself only at the end of queue.",
+            TextKeys.EnqueueCommand_PublicChat_PositionIsReserved_Message => "Position '<b>{Position}</b>' in queue '<b>{QueueName}</b>' is reserved. Please, reserve other position.",
+            TextKeys.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message => "Successfully added to queue '<b>{QueueName}</b>' on position <b>{UserPosition}</b>!",
+
             TextKeys.UnsupportedCommand_Message => "Bot does not support the '{Command}' command.",
             TextKeys.UnsupportedCommand_PrivateChat_Message => "Bot does not support commands in private chats except '<b>/start</b>'. Please, use interface it provides.",
             _ => throw new Exception()
