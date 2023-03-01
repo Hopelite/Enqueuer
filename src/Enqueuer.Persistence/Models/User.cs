@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Enqueuer.Persistence.Models
 {
@@ -47,6 +48,11 @@ namespace Enqueuer.Persistence.Models
         /// Gets or sets queues in which user is registered.
         /// </summary>
         public virtual ICollection<UserInQueue> UserInQueues { get; set; } = new List<UserInQueue>();
+
+        [NotMapped]
+        public string FullName => string.IsNullOrWhiteSpace(LastName)
+            ? FirstName
+            : $"{FirstName} {LastName}";
 
         public static implicit operator User(Telegram.Bot.Types.User user)
         {

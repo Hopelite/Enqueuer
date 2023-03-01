@@ -70,7 +70,7 @@ tab_width = 4
 end_of_line = crlf
 [*.{cs,vb}]
 dotnet_naming_rule.private_members_with_underscore.symbols  = private_fields
-dotnet_naming_rule.private_members_with_underscore.style    = prefix_underscore
+dotnet_naming_rule.private_members_with_underscore.style = prefix_underscore
 dotnet_naming_rule.private_members_with_underscore.severity = suggestion
 
 dotnet_naming_symbols.private_fields.applicable_kinds           = field
@@ -138,7 +138,7 @@ csharp_space_between_method_call_empty_parameter_list_parentheses = false
 csharp_preserve_single_line_statements = true
 csharp_preserve_single_line_blocks = true
 csharp_using_directive_placement = outside_namespace:silent
-csharp_prefer_simple_using_statement = false:suggestion
+csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_namespace_declarations = block_scoped:silent
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = false:silent

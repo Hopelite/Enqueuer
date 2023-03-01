@@ -62,7 +62,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
-            var user = await _userService.GetNewOrExistingUserAsync(callbackQuery.From);
+            var user = await _userService.GetOrCreateUserAsync(callbackQuery.From);
             if (user.IsParticipatingIn(queue))
             {
                 return await botClient.EditMessageTextAsync(

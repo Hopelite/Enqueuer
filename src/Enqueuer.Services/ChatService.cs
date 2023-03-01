@@ -21,7 +21,7 @@ namespace Enqueuer.Services
         }
 
         /// <inheritdoc/>
-        public async Task<Chat> GetNewOrExistingChatAsync(Telegram.Bot.Types.Chat telegramChat)
+        public async Task<Chat> GetOrCreateChatAsync(Telegram.Bot.Types.Chat telegramChat)
         {
             var chat = this.GetChatByTelegramChatId(telegramChat.Id);
 

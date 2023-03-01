@@ -43,7 +43,7 @@ namespace Enqueuer.Services.Tests
             this.chatRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
 
             // Act
-            var actual = await this.chatService.GetNewOrExistingChatAsync(expected);
+            var actual = await this.chatService.GetOrCreateChatAsync(expected);
 
             // Assert
             this.chatRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<Chat>()), Times.Once);
@@ -66,7 +66,7 @@ namespace Enqueuer.Services.Tests
             this.chatRepositoryMock.Setup(repository => repository.AddAsync(It.IsAny<Chat>()));
 
             // Act
-            var actual = await this.chatService.GetNewOrExistingChatAsync(expected);
+            var actual = await this.chatService.GetOrCreateChatAsync(expected);
 
             // Assert
             Assert.IsTrue(comparer.Equals(expected, actual));

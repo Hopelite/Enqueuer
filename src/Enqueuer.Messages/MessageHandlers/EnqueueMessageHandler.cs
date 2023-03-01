@@ -42,9 +42,9 @@ namespace Enqueuer.Messages.MessageHandlers
         public override string Command => MessageConstants.EnqueueCommand;
 
         /// <inheritdoc/>
-        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+        public override async Task<Message> HandleAsync(ITelegramBotClient botClient, Message message)
         {
-            if (message.IsPrivateChat())
+            if (message.IsFromPrivateChat())
             {
                 return await botClient.SendUnsupportedOperationMessage(message);
             }

@@ -23,7 +23,7 @@ namespace Enqueuer.Services
         }
 
         /// <inheritdoc/>
-        public async Task<User> GetNewOrExistingUserAsync(Telegram.Bot.Types.User telegramUser)
+        public async Task<User> GetOrCreateUserAsync(Telegram.Bot.Types.User telegramUser)
         {
             var user = this.GetUserByUserId(telegramUser.Id);
 

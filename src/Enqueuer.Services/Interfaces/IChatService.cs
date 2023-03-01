@@ -27,7 +27,7 @@ namespace Enqueuer.Services.Interfaces
         /// </summary>
         /// <param name="telegramChat">Telegram chat using which ID to get or create a new one.</param>
         /// <returns>Task with existing or newly created <see cref="Chat"/> in return.</returns>
-        public Task<Chat> GetNewOrExistingChatAsync(Telegram.Bot.Types.Chat telegramChat);
+        public Task<Chat> GetOrCreateChatAsync(Telegram.Bot.Types.Chat telegramChat);
 
         /// <summary>
         /// Adds <paramref name="user"/> to <paramref name="chat"/> if is not already added.

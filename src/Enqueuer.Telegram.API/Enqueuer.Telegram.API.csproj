@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UpdateHandling\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Enqueuer.Callbacks\Enqueuer.Callbacks.csproj" />
     <ProjectReference Include="..\Enqueuer.Messages\Enqueuer.Messages.csproj" />
   </ItemGroup>

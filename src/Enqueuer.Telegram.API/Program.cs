@@ -31,7 +31,7 @@ public class Program
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
         app.MapPost($"bot{botConfiguration.AccessToken}", async (Update update, IUpdateHandler handler) =>
         {
-            await handler.HandleUpdateAsync(update);
+            await handler.HandleAsync(update);
         });
 
         app.UseMiddleware<SendExceptionsToChatMiddleware>();

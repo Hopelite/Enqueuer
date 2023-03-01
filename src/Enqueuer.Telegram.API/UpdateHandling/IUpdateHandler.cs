@@ -11,5 +11,5 @@ public interface IUpdateHandler
     /// <summary>
     /// Handles the incoming <paramref name="update"/>.
     /// </summary>
-    Task HandleUpdateAsync(Update update);
+    Task HandleAsync(Update update);
 }

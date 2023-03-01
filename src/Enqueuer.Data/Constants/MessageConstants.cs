@@ -5,36 +5,36 @@
         /// <summary>
         /// Gets create queue command.
         /// </summary>
-        public static string CreateQueueCommand => "/createqueue";
+        public const string CreateQueueCommand = "/createqueue";
 
         /// <summary>
         /// Gets dequeue command.
         /// </summary>
-        public static string DequeueCommand => "/dequeue";
+        public const string DequeueCommand = "/dequeue";
 
         /// <summary>
         /// Gets enqueue command.
         /// </summary>
-        public static string EnqueueCommand => "/enqueue";
+        public const string EnqueueCommand = "/enqueue";
 
         /// <summary>
         /// Gets help command.
         /// </summary>
-        public static string HelpCommand => "/help";
+        public const string HelpCommand = "/help";
 
         /// <summary>
         /// Gets queue command.
         /// </summary>
-        public static string QueueCommand => "/queue";
+        public const string QueueCommand = "/queue";
 
         /// <summary>
         /// Gets remove queue command.
         /// </summary>
-        public static string RemoveQueueCommand => "/removequeue";
+        public const string RemoveQueueCommand = "/removequeue";
 
         /// <summary>
         /// Gets start command.
         /// </summary>
-        public static string StartCommand => "/start";
+        public const string StartCommand = "/start";
     }
 }

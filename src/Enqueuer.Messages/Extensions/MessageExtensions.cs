@@ -13,7 +13,7 @@ namespace Enqueuer.Messages.Extensions
         /// </summary>
         /// <param name="message"><see cref="Message"/> to check.</param>
         /// <returns>True, if message came from private chat; false otherwise.</returns>
-        public static bool IsPrivateChat(this Message message)
+        public static bool IsFromPrivateChat(this Message message)
         {
             return message.Chat.Type == ChatType.Private;
         }

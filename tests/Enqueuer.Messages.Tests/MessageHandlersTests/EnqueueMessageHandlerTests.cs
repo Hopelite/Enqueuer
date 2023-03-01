@@ -56,7 +56,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.botClientMock.Verify();
@@ -76,10 +76,10 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 Chat = telegramChat
             };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(telegramChat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(telegramChat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(It.IsAny<Persistence.Models.User>()));
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.AddUserToQueueAsync(It.IsAny<Persistence.Models.User>(), It.IsAny<Queue>(), invalidPosition))
@@ -88,7 +88,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             this.botClientMock.Setup(client => client.MakeRequestAsync(It.IsAny<SendMessageRequest>(), default)).Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.userInQueueServiceMock.Verify(userInQueueService => userInQueueService
@@ -109,10 +109,10 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 Chat = telegramChat
             };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(telegramChat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(telegramChat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(It.IsAny<Persistence.Models.User>()));
 
             this.botClientMock.Setup(client => client.MakeRequestAsync(
@@ -121,7 +121,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.botClientMock.Verify();
@@ -141,10 +141,10 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 Chat = telegramChat
             };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(telegramChat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(telegramChat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(It.IsAny<Persistence.Models.User>()));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -156,7 +156,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.botClientMock.Verify();
@@ -174,10 +174,10 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             var chat = new Chat() { Id = chatId, Type = ChatType.Group };
             var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(chat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(user));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -191,7 +191,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.userInQueueServiceMock.Verify(userInQueueService => userInQueueService
@@ -211,10 +211,10 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             var expectedMessageText = $"You're already participating in queue '<b>{queue.Name}</b>'.";
             var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(chat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(user));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -226,7 +226,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.botClientMock.Verify();
@@ -245,10 +245,10 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             var chat = new Chat() { Id = chatId, Type = ChatType.Group };
             var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName, reservedPosition), Chat = chat };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(chat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(user));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -264,7 +264,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.userInQueueServiceMock.Verify(userInQueueService => userInQueueService
@@ -285,12 +285,12 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName, reservedPosition), Chat = chat };
             var expectedMessageText = $"Position '<b>{reservedPosition}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.";
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(chat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.IsPositionReserved(queue, reservedPosition))
                 .Returns(true);
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(user));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -302,7 +302,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.botClientMock.Verify();
@@ -321,12 +321,12 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             var chat = new Chat() { Id = chatId, Type = ChatType.Group };
             var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName, position), Chat = chat };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(chat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.IsPositionReserved(queue, position))
                 .Returns(false);
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(user));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -340,7 +340,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.userInQueueServiceMock.Verify();
@@ -359,12 +359,12 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             var chat = new Chat() { Id = chatId, Type = ChatType.Group };
             var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(chat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.GetFirstAvailablePosition(queue))
                 .Returns(expectedPosition);
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(user));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -378,7 +378,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.userInQueueServiceMock.Verify();
@@ -398,12 +398,12 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
             var message = new Message() { Text = string.Join(Whitespace, this.messageHandler.Command, queueName), Chat = chat };
             var expectedMessageText = $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{expectedPosition}</b>!";
 
-            this.chatServiceMock.Setup(chatService => chatService.GetNewOrExistingChatAsync(chat))
+            this.chatServiceMock.Setup(chatService => chatService.GetOrCreateChatAsync(chat))
                 .Returns(Task.FromResult(new Persistence.Models.Chat() { ChatId = chatId }));
 
             this.userInQueueServiceMock.Setup(userInQueueService => userInQueueService.GetFirstAvailablePosition(queue))
                 .Returns(expectedPosition);
-            this.userServiceMock.Setup(userService => userService.GetNewOrExistingUserAsync(It.IsAny<User>()))
+            this.userServiceMock.Setup(userService => userService.GetOrCreateUserAsync(It.IsAny<User>()))
                 .Returns(Task.FromResult(user));
 
             this.queueServiceMock.Setup(queueService => queueService.GetChatQueueByName(queueName, chatId))
@@ -415,7 +415,7 @@ namespace Enqueuer.Messages.Tests.MessageHandlersTests
                 .Verifiable();
 
             // Act
-            await this.messageHandler.HandleMessageAsync(this.botClientMock.Object, message);
+            await this.messageHandler.HandleAsync(this.botClientMock.Object, message);
 
             // Assert
             this.botClientMock.Verify();

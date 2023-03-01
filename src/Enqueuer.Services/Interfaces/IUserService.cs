@@ -15,7 +15,7 @@ namespace Enqueuer.Services.Interfaces
         /// </summary>
         /// <param name="telegramUser">Telegram user using which ID to get or create a new one.</param>
         /// <returns>Task with existing or newly created <see cref="User"/> in return.</returns>
-        public Task<User> GetNewOrExistingUserAsync(Telegram.Bot.Types.User telegramUser);
+        public Task<User> GetOrCreateUserAsync(Telegram.Bot.Types.User telegramUser);
 
         /// <summary>
         /// Gets user with specified <paramref name="userId"/>.

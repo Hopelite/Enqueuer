@@ -20,11 +20,11 @@ public class UpdateHandler : IUpdateHandler
         _callbackDistributor = callbackDistributor;
     }
 
-    public Task HandleUpdateAsync(Update update)
+    public Task HandleAsync(Update update)
     {
         if (update.Type == UpdateType.Message)
         {
-            return _messageDistributor.DistributeMessageAsync(_telegramBotClient, update.Message);
+            return _messageDistributor.DistributeAsync(update.Message);
         }
         else if (update.Type == UpdateType.CallbackQuery)
         {

@@ -1,9 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Enqueuer.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Chat = Enqueuer.Persistence.Models.Chat;
-using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers
 {
@@ -12,36 +10,24 @@ namespace Enqueuer.Messages.MessageHandlers
     /// </summary>
     public abstract class MessageHandlerBase : IMessageHandler
     {
-        protected readonly IChatService chatService;
-        protected readonly IUserService userService;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateQueueMessageHandler"/> class.
-        /// </summary>
-        public MessageHandlerBase(IChatService chatService, IUserService userService)
+        public MessageHandlerBase(IServiceScopeFactory scopeFactory)
         {
-            this.chatService = chatService;
-            this.userService = userService;
+            _scopeFactory = scopeFactory;
         }
 
-        /// <inheritdoc/>
-        public abstract string Command { get; }
+        public Task HandleAsync(Message message)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
-        /// <inheritdoc/>
-        public abstract Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message);
+            return HandleImplementationAsync(scope, botClient, message);
+        }
 
         /// <summary>
-        /// Gets new or existing <see cref="User"/> and <see cref="Chat"/>.
+        /// 
         /// </summary>
-        /// <param name="message"><see cref="Message"/> to get user and chat by.</param>
-        /// <returns>New or existing user and chat.</returns>
-        protected async Task<(User user, Chat chat)> GetNewOrExistingUserAndChat(Message message)
-        {
-            var chat = await this.chatService.GetNewOrExistingChatAsync(message.Chat);
-            var user = await this.userService.GetNewOrExistingUserAsync(message.From);
-            await this.chatService.AddUserToChatIfNotAlready(user, chat);
-
-            return (user, chat);
-        }
+        protected abstract Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message);
     }
 }

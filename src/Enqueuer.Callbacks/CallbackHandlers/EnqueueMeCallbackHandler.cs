@@ -92,7 +92,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private async Task<User> AddUserAndChatToDbAsync(CallbackQuery callbackQuery, int chatId)
         {
-            var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
+            var user = await this.userService.GetOrCreateUserAsync(callbackQuery.From);
             var chat = this.chatService.GetChatById(chatId);
             await this.chatService.AddUserToChatIfNotAlready(user, chat);
             return user;

@@ -1,65 +1,47 @@
-﻿using System.Collections.Generic;
-using Enqueuer.Data.DataSerialization;
+﻿using System.Diagnostics.CodeAnalysis;
+using Enqueuer.Data.Constants;
+using Enqueuer.Messages.Extensions;
 using Enqueuer.Messages.MessageHandlers;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
-using Enqueuer.Services.Interfaces;
-using Enqueuer.Data.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Telegram.Bot.Types;
 
 namespace Enqueuer.Messages.Factories
 {
-    /// <inheritdoc/>
     public class MessageHandlersFactory : IMessageHandlersFactory
     {
-        private readonly IChatService chatService;
-        private readonly IUserService userService;
-        private readonly IQueueService queueService;
-        private readonly IRepository<Queue> queueRepository;
-        private readonly IUserInQueueService userInQueueService;
-        private readonly IBotConfiguration botConfiguration;
-        private readonly IDataSerializer dataSerializer;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MessageHandlersFactory"/> class.
-        /// </summary>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="queueService">Queue service to use.</param>
-        /// <param name="queueRepository">Queue repository to use.</param>
-        /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="botConfiguration">Bot configuration to rely on.</param>
-        /// <param name="dataSerializer"><see cref="IDataDeserializer"/> to serialize data for callback handlers.</param>
-        public MessageHandlersFactory(
-            IChatService chatService,
-            IUserService userService,
-            IQueueService queueService,
-            IRepository<Queue> queueRepository,
-            IUserInQueueService userInQueueService,
-            IBotConfiguration botConfiguration,
-            IDataSerializer dataSerializer)
+        public MessageHandlersFactory(IServiceScopeFactory serviceProvider)
         {
-            this.chatService = chatService;
-            this.userService = userService;
-            this.queueService = queueService;
-            this.queueRepository = queueRepository;
-            this.userInQueueService = userInQueueService;
-            this.botConfiguration = botConfiguration;
-            this.dataSerializer = dataSerializer;
+            _serviceScopeFactory = serviceProvider;
         }
 
-        /// <inheritdoc/>
-        public IEnumerable<IMessageHandler> CreateMessageHandlers()
+        public bool TryCreateMessageHandler(Message message, [NotNullWhen(returnValue: true)] out IMessageHandler? messageHandler)
         {
-            return new IMessageHandler[]
+            messageHandler = null;
+            if (message == null || string.IsNullOrWhiteSpace(message.Text))
             {
-                new StartMessageHandler(this.botConfiguration, this.chatService, this.userService, this.dataSerializer),
-                new HelpMessageHandler(),
-                new CreateQueueMessageHandler(this.chatService, this.userService, this.queueService, this.queueRepository, this.botConfiguration, this.dataSerializer),
-                new QueueMessageHandler(this.chatService, this.userService, this.queueService),
-                new EnqueueMessageHandler(this.chatService, this.userService, this.queueService, this.userInQueueService),
-                new RemoveQueueMessageHandler(this.chatService, this.userService, this.queueService),
-                new DequeueMessageHandler(this.chatService, this.userService, this.queueService)
+                return false;
+            }
+
+            var command = message.Text.SplitToWords()[0];
+            return TryCreateMessageHandler(command, out messageHandler);
+        }
+
+        private bool TryCreateMessageHandler(string command, out IMessageHandler? messageHandler)
+        {
+            messageHandler = command switch
+            {
+                MessageConstants.StartCommand => new StartMessageHandler(_serviceScopeFactory),
+                MessageConstants.HelpCommand => new HelpMessageHandler(_serviceScopeFactory),
+                MessageConstants.QueueCommand => new QueueMessageHandler(_serviceScopeFactory),
+                MessageConstants.EnqueueCommand => new EnqueueMessageHandler(_serviceScopeFactory),
+                MessageConstants.DequeueCommand => new DequeueMessageHandler(_serviceScopeFactory),
+                MessageConstants.CreateQueueCommand => new CreateQueueMessageHandler(_serviceScopeFactory),
+                MessageConstants.RemoveQueueCommand => new RemoveQueueMessageHandler(_serviceScopeFactory)
             };
+
+            return messageHandler != null;
         }
     }
 }
