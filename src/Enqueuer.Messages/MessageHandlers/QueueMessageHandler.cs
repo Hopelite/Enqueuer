@@ -65,7 +65,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_GetQueue_DoesNotExist_Message, queueName),
+                    messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
@@ -74,7 +74,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_GetQueue_QueueEmpty_Message, queueName),
+                    messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_QueueEmpty_Message, queueName),
                     ParseMode.Html);
             }
 
@@ -117,13 +117,13 @@ namespace Enqueuer.Messages.MessageHandlers
 
         private static string BuildResponseMessageWithQueueParticipants(Queue queue, IMessageProvider messageProvider)
         {
-            var responseMessage = new StringBuilder(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_GetQueue_ListParticipants_Message, queue.Name));
+            var responseMessage = new StringBuilder(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_ListQueueParticipants_Message, queue.Name));
             var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
                 .Select(queueUser => (queueUser.Position, queueUser.User));
 
             foreach ((var position, var user) in queueParticipants)
             {
-                responseMessage.AppendLine(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_GetQueue_DisplayQueueParticipant_Message, position, user.FullName));
+                responseMessage.AppendLine(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_DisplayQueueParticipant_Message, position, user.FullName));
             }
 
             return responseMessage.ToString();

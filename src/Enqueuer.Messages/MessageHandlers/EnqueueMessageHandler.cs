@@ -77,7 +77,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_GetQueue_DoesNotExist_Message, queueName),
+                messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
