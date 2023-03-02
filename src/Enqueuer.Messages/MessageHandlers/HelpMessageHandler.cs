@@ -17,6 +17,6 @@ public class HelpMessageHandler : MessageHandlerBase
     protected override Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message)
     {
         var messageProvider = serviceScope.ServiceProvider.GetRequiredService<IMessageProvider>();
-        return botClient.SendTextMessageAsync(message.Chat, messageProvider.GetMessage(TextKeys.HelpCommand_Message), ParseMode.Html);
+        return botClient.SendTextMessageAsync(message.Chat, messageProvider.GetMessage(MessageKeys.HelpMessageHandler.HelpCommand_Message), ParseMode.Html);
     }
 }

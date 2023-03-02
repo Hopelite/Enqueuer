@@ -27,7 +27,7 @@ public class RemoveQueueMessageHandler : MessageHandlerBase
         {
             return botClient.SendTextMessageAsync(
                 message.Chat,
-                messageProvider.GetMessage(TextKeys.UnsupportedCommand_PrivateChat_Message),
+                messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html);
         }
 
@@ -44,7 +44,7 @@ public class RemoveQueueMessageHandler : MessageHandlerBase
 
         return botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                messageProvider.GetMessage(TextKeys.RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
                 ParseMode.Html);
     }
 
@@ -65,7 +65,7 @@ public class RemoveQueueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -74,7 +74,7 @@ public class RemoveQueueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -82,7 +82,7 @@ public class RemoveQueueMessageHandler : MessageHandlerBase
         await queueService.DeleteQueueAsync(queue);
         return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
     }

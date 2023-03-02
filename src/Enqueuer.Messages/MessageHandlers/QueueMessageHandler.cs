@@ -29,7 +29,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return botClient.SendTextMessageAsync(
                     message.Chat,
-                    messageProvider.GetMessage(TextKeys.UnsupportedCommand_PrivateChat_Message),
+                    messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                     ParseMode.Html);
             }
 
@@ -65,7 +65,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                    messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
             }
@@ -74,7 +74,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_QueueEmpty_Message, queueName),
+                    messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueEmpty_Message, queueName),
                     ParseMode.Html);
             }
 
@@ -91,7 +91,7 @@ namespace Enqueuer.Messages.MessageHandlers
             {
                 return await botClient.SendTextMessageAsync(
                         chat.ChatId,
-                        messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_ListQueues_NoQueues_Message),
+                        messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_NoQueues_Message),
                         ParseMode.Html,
                         replyToMessageId: message.MessageId);
             }
@@ -105,25 +105,25 @@ namespace Enqueuer.Messages.MessageHandlers
 
         private static string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues, IMessageProvider messageProvider)
         {
-            var replyMessage = new StringBuilder(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_ListQueues_Message));
+            var replyMessage = new StringBuilder(messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_Message));
             foreach (var queue in chatQueues)
             {
-                replyMessage.AppendLine(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_DisplayQueue_Message, queue.Name));
+                replyMessage.AppendLine(messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_DisplayQueue_Message, queue.Name));
             }
 
-            replyMessage.AppendLine(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_ListQueues_PostScriptum_Message));
+            replyMessage.AppendLine(messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_PostScriptum_Message));
             return replyMessage.ToString();
         }
 
         private static string BuildResponseMessageWithQueueParticipants(Queue queue, IMessageProvider messageProvider)
         {
-            var responseMessage = new StringBuilder(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_ListQueueParticipants_Message, queue.Name));
+            var responseMessage = new StringBuilder(messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueueParticipants_Message, queue.Name));
             var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
                 .Select(queueUser => (queueUser.Position, queueUser.User));
 
             foreach ((var position, var user) in queueParticipants)
             {
-                responseMessage.AppendLine(messageProvider.GetMessage(TextKeys.QueueCommand_PublicChat_DisplayQueueParticipant_Message, position, user.FullName));
+                responseMessage.AppendLine(messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_DisplayQueueParticipant_Message, position, user.FullName));
             }
 
             return responseMessage.ToString();

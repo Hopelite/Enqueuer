@@ -27,7 +27,7 @@ public class StartMessageHandler : MessageHandlerBase
 
         if (!message.IsFromPrivateChat())
         {
-            return botClient.SendTextMessageAsync(message.Chat, messageProvider.GetMessage(TextKeys.StartCommand_PublicChat_Message), ParseMode.Html);
+            return botClient.SendTextMessageAsync(message.Chat, messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PublicChat_Message), ParseMode.Html);
         }
 
         return HandlePrivateChatAsync(serviceScope.ServiceProvider, botClient, messageProvider, message);
@@ -48,12 +48,12 @@ public class StartMessageHandler : MessageHandlerBase
 
         var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
         {
-            InlineKeyboardButton.WithCallbackData(messageProvider.GetMessage(TextKeys.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
+            InlineKeyboardButton.WithCallbackData(messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
         });
 
         await botClient.SendTextMessageAsync(
             message.Chat,
-            messageProvider.GetMessage(TextKeys.StartCommand_PrivateChat_Message),
+            messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PrivateChat_Message),
             ParseMode.Html,
             replyMarkup: viewChatsButton);
     }

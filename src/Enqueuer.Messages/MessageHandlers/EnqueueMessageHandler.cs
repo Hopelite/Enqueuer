@@ -28,7 +28,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         {
             return botClient.SendTextMessageAsync(
                 message.Chat,
-                messageProvider.GetMessage(TextKeys.UnsupportedCommand_PrivateChat_Message),
+                messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html);
         }
 
@@ -42,7 +42,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         {
             await botClient.SendTextMessageAsync(
                 message.Chat,
-                messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueNameIsNotProvided_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
 
@@ -66,7 +66,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
+                messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -77,7 +77,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -89,7 +89,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
 
         return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_UserAlreadyParticipates_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_UserAlreadyParticipates_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
     }
@@ -100,7 +100,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message, queue.Name),
+                messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message, queue.Name),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -110,7 +110,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                     chat.ChatId,
-                    messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_PositionIsReserved_Message, position.Value, queue.Name),
+                    messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionIsReserved_Message, position.Value, queue.Name),
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
         }
@@ -120,7 +120,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
         await userInQueueService.AddUserToQueueAsync(user, queue, userPosition);
         return await botClient.SendTextMessageAsync(
             chat.ChatId,
-            messageProvider.GetMessage(TextKeys.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, userPosition),
+            messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, userPosition),
             ParseMode.Html,
             replyToMessageId: message.MessageId);
     }

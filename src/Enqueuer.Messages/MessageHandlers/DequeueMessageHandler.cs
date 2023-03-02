@@ -25,7 +25,7 @@ public class DequeueMessageHandler : MessageHandlerBase
         {
             return botClient.SendTextMessageAsync(
                 message.Chat,
-                messageProvider.GetMessage(TextKeys.UnsupportedCommand_PrivateChat_Message),
+                messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html);
         }
 
@@ -42,7 +42,7 @@ public class DequeueMessageHandler : MessageHandlerBase
 
         return botClient.SendTextMessageAsync(
             message.Chat.Id,
-            messageProvider.GetMessage(TextKeys.DequeueCommand_PublicChat_QueueNameIsNotProvided_Message),
+            messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueNameIsNotProvided_Message),
             ParseMode.Html,
             replyToMessageId: message.MessageId);
     }
@@ -64,7 +64,7 @@ public class DequeueMessageHandler : MessageHandlerBase
         {
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.DequeueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -74,14 +74,14 @@ public class DequeueMessageHandler : MessageHandlerBase
             await queueService.RemoveUserAsync(queue, user);
             return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.DequeueCommand_PublicChat_SuccessfullyDequeued_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_SuccessfullyDequeued_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
 
         return await botClient.SendTextMessageAsync(
                 chat.ChatId,
-                messageProvider.GetMessage(TextKeys.DequeueCommand_PublicChat_UserDoesNotParticipate_Message, queueName),
+                messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_UserDoesNotParticipate_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
     }
