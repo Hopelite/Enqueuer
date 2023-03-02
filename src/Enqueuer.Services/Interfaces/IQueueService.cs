@@ -47,5 +47,7 @@ namespace Enqueuer.Services.Interfaces
         /// Updates <paramref name="queue"/>.
         /// </summary>
         public Task UpdateQueueAsync(Queue queue);
+
+        Task AddAsync(Queue queue);
     }
 }

@@ -63,6 +63,25 @@ public static class MessageKeys
         public const string DequeueCommand_PublicChat_SuccessfullyDequeued_Message = "DequeueCommand_PublicChat_SuccessfullyDequeued_Message";
     }
 
+    public static class CreateQueueMessageHandler
+    {
+        public const string CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message = "CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message";
+
+        public const string CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message = "CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message";
+
+        public const string CreateQueueCommand_PublicChat_NumberAtTheEndOfQueueName_Message = "CreateQueueCommand_PublicChat_NumberAtTheEndOfQueueName_Message";
+
+        public const string CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message = "CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message";
+
+        public const string CreateQueueCommand_PublicChat_QueueNameTooLong_Message = "CreateQueueCommand_PublicChat_QueueNameTooLong_Message";
+
+        public const string CreateQueueCommand_PublicChat_QueueAlreadyExists_Message = "CreateQueueCommand_PublicChat_QueueAlreadyExists_Message";
+
+        public const string CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message = "CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message";
+
+        public const string CreateQueueCommand_PublicChat_EnqueueMeButton = "CreateQueueCommand_PublicChat_EnqueueMeButton";
+    }
+
     public static class RemoveQueueMessageHandler
     {
         public const string RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message = "RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message";

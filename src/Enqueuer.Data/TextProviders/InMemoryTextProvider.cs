@@ -1,4 +1,5 @@
 ﻿using System;
+using Telegram.Bot.Types;
 
 namespace Enqueuer.Data.TextProviders;
 
@@ -47,6 +48,15 @@ public class InMemoryTextProvider : IMessageProvider
             MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueDoesNotExist_Message => "There is no queue with name '<b>{QueueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
             MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_UserDoesNotParticipate_Message => "You're not participating in queue '<b>{QueueName}</b>'.",
             MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_SuccessfullyDequeued_Message => "Successfully removed from queue '<b>{QueueName}</b>'!",
+
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message => "To create a new queue, please write the command this way: '<b>/createqueue</b> <i>[queue_name]</i>'.",
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message => "This chat has reached its maximum number of queues. Please remove one using the '<b>/removequeue</b>' command before adding a new one.",
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_NumberAtTheEndOfQueueName_Message => "Unable to create a queue with a number at the last position of its name. Please concat the queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number.",
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message => "Unable to create a queue with only a number in its name. Please add some nice words.",
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameTooLong_Message => "This queue name is too long. Please, provide it with a name shorter than 50 symbols.",
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message => "Successfully created a new queue '<b>{QueueName}</b>'!",
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueAlreadyExists_Message => "This chat already has a queue named '<b>{QueueName}</b>'. Please, use some other name for this queue or delete the existing one using '<b>/removequeue</b>'.",
+            MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_EnqueueMeButton => "Enqueue me!",
 
             MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message => "To delete queue, please write command this way: '<b>/removequeue</b> <i>[queue_name]</i>'.",
             MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message => "There is no queue with name '<b>{QueueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",

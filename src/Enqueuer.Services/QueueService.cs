@@ -62,5 +62,10 @@ namespace Enqueuer.Services
         {
             await _queueRepository.UpdateAsync(queue);
         }
+
+        public Task AddAsync(Queue queue)
+        {
+            return _queueRepository.AddAsync(queue);
+        }
     }
 }

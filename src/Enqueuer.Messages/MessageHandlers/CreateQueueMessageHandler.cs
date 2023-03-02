@@ -1,13 +1,15 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Enqueuer.Data;
+using Enqueuer.Data.Configuration;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
+using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Constants;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
-using Enqueuer.Services.Interfaces;
-using Enqueuer.Data.Configuration;
 using Enqueuer.Messages.Extensions;
+using Enqueuer.Persistence.Models;
+using Enqueuer.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -15,149 +17,138 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Messages.MessageHandlers
+namespace Enqueuer.Messages.MessageHandlers;
+
+public class CreateQueueMessageHandler : MessageHandlerBase
 {
-    /// <inheritdoc/>
-    public class CreateQueueMessageHandler : MessageHandlerBase
+    public CreateQueueMessageHandler(IServiceScopeFactory scopeFactory)
+        : base(scopeFactory)
     {
-        private readonly IQueueService queueService;
-        private readonly IRepository<Queue> queueRepository;
-        private readonly IBotConfiguration botConfiguration;
-        private readonly IDataSerializer dataSerializer;
-        public const string PassQueueNameMessage = "To create a new queue, please write the command this way: '<b>/createqueue</b> <i>[queue_name]</i>'.";
-        public const string ChatReachedMaximumQueuesMessage = "This chat has reached its maximum number of queues. Please remove one using the '<b>/removequeue</b>' command before adding a new one.";
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateQueueMessageHandler"/> class.
-        /// </summary>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="queueService">Queue service to use.</param>
-        /// <param name="queueRepository">Queue repository to use.</param>
-        /// <param name="botConfiguration">Bot configuration to rely on.</param>
-        /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
-        public CreateQueueMessageHandler(
-            IChatService chatService,
-            IUserService userService,
-            IQueueService queueService,
-            IRepository<Queue> queueRepository,
-            IBotConfiguration botConfiguration,
-            IDataSerializer dataSerializer)
-            : base(chatService, userService)
+    protected override Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message)
+    {
+        var messageProvider = serviceScope.ServiceProvider.GetRequiredService<IMessageProvider>();
+        if (message.IsFromPrivateChat())
         {
-            this.queueService = queueService;
-            this.queueRepository = queueRepository;
-            this.botConfiguration = botConfiguration;
-            this.dataSerializer = dataSerializer;
-        }
-
-        /// <inheritdoc/>
-        public override string Command => MessageConstants.CreateQueueCommand;
-
-        /// <inheritdoc/>
-        public override async Task<Message> HandleAsync(ITelegramBotClient botClient, Message message)
-        {
-            if (message.IsFromPrivateChat())
-            {
-                return await botClient.SendUnsupportedOperationMessage(message);
-            }
-
-            var messageWords = message.Text.SplitToWords();
-            if (messageWords.HasParameters())
-            {
-                var (user, chat) = await this.GetNewOrExistingUserAndChat(message);
-                return await HandleMessageWithParameters(botClient, messageWords, user, chat);
-            }
-
-            return await botClient.SendTextMessageAsync(
-                    message.Chat.Id,
-                    PassQueueNameMessage,
-                    ParseMode.Html);
-        }
-
-        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
-        {
-            if (ChatHasMaximalNumberOfQueues(chat))
-            {
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    ChatReachedMaximumQueuesMessage,
-                    ParseMode.Html);
-            }
-
-            if (QueueHasNumberAtTheEnd(messageWords))
-            {
-                return await HandleMessageWithNumberAtTheEndInName(botClient, messageWords, chat);
-            }
-
-            return await this.HandleMessageWithQueueName(botClient, messageWords, user, chat);
-        }
-
-        private static async Task<Message> HandleMessageWithNumberAtTheEndInName(ITelegramBotClient botClient, string[] messageWords, Chat chat)
-        {
-            var responseMessage = messageWords.Length > 2
-                                ? "Unable to create a queue with a number at the last position of its name. Please concat the queue name like this: '<b>Test 23</b>' => '<b>Test23</b>' or remove the number."
-                                : "Unable to create a queue with only a number in its name. Please add some nice words.";
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
-                responseMessage,
+            return botClient.SendTextMessageAsync(
+                message.Chat,
+                messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html);
         }
 
-        private async Task<Message> HandleMessageWithQueueName(ITelegramBotClient botClient, string[] messageWords, User user, Chat chat)
+        return HandlePublicChatAsync(serviceScope.ServiceProvider, botClient, messageProvider, message);
+    }
+
+    private Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
+    {
+        var messageWords = message.Text!.SplitToWords();
+        if (messageWords.HasParameters())
         {
-            var queueName = messageWords.GetQueueName();
-            if (queueName.Length > MessageHandlersConstants.MaxQueueNameLength)
+            return HandleMessageWithParameters(serviceProvider, botClient, messageProvider, messageWords, message);
+        }
+
+        return botClient.SendTextMessageAsync(
+                message.Chat.Id,
+                messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                ParseMode.Html);
+    }
+
+    private async Task<Message> HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Message message)
+    {
+        var chatService = serviceProvider.GetRequiredService<IChatService>();
+        var chat = await chatService.GetOrCreateChatAsync(message.Chat);
+
+        var userService = serviceProvider.GetRequiredService<IUserService>();
+        var user = await userService.GetOrCreateUserAsync(message.From);
+        await chatService.AddUserToChatIfNotAlready(user, chat);
+
+        var botConfiguration = serviceProvider.GetRequiredService<IBotConfiguration>();
+        if (ChatHasMaximalNumberOfQueues(chatService, chat, botConfiguration))
+        {
+            return await botClient.SendTextMessageAsync(
+                chat.ChatId,
+                messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message),
+                ParseMode.Html);
+        }
+
+        if (QueueHasNumberAtTheEnd(messageWords))
+        {
+            return await HandleMessageWithNumberAtTheEndInName(botClient, messageProvider, messageWords, chat);
+        }
+
+        return await HandleMessageWithQueueName(serviceProvider, botClient, messageProvider, messageWords, user, chat);
+    }
+
+    private static Task<Message> HandleMessageWithNumberAtTheEndInName(ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Chat chat)
+    {
+        var responseMessage = messageWords.Length > 2
+                            ? MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_NumberAtTheEndOfQueueName_Message
+                            : MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message;
+        return botClient.SendTextMessageAsync(
+            chat.ChatId,
+            messageProvider.GetMessage(responseMessage),
+            ParseMode.Html);
+    }
+
+    private async Task<Message> HandleMessageWithQueueName(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, User user, Chat chat)
+    {
+        var queueName = messageWords.GetQueueName();
+        if (queueName.Length > MessageHandlersConstants.MaxQueueNameLength)
+        {
+            return await botClient.SendTextMessageAsync(
+                chat.ChatId,
+                messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameTooLong_Message));
+        }
+
+        var queueService = serviceProvider.GetRequiredService<IQueueService>();
+        var queue = queueService.GetChatQueueByName(queueName, chat.ChatId);
+        if (queue is null)
+        {
+            queue = new Queue()
             {
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    "This queue name is too long. Please, provide it with a name shorter than 50 symbols.");
-            }
+                Name = queueName,
+                ChatId = chat.Id,
+                CreatorId = user.Id,
+            };
 
-            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
-            if (queue is null)
+            await queueService.AddAsync(queue);
+            var callbackButtonData = new CallbackData()
             {
-                queue = new Queue()
+                Command = CallbackConstants.EnqueueMeCommand,
+                ChatId = chat.Id,
+                QueueData = new QueueData()
                 {
-                    Name = queueName,
-                    ChatId = chat.Id,
-                    CreatorId = user.Id,
-                };
+                    QueueId = queue.Id,
+                },
+            };
 
-                await this.queueRepository.AddAsync(queue);
-                var callbackButtonData = new CallbackData()
-                {
-                    Command = CallbackConstants.EnqueueMeCommand,
-                    ChatId = chat.Id,
-                    QueueData = new QueueData()
-                    {
-                        QueueId = queue.Id,
-                    },
-                };
-
-                var serializedButtonData = this.dataSerializer.Serialize(callbackButtonData);
-                var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Enqueue me!", serializedButtonData));
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"Successfully created a new queue '<b>{queue.Name}</b>'!",
-                    ParseMode.Html,
-                    replyMarkup: replyMarkup);
-            }
+            var dataSerializer = serviceProvider.GetRequiredService<IDataSerializer>();
+            var serializedButtonData = dataSerializer.Serialize(callbackButtonData);
+            var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData(
+                messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_EnqueueMeButton),
+                serializedButtonData));
 
             return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"This chat already has a queue named '<b>{queue.Name}</b>'. Please, use some other name for this queue or delete the existing one using '<b>/removequeue</b>'.",
-                    ParseMode.Html);
+                chat.ChatId,
+                messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameTooLong_Message, queue.Name),
+                ParseMode.Html,
+                replyMarkup: replyMarkup);
         }
 
-        private static bool QueueHasNumberAtTheEnd(string[] messageWords)
-        {
-            return int.TryParse(messageWords[^1], out int _);
-        }
+        return await botClient.SendTextMessageAsync(
+                chat.ChatId,
+                messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueAlreadyExists_Message, queue.Name),
+                ParseMode.Html);
+    }
 
-        private bool ChatHasMaximalNumberOfQueues(Chat chat)
-        {
-            return this.chatService.GetNumberOfQueues(chat.ChatId) >= this.botConfiguration.QueuesPerChat;
-        }
+    private static bool QueueHasNumberAtTheEnd(string[] messageWords)
+    {
+        return int.TryParse(messageWords[^1], out int _);
+    }
+
+    private static bool ChatHasMaximalNumberOfQueues(IChatService chatService, Chat chat, IBotConfiguration botConfiguration)
+    {
+        return chatService.GetNumberOfQueues(chat.ChatId) >= botConfiguration.QueuesPerChat;
     }
 }

@@ -38,7 +38,8 @@ namespace Enqueuer.Messages.Factories
                 MessageConstants.EnqueueCommand => new EnqueueMessageHandler(_serviceScopeFactory),
                 MessageConstants.DequeueCommand => new DequeueMessageHandler(_serviceScopeFactory),
                 MessageConstants.CreateQueueCommand => new CreateQueueMessageHandler(_serviceScopeFactory),
-                MessageConstants.RemoveQueueCommand => new RemoveQueueMessageHandler(_serviceScopeFactory)
+                MessageConstants.RemoveQueueCommand => new RemoveQueueMessageHandler(_serviceScopeFactory),
+                _ => null
             };
 
             return messageHandler != null;
