@@ -2,6 +2,7 @@
 using Enqueuer.Callbacks.Factories;
 using Enqueuer.Data.Configuration;
 using Enqueuer.Data.Exceptions;
+using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Persistence;
@@ -49,6 +50,7 @@ public class Program
         builder.Services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
         builder.Services.AddScoped<ICallbackDistributor, CallbackDistributor>();
         builder.Services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();
+        builder.Services.AddTransient<IMessageProvider, InMemoryTextProvider>();
 
         builder.Services.ConfigureSerialization()
             .ConfigureRepositories()
