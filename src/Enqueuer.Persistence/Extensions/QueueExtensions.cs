@@ -16,7 +16,7 @@ namespace Enqueuer.Persistence.Extensions
         /// <returns>True, if <paramref name="user"/> is <paramref name="queue"/> creator.</returns>
         public static bool IsQueueCreator(this Queue queue, User user)
         {
-            return queue.IsQueueCreator(user.UserId);
+            return queue.IsQueueCreator(user.Id);
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Enqueuer.Persistence.Extensions
         /// <returns>True, if user with specified <paramref name="userId"/> is <paramref name="queue"/> creator.</returns>
         public static bool IsQueueCreator(this Queue queue, long userId)
         {
-            return queue.Creator.UserId == userId;
+            return queue.Creator.Id == userId;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Enqueuer.Persistence.Extensions
         public static bool TryGetUserPosition(this Queue queue, User user, out int position)
         {
             position = -1;
-            var userInQueue = queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
+            var userInQueue = queue.Members.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
             if (userInQueue == null)
             {
                 return false;

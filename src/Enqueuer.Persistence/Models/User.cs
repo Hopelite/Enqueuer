@@ -1,70 +1,44 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Enqueuer.Persistence.Models
+namespace Enqueuer.Persistence.Models;
+
+/// <summary>
+/// Represents a Telegram user.
+/// </summary>
+public class User
 {
     /// <summary>
-    /// Represents Telegram user.
+    /// Telegram user ID.
     /// </summary>
-    public class User
-    {
-        /// <summary>
-        /// Gets or sets user ID.
-        /// </summary>
-        [Key]
-        public int Id { get; set; }
+    public long Id { get; set; }
 
-        /// <summary>
-        /// Gets or sets Telegram user ID.
-        /// </summary>
-        [Required]
-        public long UserId { get; set; }
+    /// <summary>
+    /// User's first name.
+    /// </summary>
+    public string FirstName { get; set; }
 
-        /// <summary>
-        /// Gets or sets user first name.
-        /// </summary>
-        [Required]
-        [StringLength(64)]
-        public string FirstName { get; set; }
+    /// <summary>
+    /// Optional. User's last name.
+    /// </summary>
+    public string LastName { get; set; }
 
-        /// <summary>
-        /// Gets or sets user last name.
-        /// </summary>
-        [StringLength(64)]
-        public string LastName { get; set; }
+    /// <summary>
+    /// Full user's name.
+    /// </summary>
+    public string FullName => string.IsNullOrWhiteSpace(LastName) ? FirstName : $"{FirstName} {LastName}";
 
-        /// <summary>
-        /// Gets or sets chats in which user participates.
-        /// </summary>
-        public virtual ICollection<Chat> Chats { get; set;} = new List<Chat>();
+    /// <summary>
+    /// Chats in which user participates.
+    /// </summary>
+    public ICollection<Chat> Chats { get; set; }
 
-        /// <summary>
-        /// Gets or sets queues which where created by user.
-        /// </summary>
-        public virtual ICollection<Queue> CreatedQueues { get; set; } = new List<Queue>();
+    /// <summary>
+    /// Queues created by user.
+    /// </summary>
+    public ICollection<Queue> CreatedQueues { get; set; }
 
-        /// <summary>
-        /// Gets or sets queues in which user is registered.
-        /// </summary>
-        public virtual ICollection<UserInQueue> UserInQueues { get; set; } = new List<UserInQueue>();
-
-        [NotMapped]
-        public string FullName => string.IsNullOrWhiteSpace(LastName)
-            ? FirstName
-            : $"{FirstName} {LastName}";
-
-        public static implicit operator User(Telegram.Bot.Types.User user)
-        {
-            return new User()
-            {
-                UserId = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Chats = new List<Chat>(),
-                CreatedQueues = new List<Queue>(),
-                UserInQueues = new List<UserInQueue>()
-            };
-        }
-    }
+    /// <summary>
+    /// Queues in which user participates.
+    /// </summary>
+    public ICollection<QueueMember> ParticipatesIn { get; set; }
 }

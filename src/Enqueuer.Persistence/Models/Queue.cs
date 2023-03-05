@@ -1,57 +1,49 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Enqueuer.Persistence.Models
+namespace Enqueuer.Persistence.Models;
+
+/// <summary>
+/// Represents a queue.
+/// </summary>
+public class Queue
 {
     /// <summary>
-    /// Represents queue.
+    /// Queue ID.
     /// </summary>
-    public class Queue
-    {
-        /// <summary>
-        /// Gets or sets queue ID.
-        /// </summary>
-        [Key]
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        /// <summary>
-        /// Gets or sets queue name.
-        /// </summary>
-        [Required]
-        [StringLength(50)]
-        public string Name { get; set; }
+    /// <summary>
+    /// Queue name.
+    /// </summary>
+    public string Name { get; set; }
 
-        /// <summary>
-        /// Gets or sets chat ID to which this queue belongs to.
-        /// </summary>
-        public int? ChatId { get; set; }
+    /// <summary>
+    /// ID of the chat to which this queue belongs.
+    /// </summary>
+    public long ChatId { get; set; }
 
-        /// <summary>
-        /// Gets or sets chat to which this queue belongs to.
-        /// </summary>
-        [ForeignKey("ChatId")]
-        public virtual Chat Chat { get; set; }
+    /// <summary>
+    /// Chat to which this queue belongs.
+    /// </summary>
+    public Chat Chat { get; set; }
 
-        /// <summary>
-        /// Gets or sets this queue creator ID.
-        /// </summary>
-        public int? CreatorId { get; set; }
+    /// <summary>
+    /// Optional. Queue creator's ID.
+    /// </summary>
+    public long? CreatorId { get; set; }
 
-        /// <summary>
-        /// Gets or sets this queue creator.
-        /// </summary>
-        [ForeignKey("CreatorId")]
-        public virtual User Creator { get; set; }
+    /// <summary>
+    /// Optional. Queue creator.
+    /// </summary>
+    public User Creator { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether queue is dynamic or not.
-        /// </summary>
-        public bool IsDynamic { get; set; }
+    /// <summary>
+    /// Indicates whether the queue is dynamic or not.
+    /// </summary>
+    public bool IsDynamic { get; set; }
 
-        /// <summary>
-        /// Gets or sets users in this queue.
-        /// </summary>
-        public virtual ICollection<UserInQueue> Users { get; set; } = new List<UserInQueue>();
-    }
+    /// <summary>
+    /// Users participating in this queue.
+    /// </summary>
+    public ICollection<QueueMember> Members { get; set; }
 }

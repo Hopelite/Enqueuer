@@ -14,7 +14,7 @@ namespace Enqueuer.Persistence.Extensions
         /// <returns>True, if <paramref name="user"/> participates in <paramref name="queue"/>; false otherwise.</returns>
         public static bool IsParticipatingIn(this User user, Queue queue)
         {
-            return queue.Users.Any(queueUser => queueUser.UserId == user.Id);
+            return queue.Members.Any(queueUser => queueUser.UserId == user.Id);
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Enqueuer.Persistence.Extensions
         public static bool TryGetUserPosition(this User user, Queue queue, out int position)
         {
             position = -1;
-            var userInQueue = queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
+            var userInQueue = queue.Members.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
             if (userInQueue == null)
             {
                 return false;
