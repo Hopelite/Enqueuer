@@ -28,9 +28,9 @@ public class User
     public string FullName => string.IsNullOrWhiteSpace(LastName) ? FirstName : $"{FirstName} {LastName}";
 
     /// <summary>
-    /// Chats in which user participates.
+    /// Groups in which user participates.
     /// </summary>
-    public ICollection<Chat> Chats { get; set; }
+    public ICollection<GroupChat> Groups { get; set; }
 
     /// <summary>
     /// Queues created by user.

@@ -23,9 +23,9 @@ public class Queue
     public long ChatId { get; set; }
 
     /// <summary>
-    /// Chat to which this queue belongs.
+    /// Group or supergroup to which this queue belongs.
     /// </summary>
-    public Chat Chat { get; set; }
+    public GroupChat Chat { get; set; }
 
     /// <summary>
     /// Optional. Queue creator's ID.

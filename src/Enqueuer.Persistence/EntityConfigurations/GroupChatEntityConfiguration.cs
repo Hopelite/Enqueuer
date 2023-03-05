@@ -9,6 +9,7 @@ internal class GroupChatEntityConfiguration : IEntityTypeConfiguration<GroupChat
     public void Configure(EntityTypeBuilder<GroupChat> builder)
     {
         builder.Property(c => c.Title)
+            .HasMaxLength(128)
             .IsRequired();
     }
 }
