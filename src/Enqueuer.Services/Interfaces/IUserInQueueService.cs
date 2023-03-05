@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Enqueuer.Services.Interfaces
+namespace Enqueuer.Services
 {
     /// <summary>
-    /// Contains methods for <see cref="UserInQueue"/>.
+    /// Contains methods for <see cref="QueueMember"/>.
     /// </summary>
     public interface IUserInQueueService
     {

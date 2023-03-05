@@ -18,14 +18,14 @@ public class Queue
     public string Name { get; set; }
 
     /// <summary>
-    /// ID of the chat to which this queue belongs.
+    /// ID of the group to which this queue belongs.
     /// </summary>
-    public long ChatId { get; set; }
+    public long GroupId { get; set; }
 
     /// <summary>
     /// Group or supergroup to which this queue belongs.
     /// </summary>
-    public GroupChat Chat { get; set; }
+    public Group Group { get; set; }
 
     /// <summary>
     /// Optional. Queue creator's ID.

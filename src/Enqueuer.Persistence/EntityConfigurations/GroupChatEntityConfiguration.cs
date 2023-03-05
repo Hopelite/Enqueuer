@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enqueuer.Persistence.EntityConfigurations;
 
-internal class GroupChatEntityConfiguration : IEntityTypeConfiguration<GroupChat>
+internal class GroupChatEntityConfiguration : IEntityTypeConfiguration<Group>
 {
-    public void Configure(EntityTypeBuilder<GroupChat> builder)
+    public void Configure(EntityTypeBuilder<Group> builder)
     {
         builder.Property(c => c.Title)
             .HasMaxLength(128)

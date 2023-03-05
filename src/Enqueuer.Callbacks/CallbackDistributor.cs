@@ -55,11 +55,11 @@ namespace Enqueuer.Callbacks
                 }
                 catch (Exception ex)
                 {
-                    await telegramBotClient.SendTextMessageAsync(
-                        this.botConfiguration.DevelopmentChatId,
-                        $"Exception thrown while handling callback '{callbackQuery.Data}' from {callbackQuery.From.Username ?? callbackQuery.From.FirstName + callbackQuery.From.LastName ?? string.Empty}\n"
-                        + $"Exception message: {ex.Message}\n"
-                        + $"Stack trace: {ex.StackTrace}");
+                    //await telegramBotClient.SendTextMessageAsync(
+                    //    this.botConfiguration.DevelopmentChatId,
+                    //    $"Exception thrown while handling callback '{callbackQuery.Data}' from {callbackQuery.From.Username ?? callbackQuery.From.FirstName + callbackQuery.From.LastName ?? string.Empty}\n"
+                    //    + $"Exception message: {ex.Message}\n"
+                    //    + $"Stack trace: {ex.StackTrace}");
                 }
             }
         }

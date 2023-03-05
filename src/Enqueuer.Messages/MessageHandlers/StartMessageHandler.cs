@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -21,23 +22,25 @@ public class StartMessageHandler : MessageHandlerBase
     {
     }
 
-    protected override Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message)
+    protected override Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message)
     {
-        var messageProvider = serviceScope.ServiceProvider.GetRequiredService<IMessageProvider>();
-
+        var messageProvider = serviceProvider.GetRequiredService<IMessageProvider>();
         if (!message.IsFromPrivateChat())
         {
-            return botClient.SendTextMessageAsync(message.Chat, messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PublicChat_Message), ParseMode.Html);
+            return botClient.SendTextMessageAsync(
+                message.Chat,
+                messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PublicChat_Message),
+                ParseMode.Html);
         }
 
-        return HandlePrivateChatAsync(serviceScope.ServiceProvider, botClient, messageProvider, message);
+        return HandlePrivateChatAsync(serviceProvider, botClient, messageProvider, message);
     }
 
     private async Task HandlePrivateChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
     {
         var userService = serviceProvider.GetRequiredService<IUserService>();
+        await userService.GetOrStoreUserAsync(message.From!, CancellationToken.None);
 
-        await userService.GetOrCreateUserAsync(message.From);
         var callbackButtonData = new CallbackData()
         {
             Command = CallbackConstants.ListChatsCommand,

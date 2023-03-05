@@ -1,4 +1,4 @@
-namespace Enqueuer.Messages.Constants
+﻿namespace Enqueuer.Messages.Constants
 {
     /// <summary>
     /// Contains constants for message handlers.
@@ -8,6 +8,6 @@ namespace Enqueuer.Messages.Constants
         /// <summary>
         /// Gets maximal queue name length
         /// </summary>
-        public static int MaxQueueNameLength => 50;
+        public static int MaxQueueNameLength => 64;
     }
 }

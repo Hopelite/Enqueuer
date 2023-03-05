@@ -65,9 +65,9 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             await _queueService.UpdateQueueAsync(queue);
             await _userInQueueService.CompressQueuePositionsAsync(queue);
 
-            var chat = queue.Chat;
+            var chat = queue.Group;
             await botClient.SendTextMessageAsync(
-                chat.ChatId,
+                chat.Id,
                 $"{callbackQuery.From.FirstName} {callbackQuery.From.LastName + ' ' ?? string.Empty}made <b>'{queue.Name}'</b> queue dynamic. Keep up!",
                 ParseMode.Html);
 

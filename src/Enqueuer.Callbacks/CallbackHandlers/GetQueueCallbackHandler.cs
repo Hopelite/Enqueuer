@@ -81,7 +81,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 : new InlineKeyboardButton[] { GetQueueRelatedButton("Enqueue me", CallbackConstants.EnqueueCommand, callbackData, queue.Id) }
             };
 
-            if (queue.IsQueueCreator(user) || await botClient.IsChatAdmin(user.UserId, queue.Chat.ChatId))
+            if (queue.IsQueueCreator(user) || await botClient.IsChatAdmin(user.Id, queue.Group.Id))
             {
                 replyMarkupButtons.Add(new InlineKeyboardButton[] 
                 {
@@ -130,7 +130,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private static string BuildResponseMessage(Queue queue)
         {
-            if (!queue.Users.Any())
+            if (!queue.Members.Any())
             {
                 if (queue.IsDynamic)
                 {
@@ -141,7 +141,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             }
 
             var responseMessage = new StringBuilder($"Queue <b>'{queue.Name}'</b> has these participants:\n");
-            foreach (var queueParticipant in queue.Users.OrderBy(userInQueue => userInQueue.Position))
+            foreach (var queueParticipant in queue.Members.OrderBy(userInQueue => userInQueue.Position))
             {
                 responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
             }

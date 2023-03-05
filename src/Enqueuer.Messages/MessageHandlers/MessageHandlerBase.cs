@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -22,11 +23,11 @@ public abstract class MessageHandlerBase : IMessageHandler
         using var scope = _scopeFactory.CreateScope();
         var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
-        return HandleImplementationAsync(scope, botClient, message);
+        return HandleAsyncImplementation(scope.ServiceProvider, botClient, message);
     }
 
     /// <summary>
-    /// 
+    /// Contains the implementation of <paramref name="message"/> handling.
     /// </summary>
-    protected abstract Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message);
+    protected abstract Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message);
 }

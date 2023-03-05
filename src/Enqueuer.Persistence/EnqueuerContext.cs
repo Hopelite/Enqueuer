@@ -12,7 +12,7 @@ public class EnqueuerContext : DbContext
     /// <summary>
     /// Telegram groups and supergroups known to the bot.
     /// </summary>
-    public DbSet<GroupChat> GroupChats { get; set; }
+    public DbSet<Group> Groups { get; set; }
 
     /// <summary>
     /// Telegram users known to the bot.

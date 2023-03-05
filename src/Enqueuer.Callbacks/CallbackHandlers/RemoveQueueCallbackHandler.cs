@@ -79,8 +79,8 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             if (callbackData.QueueData.IsUserAgreed.Value)
             {
                 var userId = callbackQuery.From.Id;
-                var chat = queue.Chat;
-                if (!queue.IsQueueCreator(userId) && !await botClient.IsChatAdmin(userId, chat.ChatId))
+                var chat = queue.Group;
+                if (!queue.IsQueueCreator(userId) && !await botClient.IsChatAdmin(userId, chat.Id))
                 {
                     return await botClient.EditMessageTextAsync(
                         callbackQuery.Message.Chat,
@@ -93,7 +93,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 await _queueService.DeleteQueueAsync(queue);
 
                 await botClient.SendTextMessageAsync(
-                    chat.ChatId,
+                    chat.Id,
                     $"{callbackQuery.From.FirstName} {callbackQuery.From.LastName + ' ' ?? string.Empty}deleted <b>'{queue.Name}'</b> queue. I shall miss it.",
                     ParseMode.Html);
 

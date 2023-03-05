@@ -18,14 +18,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     public class GetChatCallbackHandler : CallbackHandlerBase
     {
         private const string UnableToCreateQueueMessage = "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>";
-        private readonly IChatService _chatService;
+        private readonly IGroupService _chatService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetChatCallbackHandler"/> class.
         /// </summary>
         /// <param name="chatService">Chat service to use.</param>
         /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
-        public GetChatCallbackHandler(IChatService chatService, IDataSerializer dataSerializer)
+        public GetChatCallbackHandler(IGroupService chatService, IDataSerializer dataSerializer)
             : base(dataSerializer)
         {
             _chatService = chatService;
@@ -59,7 +59,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                     replyMarkup: replyMarkup);
         }
 
-        private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, int chatId)
+        private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, long chatId)
         {
             var replyButtons = new InlineKeyboardButton[chatQueues.Count + 2][];
             for (int i = 0; i < chatQueues.Count; i++)

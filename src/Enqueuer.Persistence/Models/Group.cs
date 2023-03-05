@@ -5,8 +5,8 @@ namespace Enqueuer.Persistence.Models;
 /// <summary>
 /// Represents a Telegram group or supergroup.
 /// </summary>
-public class GroupChat
-{    
+public class Group
+{   
     /// <summary>
     /// The Telegram chat ID.
     /// </summary>

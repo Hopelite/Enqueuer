@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Services;
+using Enqueuer.Services.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers;
@@ -21,9 +23,9 @@ public class EnqueueMessageHandler : MessageHandlerBase
     {
     }
 
-    protected override Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message)
+    protected override Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message)
     {
-        var messageProvider = serviceScope.ServiceProvider.GetRequiredService<IMessageProvider>();
+        var messageProvider = serviceProvider.GetRequiredService<IMessageProvider>();
         if (message.IsFromPrivateChat())
         {
             return botClient.SendTextMessageAsync(
@@ -32,11 +34,14 @@ public class EnqueueMessageHandler : MessageHandlerBase
                 ParseMode.Html);
         }
 
-        return HandlePublicChatAsync(serviceScope.ServiceProvider, botClient, messageProvider, message);
+        return HandlePublicChatAsync(serviceProvider, botClient, messageProvider, message);
     }
 
     private async Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
     {
+        var groupService = serviceProvider.GetRequiredService<IGroupService>();
+        (var group, var user) = await groupService.AddOrUpdateUserToGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+
         var messageWords = message.Text!.SplitToWords();
         if (!messageWords.HasParameters())
         {
@@ -49,77 +54,85 @@ public class EnqueueMessageHandler : MessageHandlerBase
             return;
         }
 
-        var chatService = serviceProvider.GetRequiredService<IChatService>();
-        var chat = await chatService.GetOrCreateChatAsync(message.Chat);
-
-        var userService = serviceProvider.GetRequiredService<IUserService>();
-        var user = await userService.GetOrCreateUserAsync(message.From);
-        await chatService.AddUserToChatIfNotAlready(user, chat);
-
-        await HandleMessageWithParameters(serviceProvider, botClient, messageProvider, message, messageWords, user, chat);
+        await HandleMessageWithParameters(serviceProvider, botClient, messageProvider, messageWords, message, user, group);
     }
 
-    private async Task<Message> HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message, string[] messageWords, User user, Chat chat)
+    private async Task HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Message message, User user, Group group)
     {
         var (queueName, userPosition) = GetQueueNameAndPosition(messageWords);
         if (IsUserPositionInvalid(userPosition))
         {
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
+            await botClient.SendTextMessageAsync(
+                group.Id,
                 messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+            return;
         }
 
-        var queueService = serviceProvider.GetRequiredService<IQueueService>();
-        var queue = queueService.GetChatQueueByName(queueName, chat.ChatId);
-        if (queue is null)
+        var queue = group.GetQueueByName(queueName);
+        if (queue == null)
         {
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
+            await botClient.SendTextMessageAsync(
+                group.Id,
                 messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+            return;
         }
 
         if (!user.IsParticipatingIn(queue))
         {
-            return await HandleMessageWithUserNotParticipatingInQueue(serviceProvider, botClient, messageProvider, message, user, chat, queue, userPosition);
+            await HandleMessageWithUserNotParticipatingInQueue(serviceProvider, botClient, messageProvider, message, user, group, queue, userPosition);
+            return;
         }
 
-        return await botClient.SendTextMessageAsync(
-                chat.ChatId,
+        await botClient.SendTextMessageAsync(
+                group.Id,
                 messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_UserAlreadyParticipates_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
     }
 
-    private async Task<Message> HandleMessageWithUserNotParticipatingInQueue(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message, User user, Chat chat, Queue queue, int? position)
+    private async Task HandleMessageWithUserNotParticipatingInQueue(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message, User user, Group chat, Queue queue, int? position)
     {
         if (position != null && queue.IsDynamic)
         {
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
+            await botClient.SendTextMessageAsync(
+                chat.Id,
                 messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message, queue.Name),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+
+            return;
         }
 
-        var userInQueueService = serviceProvider.GetRequiredService<IUserInQueueService>();
-        if (position.HasValue && userInQueueService.IsPositionReserved(queue, position.Value))
+        var queueService = serviceProvider.GetRequiredService<IQueueService>();
+        if (position.HasValue)
         {
-            return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
+            if (await queueService.TryEnqueueUserOnPositionAsync(user, queue.Id, position.Value, CancellationToken.None))
+            {
+                await botClient.SendTextMessageAsync(
+                    chat.Id,
+                    messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, position.Value),
+                    ParseMode.Html,
+                    replyToMessageId: message.MessageId);
+
+                return;
+            }
+
+            await botClient.SendTextMessageAsync(
+                    chat.Id,
                     messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionIsReserved_Message, position.Value, queue.Name),
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
+
+            return;
         }
 
-        var userPosition = position ?? userInQueueService.GetFirstAvailablePosition(queue);
-
-        await userInQueueService.AddUserToQueueAsync(user, queue, userPosition);
-        return await botClient.SendTextMessageAsync(
-            chat.ChatId,
+        var userPosition = await queueService.AddAtFirstAvailablePosition(user, queue.Id, CancellationToken.None);
+        await botClient.SendTextMessageAsync(
+            chat.Id,
             messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, userPosition),
             ParseMode.Html,
             replyToMessageId: message.MessageId);
@@ -127,19 +140,12 @@ public class EnqueueMessageHandler : MessageHandlerBase
 
     private static (string QueueName, int? UserPosition) GetQueueNameAndPosition(string[] messageWords)
     {
-        (string QueueName, int? UserPosition) result;
         if (int.TryParse(messageWords[^1], out int position))
         {
-            result.QueueName = messageWords.GetQueueNameWithoutUserPosition();
-            result.UserPosition = position;
-        }
-        else
-        {
-            result.QueueName = messageWords.GetQueueName();
-            result.UserPosition = null;
+            return (messageWords.GetQueueNameWithoutUserPosition(), position);
         }
 
-        return result;
+        return (messageWords.GetQueueName(), null);
     }
 
     private static bool IsUserPositionInvalid(int? userPosition)

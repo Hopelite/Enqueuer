@@ -5,12 +5,12 @@ using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
+using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using Chat = Enqueuer.Persistence.Models.Chat;
 
 namespace Enqueuer.Callbacks.CallbackHandlers
 {
@@ -56,7 +56,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 replyMarkup: replyMarkup);
         }
 
-        private InlineKeyboardMarkup BuildReplyMarkup(List<Chat> chats)
+        private InlineKeyboardMarkup BuildReplyMarkup(List<Group> chats)
         {
             var buttonsAtTheLastRow = chats.Count % MaxChatsPerRow;
             var rowsTotal = chats.Count / MaxChatsPerRow + buttonsAtTheLastRow;
@@ -73,14 +73,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return new InlineKeyboardMarkup(replyButtons);
         }
 
-        private void AddLastButtonsRow(InlineKeyboardButton[][] replyButtons, int rowsTotal, int buttonsAtTheLastRow, List<Chat> chats, int chatsIndex)
+        private void AddLastButtonsRow(InlineKeyboardButton[][] replyButtons, int rowsTotal, int buttonsAtTheLastRow, List<Group> chats, int chatsIndex)
         {
             buttonsAtTheLastRow = buttonsAtTheLastRow == 0 ? MaxChatsPerRow : buttonsAtTheLastRow;
             replyButtons[^1] = new InlineKeyboardButton[buttonsAtTheLastRow];
             AddButtonsRow(replyButtons, rowsTotal - 1, buttonsAtTheLastRow, chats, ref chatsIndex);
         }
 
-        private void AddButtonsRow(InlineKeyboardButton[][] replyButtons, int row, int rowLength, List<Chat> chats, ref int chatIndex)
+        private void AddButtonsRow(InlineKeyboardButton[][] replyButtons, int row, int rowLength, List<Group> chats, ref int chatIndex)
         {
             for (int i = 0; i < rowLength; i++, chatIndex++)
             {
@@ -91,7 +91,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
                 };
 
                 var serializedCallbackData = this.DataSerializer.Serialize(callbackData);
-                replyButtons[row][i] = InlineKeyboardButton.WithCallbackData($"{chats[chatIndex].Name}", serializedCallbackData);
+                replyButtons[row][i] = InlineKeyboardButton.WithCallbackData($"{chats[chatIndex].Title}", serializedCallbackData);
             }
         }
     }

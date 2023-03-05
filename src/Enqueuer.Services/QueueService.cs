@@ -1,71 +1,205 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Persistence;
 using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
-using Enqueuer.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-namespace Enqueuer.Services
+namespace Enqueuer.Services;
+
+public class QueueService : IQueueService
 {
-    public class QueueService : IQueueService
+    private readonly EnqueuerContext _enqueuerContext;
+
+    public QueueService(EnqueuerContext enqueuerContext)
     {
-        private readonly IRepository<Queue> _queueRepository;
+        _enqueuerContext = enqueuerContext;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QueueService"/> class.
-        /// </summary>
-        /// <param name="queueRepository"><see cref="IRepository{T}"/> with <see cref="Queue"/> entities.</param>
-        public QueueService(IRepository<Queue> queueRepository)
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task DeleteQueueAsync(Queue queue, CancellationToken cancellationToken)
+    {
+        if (queue == null)
         {
-            _queueRepository = queueRepository;
+            throw new ArgumentNullException(nameof(queue));
         }
 
-        public Queue GetChatQueueByName(string name, long chatId)
+        _enqueuerContext.Queues.Remove(queue);
+        return _enqueuerContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<bool> TryEnqueueUserOnPositionAsync(User user, int queueId, int position, CancellationToken cancellationToken)
+    {
+        if (user == null)
         {
-            return _queueRepository.GetAll()
-                .FirstOrDefault(queue => queue.Chat.ChatId == chatId && queue.Name.Equals(name));
+            throw new ArgumentNullException(nameof(user));
         }
 
-        public IEnumerable<Queue> GetChatQueues(int chatId)
+        return TryAddUserOnPositionAsyncInternal(user, queueId, position, cancellationToken);
+    }
+
+    private async Task<bool> TryAddUserOnPositionAsyncInternal(User user, int queueId, int position, CancellationToken cancellationToken)
+    {
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
         {
-            return _queueRepository.GetAll()
-                .Where(queue => queue.ChatId == chatId);
+            throw new ArgumentException("Queue with the specified ID does not exist.", nameof(queueId));
         }
 
-        public IEnumerable<Queue> GetTelegramChatQueues(long chatId)
+        if (queue.Members.Any(m => m.Position == position))
         {
-            return _queueRepository.GetAll()
-                .Where(queue => queue.Chat.ChatId == chatId);
+            return false;
         }
 
-        public Queue GetQueueById(int id)
+        queue.Members.Add(new QueueMember
         {
-            return _queueRepository.Get(id);
+            Position = position,
+            UserId = user.Id,
+            QueueId = queueId
+        });
+
+        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<int> AddAtFirstAvailablePosition(User user, int queueId, CancellationToken cancellationToken)
+    {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user));
         }
 
-        public async Task RemoveUserAsync(Queue queue, User user)
+        return AddAtFirstAvailablePositionInternal(user, queueId, cancellationToken);
+    }
+
+    private async Task<int> AddAtFirstAvailablePositionInternal(User user, int queueId, CancellationToken cancellationToken)
+    {
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
         {
-            var userToRemove = queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
-            if (userToRemove is not null)
+            throw new ArgumentException("Queue with the specified ID does not exist.", nameof(queueId));
+        }
+
+        var position = GetFirstAvailablePosition();
+        queue.Members.Add(new QueueMember
+        {
+            Position = position,
+            UserId = user.Id,
+            QueueId = queueId
+        });
+
+        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        return position;
+
+        int GetFirstAvailablePosition()
+        {
+            var firstAvailablePosition = 1;
+            var positions = queue.Members.OrderBy(m => m.Position).Select(m => m.Position);
+            foreach (var position in positions)
             {
-                queue.Users.Remove(userToRemove);
-                await _queueRepository.UpdateAsync(queue);
+                if (position != firstAvailablePosition)
+                {
+                    return firstAvailablePosition;
+                }
+
+                firstAvailablePosition++;
             }
+
+            return firstAvailablePosition;
+        }
+    }
+
+    public Task<bool> TryDequeueUserAsync(User user, int queueId, CancellationToken cancellationToken)
+    {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user));
         }
 
-        public async Task DeleteQueueAsync(Queue queue)
+        return TryDequeueUserAsyncInternal(user, queueId, cancellationToken);
+    }
+
+    private async Task<bool> TryDequeueUserAsyncInternal(User user, int queueId, CancellationToken cancellationToken)
+    {
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
         {
-            await _queueRepository.DeleteAsync(queue);
+            throw new ArgumentException("Queue with the specified ID does not exist.", nameof(queueId));
         }
 
-        public async Task UpdateQueueAsync(Queue queue)
+        var userInQueue = queue.Members.FirstOrDefault(m => m.UserId == user.Id);
+        if (userInQueue == null)
         {
-            await _queueRepository.UpdateAsync(queue);
+            return false;
         }
 
-        public Task AddAsync(Queue queue)
-        {
-            return _queueRepository.AddAsync(queue);
-        }
+        queue.Members.Remove(userInQueue);
+        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+
+
+    public Queue GetChatQueueByName(string name, long chatId)
+    {
+        throw new NotImplementedException();
+        //return _queueRepository.GetAll()
+        //    .FirstOrDefault(queue => queue.Chat.Id == chatId && queue.Name.Equals(name));
+    }
+
+    public IEnumerable<Queue> GetChatQueues(int chatId)
+    {
+        throw new NotImplementedException();
+        //return _queueRepository.GetAll()
+        //    .Where(queue => queue.ChatId == chatId);
+    }
+
+    public IEnumerable<Queue> GetTelegramChatQueues(long chatId)
+    {
+        throw new NotImplementedException();
+        //return _queueRepository.GetAll()
+        //    .Where(queue => queue.Chat.Id == chatId);
+    }
+
+    public Queue GetQueueById(int id)
+    {
+        throw new NotImplementedException();
+        //return _queueRepository.Get(id);
+    }
+
+    public async Task RemoveUserAsync(Queue queue, User user)
+    {
+        throw new NotImplementedException();
+        //var userToRemove = queue.Members.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
+        //if (userToRemove is not null)
+        //{
+        //    queue.Members.Remove(userToRemove);
+        //    await _queueRepository.UpdateAsync(queue);
+        //}
+    }
+
+    public async Task UpdateQueueAsync(Queue queue)
+    {
+        throw new NotImplementedException();
+        //await _queueRepository.UpdateAsync(queue);
+    }
+
+    public Task AddAsync(Queue queue)
+    {
+        throw new NotImplementedException();
+        //return _queueRepository.AddAsync(queue);
     }
 }

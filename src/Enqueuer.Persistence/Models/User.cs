@@ -30,7 +30,7 @@ public class User
     /// <summary>
     /// Groups in which user participates.
     /// </summary>
-    public ICollection<GroupChat> Groups { get; set; }
+    public ICollection<Group> Groups { get; set; }
 
     /// <summary>
     /// Queues created by user.

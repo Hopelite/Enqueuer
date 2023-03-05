@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
-using Enqueuer.Persistence.Extensions;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Persistence.Models;
+using Enqueuer.Services;
+using Enqueuer.Services.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers;
 
@@ -18,9 +22,9 @@ public class DequeueMessageHandler : MessageHandlerBase
     {
     }
 
-    protected override Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message)
+    protected override Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message)
     {
-        var messageProvider = serviceScope.ServiceProvider.GetRequiredService<IMessageProvider>();
+        var messageProvider = serviceProvider.GetRequiredService<IMessageProvider>();
         if (message.IsFromPrivateChat())
         {
             return botClient.SendTextMessageAsync(
@@ -29,58 +33,57 @@ public class DequeueMessageHandler : MessageHandlerBase
                 ParseMode.Html);
         }
 
-        return HandlePublicChatAsync(serviceScope.ServiceProvider, botClient, messageProvider, message);
+        return HandlePublicChatAsync(serviceProvider, botClient, messageProvider, message);
     }
 
-    private Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
+    private async Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
     {
+        var groupService = serviceProvider.GetRequiredService<IGroupService>();
+        (var group, var user) = await groupService.AddOrUpdateUserToGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            return HandleMessageWithParameters(serviceProvider, botClient, messageProvider, message, messageWords);
+            await HandleMessageWithParameters(serviceProvider, botClient, messageProvider, message, messageWords, group, user);
+            return;
         }
 
-        return botClient.SendTextMessageAsync(
+        await botClient.SendTextMessageAsync(
             message.Chat.Id,
             messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueNameIsNotProvided_Message),
             ParseMode.Html,
             replyToMessageId: message.MessageId);
     }
 
-    private async Task<Message> HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message, string[] messageWords)
+    private async Task HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message, string[] messageWords, Group group, User user)
     {
-        var chatService = serviceProvider.GetRequiredService<IChatService>();
-        var chat = await chatService.GetOrCreateChatAsync(message.Chat);
-
-        var userService = serviceProvider.GetRequiredService<IUserService>();
-        var user = await userService.GetOrCreateUserAsync(message.From);
-        await chatService.AddUserToChatIfNotAlready(user, chat);
-
         var queueName = messageWords.GetQueueName();
-        var queueService = serviceProvider.GetRequiredService<IQueueService>();
-
-        var queue = queueService.GetChatQueueByName(queueName, chat.ChatId);
-        if (queue is null)
+        var queue = group.GetQueueByName(queueName);
+        if (queue == null)
         {
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
+            await botClient.SendTextMessageAsync(
+                group.Id,
                 messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+
+            return;
         }
 
-        if (user.IsParticipatingIn(queue))
+        var queueService = serviceProvider.GetRequiredService<IQueueService>();
+        if (await queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None))
         {
-            await queueService.RemoveUserAsync(queue, user);
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
-                messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_SuccessfullyDequeued_Message, queueName),
-                ParseMode.Html,
-                replyToMessageId: message.MessageId);
+            await botClient.SendTextMessageAsync(
+                 group.Id,
+                 messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_SuccessfullyDequeued_Message, queueName),
+                 ParseMode.Html,
+                 replyToMessageId: message.MessageId);
+
+            return;
         }
 
-        return await botClient.SendTextMessageAsync(
-                chat.ChatId,
+        await botClient.SendTextMessageAsync(
+                group.Id,
                 messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_UserDoesNotParticipate_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);

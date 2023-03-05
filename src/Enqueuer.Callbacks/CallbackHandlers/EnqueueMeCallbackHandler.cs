@@ -16,7 +16,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
     /// <inheritdoc/>
     public class EnqueueMeCallbackHandler : ICallbackHandler
     {
-        private readonly IChatService chatService;
+        private readonly IGroupService chatService;
         private readonly IUserService userService;
         private readonly IQueueService queueService;
         private readonly IUserInQueueService userInQueueService;
@@ -29,7 +29,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
         /// <param name="queueService">Queue service to use.</param>
         /// <param name="userInQueueService">User in queue service to use.</param>
         public EnqueueMeCallbackHandler(
-            IChatService chatService,
+            IGroupService chatService,
             IUserService userService,
             IQueueService queueService,
             IUserInQueueService userInQueueService)
@@ -82,7 +82,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private static bool DoesUserNotParticipateInQueue(Queue queue, User user)
         {
-            return !queue.Users.Any(queueUser => queueUser.UserId == user.Id);
+            return !queue.Members.Any(queueUser => queueUser.UserId == user.Id);
         }
 
         private static string GetUserName(Telegram.Bot.Types.User telegramUser)
@@ -90,7 +90,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
             return $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
         }
 
-        private async Task<User> AddUserAndChatToDbAsync(CallbackQuery callbackQuery, int chatId)
+        private async Task<User> AddUserAndChatToDbAsync(CallbackQuery callbackQuery, long chatId)
         {
             var user = await this.userService.GetOrCreateUserAsync(callbackQuery.From);
             var chat = this.chatService.GetChatById(chatId);

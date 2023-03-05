@@ -1,4 +1,5 @@
-﻿using Enqueuer.Callbacks;
+﻿using System.Reflection;
+using Enqueuer.Callbacks;
 using Enqueuer.Callbacks.Factories;
 using Enqueuer.Data.Configuration;
 using Enqueuer.Data.Exceptions;
@@ -6,11 +7,13 @@ using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Persistence;
+using Enqueuer.Telegram.API.Extensions;
 using Enqueuer.Telegram.Configuration;
 using Enqueuer.Telegram.Extensions;
 using Enqueuer.Telegram.Middleware;
 using Enqueuer.Telegram.UpdateHandling;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,9 +33,14 @@ public class Program
         var app = builder.Build();
 
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
-        app.MapPost($"bot{botConfiguration.AccessToken}", async (Update update, IUpdateHandler handler) =>
+        app.MapPost($"/bot{botConfiguration.AccessToken}", async (HttpContext context) =>
         {
-            await handler.HandleAsync(update);
+            if (context.Request.HasJsonContentType())
+            {
+                var update = context.DeserializeBody<Update>();
+                var handler = context.RequestServices.GetRequiredService<IUpdateHandler>();
+                await handler.HandleAsync(update);
+            }
         });
 
         app.UseMiddleware<SendExceptionsToChatMiddleware>();
@@ -43,9 +51,13 @@ public class Program
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<EnqueuerContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Enqueuer.Telegram.API")));
 
-        builder.Services.AddTransient<IBotConfiguration, BotConfiguration>();
+        builder.Services.AddTransient<IBotConfiguration, BotConfiguration>(services => 
+        {
+                var configuration = services.GetRequiredService<IConfiguration>();
+                return configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
+        });
         builder.Services.AddScoped<IMessageDistributor, MessageDistributor>();
         builder.Services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
         builder.Services.AddScoped<ICallbackDistributor, CallbackDistributor>();
@@ -53,7 +65,6 @@ public class Program
         builder.Services.AddTransient<IMessageProvider, InMemoryTextProvider>();
 
         builder.Services.ConfigureSerialization()
-            .ConfigureRepositories()
             .ConfigureServices();
 
         builder.Services.AddScoped<IUpdateHandler, UpdateHandler>();

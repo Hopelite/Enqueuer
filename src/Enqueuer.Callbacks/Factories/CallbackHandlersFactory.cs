@@ -8,7 +8,7 @@ namespace Enqueuer.Callbacks.Factories
 {
     public class CallbackHandlersFactory : ICallbackHandlersFactory
     {
-        private readonly IChatService _chatService;
+        private readonly IGroupService _chatService;
         private readonly IUserService _userService;
         private readonly IQueueService _queueService;
         private readonly IUserInQueueService _userInQueueService;
@@ -23,7 +23,7 @@ namespace Enqueuer.Callbacks.Factories
         /// <param name="userInQueueService">User in queue service to use.</param>
         /// <param name="dataSerializer"></param>
         public CallbackHandlersFactory(
-            IChatService chatService,
+            IGroupService chatService,
             IUserService userService,
             IQueueService queueService,
             IUserInQueueService userInQueueService,

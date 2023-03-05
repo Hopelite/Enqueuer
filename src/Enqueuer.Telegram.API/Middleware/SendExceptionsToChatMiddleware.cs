@@ -31,20 +31,20 @@ public class SendExceptionsToChatMiddleware // TODO: replace with LogProvider
         }
         catch (Exception ex)
         {
-            var botClient = context.RequestServices.GetService<ITelegramBotClient>();
-            var botConfiguration = context.RequestServices.GetService<IBotConfiguration>();
+            //var botClient = context.RequestServices.GetService<ITelegramBotClient>();
+            //var botConfiguration = context.RequestServices.GetService<IBotConfiguration>();
 
-            try
-            {
-                await botClient.SendTextMessageAsync(
-                    botConfiguration.DevelopmentChatId,
-                    $"Exception thrown during application work.\n"
-                    + $"Exception message: {ex.Message}\n"
-                    + $"Stack trace: {ex.StackTrace}");
-            }
-            catch (Exception)
-            {
-            }
+            //try
+            //{
+            //    await botClient.SendTextMessageAsync(
+            //        botConfiguration.DevelopmentChatId,
+            //        $"Exception thrown during application work.\n"
+            //        + $"Exception message: {ex.Message}\n"
+            //        + $"Stack trace: {ex.StackTrace}");
+            //}
+            //catch (Exception)
+            //{
+            //}
         }
     }
 }

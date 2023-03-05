@@ -22,11 +22,11 @@ public class UpdateHandler : IUpdateHandler
 
     public Task HandleAsync(Update update)
     {
-        if (update.Type == UpdateType.Message)
+        if (update?.Type == UpdateType.Message)
         {
             return _messageDistributor.DistributeAsync(update.Message);
         }
-        else if (update.Type == UpdateType.CallbackQuery)
+        else if (update?.Type == UpdateType.CallbackQuery)
         {
             return _callbackDistributor.DistributeCallbackAsync(_telegramBotClient, update.CallbackQuery);
         }
