@@ -22,9 +22,9 @@ public class QueueMessageHandler : MessageHandlerBase
     {
     }
 
-    protected override Task HandleImplementationAsync(IServiceScope serviceScope, ITelegramBotClient botClient, Message message)
+    protected override Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message)
     {
-        var messageProvider = serviceScope.ServiceProvider.GetRequiredService<IMessageProvider>();
+        var messageProvider = serviceProvider.GetRequiredService<IMessageProvider>();
         if (message.IsFromPrivateChat())
         {
             return botClient.SendTextMessageAsync(
@@ -33,72 +33,71 @@ public class QueueMessageHandler : MessageHandlerBase
                 ParseMode.Html);
         }
 
-        return HandlePublicChatAsync(serviceScope.ServiceProvider, botClient, messageProvider, message);
+        return HandlePublicChatAsync(serviceProvider, botClient, messageProvider, message);
     }
 
     private async Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
     {
-        var chatService = serviceProvider.GetRequiredService<IGroupService>();
-        var chat = await chatService.GetOrStoreGroupAsync(message.Chat, CancellationToken.None);
-
-        var userService = serviceProvider.GetRequiredService<IUserService>();
-        var user = await userService.GetOrStoreUserAsync(message.From);
-        await chatService.AddUserToChatIfNotAlready(user, chat);
+        var groupService = serviceProvider.GetRequiredService<IGroupService>();
+        (var group, var _) = await groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(serviceProvider, messageProvider, botClient, message, messageWords, chat);
+            await HandleMessageWithParameters(serviceProvider, messageProvider, botClient, message, messageWords, group);
             return;
         }
 
-        await HandleMessageWithoutParameters(serviceProvider, messageProvider, botClient, message, chat);
+        await HandleMessageWithoutParameters(messageProvider, botClient, message, group);
     }
 
-    private async Task<Message> HandleMessageWithParameters(IServiceProvider serviceProvider, IMessageProvider messageProvider, ITelegramBotClient botClient, Message message, string[] messageWords, Group chat)
+    private async Task HandleMessageWithParameters(IServiceProvider serviceProvider, IMessageProvider messageProvider, ITelegramBotClient botClient, Message message, string[] messageWords, Group group)
     {
         var queueName = messageWords.GetQueueName();
         var queueService = serviceProvider.GetRequiredService<IQueueService>();
 
-        var queue = queueService.GetChatQueueByName(queueName, chat.Id);
-        if (queue is null)
+        var queue = await queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, CancellationToken.None);
+        if (queue == null)
         {
-            return await botClient.SendTextMessageAsync(
-                chat.Id,
+            await botClient.SendTextMessageAsync(
+                group.Id,
                 messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+
+            return;
         }
 
         if (queue.Members.Count == 0)
         {
-            return await botClient.SendTextMessageAsync(
-                chat.Id,
+            await botClient.SendTextMessageAsync(
+                group.Id,
                 messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueEmpty_Message, queueName),
                 ParseMode.Html);
+
+            return;
         }
 
         var responseMessage = BuildResponseMessageWithQueueParticipants(queue, messageProvider);
-        return await botClient.SendTextMessageAsync(chat.Id, responseMessage, ParseMode.Html);
+        await botClient.SendTextMessageAsync(group.Id, responseMessage, ParseMode.Html);
     }
 
-    private async Task<Message> HandleMessageWithoutParameters(IServiceProvider serviceProvider, IMessageProvider messageProvider, ITelegramBotClient botClient, Message message, Group chat)
+    private async Task HandleMessageWithoutParameters(IMessageProvider messageProvider, ITelegramBotClient botClient, Message message, Group group)
     {
-        var queueService = serviceProvider.GetRequiredService<IQueueService>();
-
-        var chatQueues = queueService.GetTelegramChatQueues(chat.Id);
-        if (!chatQueues.Any())
+        if (!group.Queues.Any())
         {
-            return await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_NoQueues_Message),
-                    ParseMode.Html,
-                    replyToMessageId: message.MessageId);
+            await botClient.SendTextMessageAsync(
+                group.Id,
+                messageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_NoQueues_Message),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId);
+
+            return;
         }
 
-        var replyMessage = BuildResponseMessageWithChatQueues(chatQueues, messageProvider);
-        return await botClient.SendTextMessageAsync(
-            chat.Id,
+        var replyMessage = BuildResponseMessageWithChatQueues(group.Queues, messageProvider);
+        await botClient.SendTextMessageAsync(
+            group.Id,
             replyMessage,
             ParseMode.Html);
     }

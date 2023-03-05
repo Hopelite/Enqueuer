@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +15,19 @@ public class QueueService : IQueueService
     public QueueService(EnqueuerContext enqueuerContext)
     {
         _enqueuerContext = enqueuerContext;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task AddQueueAsync(Queue queue, CancellationToken cancellationToken)
+    {
+        if (queue == null)
+        {
+            throw new ArgumentNullException(nameof(queue));
+        }
+
+        _enqueuerContext.Queues.Add(queue);
+        return _enqueuerContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -120,6 +132,8 @@ public class QueueService : IQueueService
         }
     }
 
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
     public Task<bool> TryDequeueUserAsync(User user, int queueId, CancellationToken cancellationToken)
     {
         if (user == null)
@@ -151,55 +165,26 @@ public class QueueService : IQueueService
         return true;
     }
 
-
-
-    public Queue GetChatQueueByName(string name, long chatId)
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<Queue?> GetQueueByNameAsync(long groupId, string name, bool includeMembers, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-        //return _queueRepository.GetAll()
-        //    .FirstOrDefault(queue => queue.Chat.Id == chatId && queue.Name.Equals(name));
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+
+        return GetQueueAsyncInternal(groupId, name, includeMembers, cancellationToken);
     }
 
-    public IEnumerable<Queue> GetChatQueues(int chatId)
+    private Task<Queue?> GetQueueAsyncInternal(long groupId, string name, bool includeMembers, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-        //return _queueRepository.GetAll()
-        //    .Where(queue => queue.ChatId == chatId);
-    }
+        if (includeMembers)
+        {
+            return _enqueuerContext.Queues.Include(q => q.Members)
+                .FirstOrDefaultAsync(q => q.GroupId == groupId && q.Name.Equals(name), cancellationToken);
+        }
 
-    public IEnumerable<Queue> GetTelegramChatQueues(long chatId)
-    {
-        throw new NotImplementedException();
-        //return _queueRepository.GetAll()
-        //    .Where(queue => queue.Chat.Id == chatId);
-    }
-
-    public Queue GetQueueById(int id)
-    {
-        throw new NotImplementedException();
-        //return _queueRepository.Get(id);
-    }
-
-    public async Task RemoveUserAsync(Queue queue, User user)
-    {
-        throw new NotImplementedException();
-        //var userToRemove = queue.Members.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
-        //if (userToRemove is not null)
-        //{
-        //    queue.Members.Remove(userToRemove);
-        //    await _queueRepository.UpdateAsync(queue);
-        //}
-    }
-
-    public async Task UpdateQueueAsync(Queue queue)
-    {
-        throw new NotImplementedException();
-        //await _queueRepository.UpdateAsync(queue);
-    }
-
-    public Task AddAsync(Queue queue)
-    {
-        throw new NotImplementedException();
-        //return _queueRepository.AddAsync(queue);
+        return _enqueuerContext.Queues.FirstOrDefaultAsync(q => q.GroupId == groupId && q.Name.Equals(name), cancellationToken);
     }
 }

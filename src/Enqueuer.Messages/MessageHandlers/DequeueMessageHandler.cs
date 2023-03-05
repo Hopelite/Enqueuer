@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
@@ -39,7 +38,7 @@ public class DequeueMessageHandler : MessageHandlerBase
     private async Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
     {
         var groupService = serviceProvider.GetRequiredService<IGroupService>();
-        (var group, var user) = await groupService.AddOrUpdateUserToGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+        (var group, var user) = await groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())

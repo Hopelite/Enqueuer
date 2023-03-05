@@ -58,7 +58,7 @@ public class GroupService : IGroupService
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public Task<(Group group, User user)> AddOrUpdateUserToGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User user, bool includeQueues, CancellationToken cancellationToken)
+    public Task<(Group group, User user)> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User user, bool includeQueues, CancellationToken cancellationToken)
     {
         if (user == null)
         {

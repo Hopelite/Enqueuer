@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
@@ -40,7 +39,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
     private async Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
     {
         var groupService = serviceProvider.GetRequiredService<IGroupService>();
-        (var group, var user) = await groupService.AddOrUpdateUserToGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+        (var group, var user) = await groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
 
         var messageWords = message.Text!.SplitToWords();
         if (!messageWords.HasParameters())
@@ -67,6 +66,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
                 messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+
             return;
         }
 
@@ -78,6 +78,7 @@ public class EnqueueMessageHandler : MessageHandlerBase
                 messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+
             return;
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data;
@@ -45,7 +44,7 @@ public class CreateQueueMessageHandler : MessageHandlerBase
     private async Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
     {
         var groupService = serviceProvider.GetRequiredService<IGroupService>();
-        (var group, var user) = await groupService.AddOrUpdateUserToGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+        (var group, var user) = await groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
@@ -61,12 +60,12 @@ public class CreateQueueMessageHandler : MessageHandlerBase
                 replyToMessageId: message.MessageId);
     }
 
-    private async Task<Message> HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Message message, Group group, User user)
+    private Task<Message> HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Message message, Group group, User user)
     {
         var botConfiguration = serviceProvider.GetRequiredService<IBotConfiguration>();
         if (group.Queues.Count >= botConfiguration.QueuesPerChat)
         {
-            return await botClient.SendTextMessageAsync(
+            return botClient.SendTextMessageAsync(
                 group.Id,
                 messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message),
                 ParseMode.Html,
@@ -75,10 +74,10 @@ public class CreateQueueMessageHandler : MessageHandlerBase
 
         if (QueueHasNumberAtTheEnd(messageWords))
         {
-            return await HandleMessageWithNumberAtTheEndInName(botClient, messageProvider, messageWords, message, group);
+            return HandleMessageWithNumberAtTheEndInName(botClient, messageProvider, messageWords, message, group);
         }
 
-        return await HandleMessageWithQueueName(serviceProvider, botClient, messageProvider, messageWords, message, user, group);
+        return HandleMessageWithQueueName(serviceProvider, botClient, messageProvider, messageWords, message, user, group);
     }
 
     private Task<Message> HandleMessageWithNumberAtTheEndInName(ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Message message, Group chat)
@@ -122,7 +121,7 @@ public class CreateQueueMessageHandler : MessageHandlerBase
         };
 
         var queueService = serviceProvider.GetRequiredService<IQueueService>();
-        await queueService.AddAsync(queue);
+        await queueService.AddQueueAsync(queue, CancellationToken.None);
         var callbackButtonData = new CallbackData()
         {
             Command = CallbackConstants.EnqueueMeCommand,
