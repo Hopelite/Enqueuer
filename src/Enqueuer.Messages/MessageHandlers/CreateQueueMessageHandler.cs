@@ -6,8 +6,8 @@ using Enqueuer.Data.Configuration;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
-using Enqueuer.Messages.Constants;
 using Enqueuer.Messages.Extensions;
+using Enqueuer.Persistence.Constants;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
@@ -96,7 +96,7 @@ public class CreateQueueMessageHandler : MessageHandlerBase
     private async Task<Message> HandleMessageWithQueueName(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Message message, User user, Group group)
     {
         var queueName = messageWords.GetQueueName();
-        if (queueName.Length > MessageHandlersConstants.MaxQueueNameLength)
+        if (queueName.Length > QueueConstants.MaxNameLength)
         {
             return await botClient.SendTextMessageAsync(
                 group.Id,

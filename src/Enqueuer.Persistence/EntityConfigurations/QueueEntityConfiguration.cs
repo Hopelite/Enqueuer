@@ -1,4 +1,5 @@
-﻿using Enqueuer.Persistence.Models;
+﻿using Enqueuer.Persistence.Constants;
+using Enqueuer.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +10,7 @@ internal class QueueEntityConfiguration : IEntityTypeConfiguration<Queue>
     public void Configure(EntityTypeBuilder<Queue> builder)
     {
         builder.Property(u => u.Name)
-            .HasMaxLength(64)
+            .HasMaxLength(QueueConstants.MaxNameLength)
             .IsRequired();
     }
 }
