@@ -59,7 +59,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers
 
         private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
         {
-            var user = _userService.GetUserByUserId(callbackQuery.From.Id);
+            var user = _userService.GetUserAsync(callbackQuery.From.Id);
             string responseMessage;
             if (user.TryGetUserPosition(queue, out var position))
             {

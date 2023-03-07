@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Enqueuer.Callbacks;
+﻿using Enqueuer.Callbacks;
 using Enqueuer.Callbacks.Factories;
 using Enqueuer.Data.Configuration;
 using Enqueuer.Data.Exceptions;
@@ -58,10 +57,14 @@ public class Program
                 var configuration = services.GetRequiredService<IConfiguration>();
                 return configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
         });
+
         builder.Services.AddScoped<IMessageDistributor, MessageDistributor>();
         builder.Services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
+
         builder.Services.AddScoped<ICallbackDistributor, CallbackDistributor>();
         builder.Services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();
+        builder.Services.ConfigureCallbackHandlers();
+
         builder.Services.AddTransient<IMessageProvider, InMemoryTextProvider>();
 
         builder.Services.ConfigureSerialization()

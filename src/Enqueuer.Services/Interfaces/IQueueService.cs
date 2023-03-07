@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 
@@ -6,6 +7,11 @@ namespace Enqueuer.Services;
 
 public interface IQueueService
 {
+    /// <summary>
+    /// Gets <see cref="Queue"/> with the specified <paramref name="id"/>.
+    /// </summary>
+    Task<Queue?> GetQueueAsync(int id, bool includeMembers, CancellationToken cancellationToken);
+
     /// <summary>
     /// Adds the <paramref name="queue"/>.
     /// </summary>
@@ -36,4 +42,9 @@ public interface IQueueService
     /// Gets <see cref="Queue"/> by <paramref name="name"/> which belongs to a <see cref="Group"/> with the specified <paramref name="groupId"/>.
     /// </summary>
     Task<Queue?> GetQueueByNameAsync(long groupId, string name, bool includeMembers, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets all <see cref="Queue"/>s that exist in the <see cref="Group"/> with the specified <paramref name="groupId"/>.
+    /// </summary>
+    Task<List<Queue>> GetGroupQueuesAsync(long groupId, CancellationToken cancellationToken);
 }

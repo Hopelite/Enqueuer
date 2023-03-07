@@ -2,7 +2,7 @@
 
 public static class MessageKeys
 {
-    public static class StartMessageHanlder
+    public static class StartMessageHandler
     {
         public const string StartCommand_PublicChat_Message = "StartCommand_PublicChat_Message";
 

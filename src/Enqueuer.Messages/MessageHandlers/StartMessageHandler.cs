@@ -29,7 +29,7 @@ public class StartMessageHandler : MessageHandlerBase
         {
             return botClient.SendTextMessageAsync(
                 message.Chat,
-                messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PublicChat_Message),
+                messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PublicChat_Message),
                 ParseMode.Html);
         }
 
@@ -51,12 +51,12 @@ public class StartMessageHandler : MessageHandlerBase
 
         var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
         {
-            InlineKeyboardButton.WithCallbackData(messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
+            InlineKeyboardButton.WithCallbackData(messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
         });
 
         await botClient.SendTextMessageAsync(
             message.Chat,
-            messageProvider.GetMessage(MessageKeys.StartMessageHanlder.StartCommand_PrivateChat_Message),
+            messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_Message),
             ParseMode.Html,
             replyMarkup: viewChatsButton);
     }

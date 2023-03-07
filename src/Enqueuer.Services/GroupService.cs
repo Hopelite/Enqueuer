@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,12 +19,6 @@ public class GroupService : IGroupService
     public GroupService(EnqueuerContext enqueuerContext)
     {
         _enqueuerContext = enqueuerContext;
-    }
-
-    public Task<Group?> GetAsync(long id, CancellationToken cancellationToken)
-    {
-        return _enqueuerContext.Groups
-            .SingleOrDefaultAsync(g => g.Id == id);
     }
 
     /// <inheritdoc/>
@@ -58,69 +54,99 @@ public class GroupService : IGroupService
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public Task<(Group group, User user)> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User user, bool includeQueues, CancellationToken cancellationToken)
+    public Task<(Group group, User user)> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken)
     {
-        if (user == null)
+        if (telegramGroup == null)
         {
-            throw new ArgumentNullException(nameof(user));
+            throw new ArgumentNullException(nameof(telegramGroup));
         }
 
-        return AddOrUpdateUserToGroupAsyncInternal(telegramGroup, user, includeQueues, cancellationToken);
+        if (telegramUser == null)
+        {
+            throw new ArgumentNullException(nameof(telegramUser));
+        }
+
+        return AddOrUpdateUserToGroupAsyncInternal(telegramGroup, telegramUser, includeQueues, cancellationToken);
     }
 
+    [SuppressMessage("Blocker Code Smell", "S2178:Short-circuit logic should be used in boolean contexts", Justification = "Both sides are expected to be evaluated.")]
     private async Task<(Group group, User user)> AddOrUpdateUserToGroupAsyncInternal(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken)
     {
-        var group = await IncludeProperties().SingleOrDefaultAsync(g => g.Id == telegramGroup.Id, cancellationToken);
-        if (group == null)
-        {
-            group = telegramGroup.ConvertToGroup();
-            _enqueuerContext.Add(group);
-        }
+        var group = await IncludeProperties(_enqueuerContext, includeQueues).SingleOrDefaultAsync(g => g.Id == telegramGroup.Id, cancellationToken);
+        var user = await _enqueuerContext.FindAsync<User>(new object[] { telegramUser.Id }, cancellationToken);
 
-        var user = await _enqueuerContext.FindAsync<User>(new object[] { telegramUser.Id }, cancellationToken) ?? telegramUser.ConvertToEntity();
+        var isSaveNeeded = AddOrUpdateGroup(_enqueuerContext, group, telegramGroup) | AddOrUpdateUser(_enqueuerContext, user, telegramUser);
         if (!group.Members.Any(m => m.Id == user.Id))
         {
             group.Members.Add(user);
+            _enqueuerContext.Update(group);
+            isSaveNeeded = true;
+        }
+
+        if (isSaveNeeded)
+        {
             await _enqueuerContext.SaveChangesAsync(cancellationToken);
         }
 
         return (group, user);
 
-        IQueryable<Group> IncludeProperties()
+        static IQueryable<Group> IncludeProperties(EnqueuerContext enqueuerContext, bool includeQueues)
         {
             if (includeQueues)
             {
-                return _enqueuerContext.Groups.Include(g => g.Members)
+                return enqueuerContext.Groups.Include(g => g.Members)
                         .Include(g => g.Queues);
             }
 
-            return _enqueuerContext.Groups.Include(g => g.Members);
+            return enqueuerContext.Groups.Include(g => g.Members);
         }
-    }
 
-
-    public async Task AddUserToChatIfNotAlready(User user, Group chat)
-    {
-        if (chat.Members.FirstOrDefault(chatUser => chatUser.Id == user.Id) is null)
+        static bool AddOrUpdateGroup(EnqueuerContext enqueuerContext, [NotNull] Group? group, Telegram.Bot.Types.Chat telegramGroup)
         {
-            chat.Members.Add(user);
-            //await this.chatRepository.UpdateAsync(chat);
+            if (group == null)
+            {
+                group = telegramGroup.ConvertToGroup();
+                enqueuerContext.Add(group);
+                return true;
+            }
+
+            if (group.Title != telegramGroup.Title)
+            {
+                group.Title = telegramGroup.Title;
+                enqueuerContext.Update(group);
+                return true;
+            }
+
+            return false;
+        }
+
+        static bool AddOrUpdateUser(EnqueuerContext enqueuerContext, [NotNull] User? user, Telegram.Bot.Types.User telegramUser)
+        {
+            if (user == null)
+            {
+                user = telegramUser.ConvertToEntity();
+                enqueuerContext.Add(user);
+                return true;
+            }
+
+            if (user.FirstName != telegramUser.FirstName || user.LastName != telegramUser.LastName)
+            {
+                user.FirstName = telegramUser.FirstName;
+                user.LastName = telegramUser.LastName;
+                enqueuerContext.Update(user);
+                return true;
+            }
+
+            return false;
         }
     }
 
-    /// <inheritdoc/>
-    public int GetNumberOfQueues(long chatId)
+    public async Task<IEnumerable<Group>> GetUserGroups(long userId, CancellationToken cancellationToken)
     {
-        return 1;
-        //return this.chatRepository.GetAll()
-        //    .First(chat => chat.ChatId == chatId)
-        //    .Queues.Count;
-    }
+        // TODO: optimize with the direct JOIN table call
+        var user = await _enqueuerContext.Users.Include(u => u.Groups)
+            .SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
-    /// <inheritdoc/>
-    //public Chat GetChatByTelegramChatId(long chatId)
-    //{
-    //    return this.chatRepository.GetAll()
-    //            .FirstOrDefault(chat => chat.ChatId == chatId);
-    //}
+        return user?.Groups ?? Enumerable.Empty<Group>();
+    }
 }

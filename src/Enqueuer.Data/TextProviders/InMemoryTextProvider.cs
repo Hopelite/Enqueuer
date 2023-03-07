@@ -9,13 +9,13 @@ public class InMemoryTextProvider : IMessageProvider
     {
         var formatText = key switch
         {
-            MessageKeys.StartMessageHanlder.StartCommand_PublicChat_Message => "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
+            MessageKeys.StartMessageHandler.StartCommand_PublicChat_Message => "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
                 + "To get the list of commands, write '<b>/help</b>'.\n"
                 + "<i>Please, message this guy (@hopelite) to get help, give feedback or report a bug.</i>\n",
-            MessageKeys.StartMessageHanlder.StartCommand_PrivateChat_Message => "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
+            MessageKeys.StartMessageHandler.StartCommand_PrivateChat_Message => "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
                 + "And your personal queue manager too!\n"
                 + "Start by pressing the button below:",
-            MessageKeys.StartMessageHanlder.StartCommand_PrivateChat_ListChatsButton => "View chats",
+            MessageKeys.StartMessageHandler.StartCommand_PrivateChat_ListChatsButton => "View chats",
 
             MessageKeys.HelpMessageHandler.HelpCommand_Message => "Here is the list of available commands with short description:\n"
                 + "<b>/start</b> - get introducing message\n"
@@ -65,6 +65,33 @@ public class InMemoryTextProvider : IMessageProvider
 
             MessageKeys.UnsupportedCommand_Message => "Bot does not support the '{0}' command.",
             MessageKeys.UnsupportedCommand_PrivateChat_Message => "Bot does not support commands in private chats except '<b>/start</b>'. Please, use interface it provides.",
+
+            CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_QueueHasBeenDeleted_Message => "This queue has been deleted. Please, create a new one to participate in.",
+            CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification => "You're already participating in queue '{0}'!",
+            CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification => "Successfully added to queue '{0}' at the '{1}' position!",
+
+            CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message => "I haven't seen you before. Please, write any command in any chat with me, and I'll notice you there. Then come here and write <b>'/start'</b> again.",
+            CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_ListChats_Message => "I know that you do participate in these chats. If one of the chats is not presented, please write any command in this chat, and I'll notice you there.",
+
+            CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ChatHasNoQueues_Message => "This chat has no queues. Are you thinking of creating one?",
+            CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_Message => "This chat has these queues. You can manage any one of them by selecting it.",
+            CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_PostScriptum_Message => "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>",
+
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_EnqueueMe_Button => "Enqueue me",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_DequeueMe_Button => "Dequeue me",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_RemoveQueue_Button => "Remove queue",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_MakeQueueStatic_Button => "Make static",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_MakeQueueDynamic_Button => "Make dynamic",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_QueueIsEmpty_Message => "Queue <b>'{0}'</b> has no participants.",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_Message => "Queue <b>'{0}'</b> has these participants:\n",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message => "Queue is <i>dynamic</i>",
+
+            CallbackMessageKeys.OutdatedCallback_Message => "This message is outdated.",
+            CallbackMessageKeys.EverythingIsUpToDate_Message => "Everything is up to date.",
+            CallbackMessageKeys.RefreshMessage_Button => "Refresh",
+            CallbackMessageKeys.ChatHasBeenDeleted_Message => "This chat has been deleted.",
+            CallbackMessageKeys.QueueHasBeenDeleted_Message => "This queue has been deleted.",
+            CallbackMessageKeys.Return_Button => "Return",
             _ => throw new Exception()
         };
 

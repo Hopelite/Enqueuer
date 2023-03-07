@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 
@@ -12,7 +13,12 @@ public interface IGroupService
     Task<Group> GetOrStoreGroupAsync(Telegram.Bot.Types.Chat telegramGroup, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Adds or updates <paramref name="user"/> to a new or existing <paramref name="telegramGroup"/>.
+    /// Adds to or updates <paramref name="telegramUser"/> in a new or existing <paramref name="telegramGroup"/>.
     /// </summary>
-    Task<(Group group, User user)> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User user, bool includeQueues, CancellationToken cancellationToken);
+    Task<(Group group, User user)> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
+    /// </summary>
+    Task<IEnumerable<Group>> GetUserGroups(long userId, CancellationToken cancellationToken);
 }

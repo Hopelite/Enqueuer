@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence;
-using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Extensions;
 using User = Enqueuer.Persistence.Models.User;
 
@@ -38,23 +36,16 @@ public class UserService : IUserService
             user = telegramUser.ConvertToEntity();
             _enqueuerContext.Add(user);
             await _enqueuerContext.SaveChangesAsync(cancellationToken);
+            return user;
+        }
+
+        if (user.FirstName != telegramUser.FirstName || !string.Equals(user.LastName, telegramUser.LastName))
+        {
+            user.FirstName = telegramUser.FirstName;
+            user.LastName = telegramUser.LastName;
+            await _enqueuerContext.SaveChangesAsync(cancellationToken);
         }
 
         return user;
-    }
-
-    public User GetUserByUserId(long userId)
-    {
-        throw new NotImplementedException();
-        //return this.userRepository.GetAll()
-        //        .FirstOrDefault(user => user.UserId == userId);
-    }
-
-    /// <inheritdoc/>
-    public IEnumerable<Group> GetUserChats(long userId)
-    {
-        throw new NotImplementedException();
-        //return this.userRepository.GetAll()
-        //    .FirstOrDefault(user => user.UserId == userId)?.Chats;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,18 @@ public class QueueService : IQueueService
     public QueueService(EnqueuerContext enqueuerContext)
     {
         _enqueuerContext = enqueuerContext;
+    }
+
+    public Task<Queue?> GetQueueAsync(int id, bool includeMembers, CancellationToken cancellationToken)
+    {
+        if (includeMembers)
+        {
+            return _enqueuerContext.Queues.Include(q => q.Members)
+                .ThenInclude(m => m.User)
+                .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
+        }
+
+        return _enqueuerContext.Queues.FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -182,9 +195,15 @@ public class QueueService : IQueueService
         if (includeMembers)
         {
             return _enqueuerContext.Queues.Include(q => q.Members)
+                .ThenInclude(m => m.User)
                 .FirstOrDefaultAsync(q => q.GroupId == groupId && q.Name.Equals(name), cancellationToken);
         }
 
         return _enqueuerContext.Queues.FirstOrDefaultAsync(q => q.GroupId == groupId && q.Name.Equals(name), cancellationToken);
+    }
+
+    public Task<List<Queue>> GetGroupQueuesAsync(long groupId, CancellationToken cancellationToken)
+    {
+        return _enqueuerContext.Queues.Where(q => q.GroupId == groupId).ToListAsync(cancellationToken);
     }
 }
