@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Data;
@@ -18,6 +19,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers;
 
 public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {
+    private const int PositionsToDisplay = 20;
     private const int PositionsInRow = 4;
     private readonly IQueueService _queueService;
     private readonly ILogger<EnqueueCallbackHandler> _logger;
@@ -52,8 +54,9 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                "This queue has been deleted.",
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
+
             return;
         }
 
@@ -67,20 +70,20 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         {
             replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[]
             {
-                GetEnqueueAtButton(callback.CallbackData, "First available"),
+                GetEnqueueAtButton(callback.CallbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)),
                 GetReturnToQueueButton(callback.CallbackData)
             });
         }
         else
         {
-            var availablePositions = queue.GetAvailablePositions(20);
+            var availablePositions = queue.GetAvailablePositions(PositionsToDisplay);
             replyButtons = BuildKeyboardMarkup(availablePositions, callback.CallbackData);
         }
 
         return await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            $"Select an available position in queue <b>'{queue.Name}'</b>:",
+            MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button, queue.Name),
             ParseMode.Html,
             replyMarkup: replyButtons);
     }
@@ -90,7 +93,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         var numberOfRows = availablePositions.Length / PositionsInRow;
         var positionButtons = new InlineKeyboardButton[numberOfRows + 3][];
 
-        positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, "First available") };
+        positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)) };
         AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
         positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
         positionButtons[numberOfRows + 2] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };
@@ -125,6 +128,6 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         };
 
         var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData($"{buttonText ?? position.ToString()}", serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData($"{buttonText ?? position?.ToString() ?? throw new ArgumentNullException(nameof(buttonText)) }", serializedCallbackData);
     }
 }

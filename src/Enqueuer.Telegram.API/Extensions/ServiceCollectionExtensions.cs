@@ -15,7 +15,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IGroupService, GroupService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IQueueService, QueueService>();
-        services.AddTransient<IUserInQueueService, UserInQueueService>();
 
         return services;
     }

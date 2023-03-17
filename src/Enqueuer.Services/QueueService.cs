@@ -206,4 +206,9 @@ public class QueueService : IQueueService
     {
         return _enqueuerContext.Queues.Where(q => q.GroupId == groupId).ToListAsync(cancellationToken);
     }
+
+    public Task MakeQueueDynamicAsync(long queueId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

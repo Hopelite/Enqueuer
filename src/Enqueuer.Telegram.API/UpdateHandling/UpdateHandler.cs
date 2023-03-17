@@ -28,7 +28,7 @@ public class UpdateHandler : IUpdateHandler
         }
         else if (update?.Type == UpdateType.CallbackQuery)
         {
-            return _callbackDistributor.DistributeCallbackAsync(_telegramBotClient, update.CallbackQuery);
+            return _callbackDistributor.DistributeAsync(update.CallbackQuery);
         }
 
         return Task.CompletedTask;

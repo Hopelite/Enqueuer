@@ -17,7 +17,7 @@ public class CallbackDistributor : ICallbackDistributor
         _dataDeserializer = dataDeserializer;
     }
 
-    public async Task DistributeCallbackAsync(CallbackQuery callbackQuery)
+    public async Task DistributeAsync(CallbackQuery callbackQuery)
     {
         CallbackData? callbackData = null;
         if (callbackQuery.Data != null)

@@ -46,6 +46,26 @@ public static class CallbackMessageKeys
         public const string GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message = "GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message";
     }
 
+    public static class EnqueueCallbackHandler
+    {
+        public const string EnqueueCallback_QueueHasBeenDeleted_Message = "EnqueueCallback_QueueHasBeenDeleted_Message";
+
+        public const string EnqueueCallback_FirstAvailable_Button = "EnqueueCallback_FirstAvailable_Button";
+
+        public const string EnqueueCallback_SelectPosition_Message = "EnqueueCallback_SelectPosition_Message";
+    }
+
+    public static class EnqueueAtCallbackHandler
+    {
+        public const string EnqueueAtCallback_QueueHasBeenDeleted_Message = "EnqueueAtCallback_QueueHasBeenDeleted_Message";
+
+        public const string EnqueueAtCallback_UserAlreadyParticipates_Message = "EnqueueAtCallback_UserAlreadyParticipates_Message";
+
+        public const string EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message = "EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message";
+
+        public const string EnqueueAtCallback_PositionIsReserved_Message = "EnqueueAtCallback_PositionIsReserved_Message";
+    }
+
     public const string OutdatedCallback_Message = "CallbackMessageKeys_OutdatedCallback_Message";
 
     public const string EverythingIsUpToDate_Message = "CallbackMessageKeys_EverythingIsUpToDate_Message";

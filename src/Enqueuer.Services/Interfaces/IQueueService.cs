@@ -47,4 +47,9 @@ public interface IQueueService
     /// Gets all <see cref="Queue"/>s that exist in the <see cref="Group"/> with the specified <paramref name="groupId"/>.
     /// </summary>
     Task<List<Queue>> GetGroupQueuesAsync(long groupId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Changes
+    /// </summary>
+    Task MakeQueueDynamicAsync(long queueId, CancellationToken cancellationToken);
 }

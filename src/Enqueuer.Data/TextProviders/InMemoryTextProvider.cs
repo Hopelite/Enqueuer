@@ -86,6 +86,15 @@ public class InMemoryTextProvider : IMessageProvider
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_Message => "Queue <b>'{0}'</b> has these participants:\n",
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message => "Queue is <i>dynamic</i>",
 
+            CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_QueueHasBeenDeleted_Message => "This queue has been deleted.",
+            CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button => "First available",
+            CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_SelectPosition_Message => "Select an available position in queue <b>'{0}'</b>:",
+
+            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueHasBeenDeleted_Message => "This queue has been deleted.",
+            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_UserAlreadyParticipates_Message => "You're already participating in queue '<b>{0}</b>'. To change your position, please, dequeue yourself first.",
+            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message => "Queue '<b>{0}</b>' is now dynamic. Please, return and press the 'First available' button.",
+            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message => "Queue '<b>{0}</b>' is now dynamic. Please, return and press the 'First available' button.",
+
             CallbackMessageKeys.OutdatedCallback_Message => "This message is outdated.",
             CallbackMessageKeys.EverythingIsUpToDate_Message => "Everything is up to date.",
             CallbackMessageKeys.RefreshMessage_Button => "Refresh",
