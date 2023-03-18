@@ -22,7 +22,7 @@ using Telegram.Bot.Types;
 
 namespace Enqueuer.Telegram.API;
 
-public class Program
+internal static class Program
 {
     public static void Main(string[] args)
     {
