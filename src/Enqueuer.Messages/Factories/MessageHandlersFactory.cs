@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Data.Constants;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Messages.MessageHandlers;
@@ -9,11 +10,11 @@ namespace Enqueuer.Messages.Factories
 {
     public class MessageHandlersFactory : IMessageHandlersFactory
     {
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MessageHandlersFactory(IServiceScopeFactory serviceProvider)
+        public MessageHandlersFactory(IServiceProvider serviceProvider)
         {
-            _serviceScopeFactory = serviceProvider;
+            _serviceProvider = serviceProvider;
         }
 
         public bool TryCreateMessageHandler(Message message, [NotNullWhen(returnValue: true)] out IMessageHandler? messageHandler)
@@ -32,13 +33,13 @@ namespace Enqueuer.Messages.Factories
         {
             messageHandler = command switch
             {
-                MessageConstants.StartCommand => new StartMessageHandler(_serviceScopeFactory),
-                MessageConstants.HelpCommand => new HelpMessageHandler(_serviceScopeFactory),
-                MessageConstants.QueueCommand => new QueueMessageHandler(_serviceScopeFactory),
-                MessageConstants.EnqueueCommand => new EnqueueMessageHandler(_serviceScopeFactory),
-                MessageConstants.DequeueCommand => new DequeueMessageHandler(_serviceScopeFactory),
-                MessageConstants.CreateQueueCommand => new CreateQueueMessageHandler(_serviceScopeFactory),
-                MessageConstants.RemoveQueueCommand => new RemoveQueueMessageHandler(_serviceScopeFactory),
+                MessageConstants.StartCommand => _serviceProvider.GetRequiredService<StartMessageHandler>(),
+                MessageConstants.HelpCommand => _serviceProvider.GetRequiredService<HelpMessageHandler>(),
+                MessageConstants.QueueCommand => _serviceProvider.GetRequiredService<QueueMessageHandler>(),
+                MessageConstants.EnqueueCommand => _serviceProvider.GetRequiredService<EnqueueMessageHandler>(),
+                MessageConstants.DequeueCommand => _serviceProvider.GetRequiredService<DequeueMessageHandler>(),
+                MessageConstants.CreateQueueCommand => _serviceProvider.GetRequiredService<CreateQueueMessageHandler>(),
+                MessageConstants.RemoveQueueCommand => _serviceProvider.GetRequiredService<RemoveQueueMessageHandler>(),
                 _ => null
             };
 

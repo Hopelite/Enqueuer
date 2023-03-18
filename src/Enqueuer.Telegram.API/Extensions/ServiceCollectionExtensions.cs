@@ -1,5 +1,6 @@
 ﻿using Enqueuer.Callbacks.CallbackHandlers;
 using Enqueuer.Data.DataSerialization;
+using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,6 +24,19 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<IDataSerializer, JsonDataSerializer>();
         services.AddTransient<IDataDeserializer, JsonDataDeserializer>();
+
+        return services;
+    }
+
+    public static IServiceCollection ConfigureMessageHandlers(this IServiceCollection services)
+    {
+        services.AddScoped<StartMessageHandler>();
+        services.AddScoped<HelpMessageHandler>();
+        services.AddScoped<QueueMessageHandler>();
+        services.AddScoped<EnqueueMessageHandler>();
+        services.AddScoped<DequeueMessageHandler>();
+        services.AddScoped<CreateQueueMessageHandler>();
+        services.AddScoped<RemoveQueueMessageHandler>();
 
         return services;
     }

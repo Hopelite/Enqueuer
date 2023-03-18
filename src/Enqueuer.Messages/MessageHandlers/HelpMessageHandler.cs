@@ -1,23 +1,27 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
-using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Messages.MessageHandlers;
 
-public class HelpMessageHandler : MessageHandlerBase
+public class HelpMessageHandler : IMessageHandler
 {
-    public HelpMessageHandler(IServiceScopeFactory scopeFactory)
-        : base(scopeFactory)
+    private readonly ITelegramBotClient _botClient;
+    private readonly IMessageProvider _messageProvider;
+
+    public HelpMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider)
     {
+        _botClient = botClient;
+        _messageProvider = messageProvider;
     }
 
-    protected override Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message)
+    public Task HandleAsync(Message message)
     {
-        var messageProvider = serviceProvider.GetRequiredService<IMessageProvider>();
-        return botClient.SendTextMessageAsync(message.Chat, messageProvider.GetMessage(MessageKeys.HelpMessageHandler.HelpCommand_Message), ParseMode.Html);
+        return _botClient.SendTextMessageAsync(
+            message.Chat,
+            _messageProvider.GetMessage(MessageKeys.HelpMessageHandler.HelpCommand_Message),
+            ParseMode.Html);
     }
 }

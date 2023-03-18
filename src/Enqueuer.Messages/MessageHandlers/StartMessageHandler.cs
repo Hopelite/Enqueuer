@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
@@ -7,7 +6,6 @@ using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -15,48 +13,53 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Messages.MessageHandlers;
 
-public class StartMessageHandler : MessageHandlerBase
+public class StartMessageHandler : IMessageHandler
 {
-    public StartMessageHandler(IServiceScopeFactory scopeFactory)
-        : base(scopeFactory)
+    private readonly ITelegramBotClient _botClient;
+    private readonly IMessageProvider _messageProvider;
+    private readonly IUserService _userService;
+    private readonly IDataSerializer _dataSerializer;
+
+    public StartMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IUserService userService, IDataSerializer dataSerializer)
     {
+        _botClient = botClient;
+        _messageProvider = messageProvider;
+        _userService = userService;
+        _dataSerializer = dataSerializer;
     }
 
-    protected override Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message)
+    public Task HandleAsync(Message message)
     {
-        var messageProvider = serviceProvider.GetRequiredService<IMessageProvider>();
         if (!message.IsFromPrivateChat())
         {
-            return botClient.SendTextMessageAsync(
+            return _botClient.SendTextMessageAsync(
                 message.Chat,
-                messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PublicChat_Message),
+                _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PublicChat_Message),
                 ParseMode.Html);
         }
 
-        return HandlePrivateChatAsync(serviceProvider, botClient, messageProvider, message);
+        return HandlePrivateChatAsync(message);
     }
 
-    private async Task HandlePrivateChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
+    private async Task HandlePrivateChatAsync(Message message)
     {
-        var userService = serviceProvider.GetRequiredService<IUserService>();
-        await userService.GetOrStoreUserAsync(message.From!, CancellationToken.None);
+        await _userService.GetOrStoreUserAsync(message.From!, CancellationToken.None);
 
         var callbackButtonData = new CallbackData()
         {
             Command = CallbackConstants.ListChatsCommand,
         };
 
-        var dataSerializer = serviceProvider.GetRequiredService<IDataSerializer>();
-        var serializedCallbackData = dataSerializer.Serialize(callbackButtonData);
+        var serializedCallbackData = _dataSerializer.Serialize(callbackButtonData);
 
         var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
         {
-            InlineKeyboardButton.WithCallbackData(messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
+            InlineKeyboardButton.WithCallbackData(_messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
         });
 
-        await botClient.SendTextMessageAsync(
+        await _botClient.SendTextMessageAsync(
             message.Chat,
-            messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_Message),
+            _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_Message),
             ParseMode.Html,
             replyMarkup: viewChatsButton);
     }

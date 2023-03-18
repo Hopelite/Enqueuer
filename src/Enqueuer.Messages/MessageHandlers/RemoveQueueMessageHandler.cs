@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
@@ -7,7 +6,6 @@ using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -15,79 +13,88 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers;
 
-public class RemoveQueueMessageHandler : MessageHandlerBase
+public class RemoveQueueMessageHandler : IMessageHandler
 {
-    public RemoveQueueMessageHandler(IServiceScopeFactory scopeFactory)
-        : base(scopeFactory)
+    private readonly ITelegramBotClient _botClient;
+    private readonly IMessageProvider _messageProvider;
+    private readonly IGroupService _groupService;
+    private readonly IQueueService _queueService;
+
+    public RemoveQueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService)
     {
+        _botClient = botClient;
+        _messageProvider = messageProvider;
+        _groupService = groupService;
+        _queueService = queueService;
     }
 
-    protected override Task HandleAsyncImplementation(IServiceProvider serviceProvider, ITelegramBotClient botClient, Message message)
+    public Task HandleAsync(Message message)
     {
-        var messageProvider = serviceProvider.GetRequiredService<IMessageProvider>();
         if (message.IsFromPrivateChat())
         {
-            return botClient.SendTextMessageAsync(
+            return _botClient.SendTextMessageAsync(
                 message.Chat,
-                messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
+                _messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html);
         }
 
-        return HandlePublicChatAsync(serviceProvider, botClient, messageProvider, message);
+        return HandlePublicChatAsync(message);
     }
 
-    private async Task HandlePublicChatAsync(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, Message message)
+    private async Task HandlePublicChatAsync(Message message)
     {
-        var groupService = serviceProvider.GetRequiredService<IGroupService>();
-        (var group, var user) = await groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(serviceProvider, botClient, messageProvider, messageWords, message, group, user);
+            await HandleMessageWithParameters(messageWords, message, group, user);
             return;
         }
 
-        await botClient.SendTextMessageAsync(
+        await _botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
                 ParseMode.Html);
     }
 
-    private async Task<Message> HandleMessageWithParameters(IServiceProvider serviceProvider, ITelegramBotClient botClient, IMessageProvider messageProvider, string[] messageWords, Message message, Group group, User user)
+    private async Task HandleMessageWithParameters(string[] messageWords, Message message, Group group, User user)
     {
         var queueName = messageWords.GetQueueName();
         var queue = group.GetQueueByName(queueName);
         if (queue == null)
         {
-            return await botClient.SendTextMessageAsync(
+            await _botClient.SendTextMessageAsync(
                 group.Id,
-                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+
+            return;
         }
 
-        if (queue.Creator.Id != user.Id && !await IsUserAdmin(botClient, group, user))
+        if (queue.Creator.Id != user.Id && !await IsUserAdmin(group, user))
         {
-            return await botClient.SendTextMessageAsync(
+            await _botClient.SendTextMessageAsync(
                 group.Id,
-                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message, queueName),
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
+
+            return;
         }
 
-        var queueService = serviceProvider.GetRequiredService<IQueueService>();
-        await queueService.DeleteQueueAsync(queue, CancellationToken.None);
-        return await botClient.SendTextMessageAsync(
+        await _queueService.DeleteQueueAsync(queue, CancellationToken.None);
+        await _botClient.SendTextMessageAsync(
                 group.Id,
-                messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message, queueName),
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
     }
 
-    private static async Task<bool> IsUserAdmin(ITelegramBotClient botClient, Group chat, User user)
+    private async Task<bool> IsUserAdmin(Group group, User user)
     {
-        var admins = await botClient.GetChatAdministratorsAsync(chat.Id);
+        var admins = await _botClient.GetChatAdministratorsAsync(group.Id);
         return admins.Any(admin => admin.User.Id == user.Id);
     }
 }

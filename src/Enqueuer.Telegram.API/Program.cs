@@ -60,6 +60,7 @@ public class Program
 
         builder.Services.AddScoped<IMessageDistributor, MessageDistributor>();
         builder.Services.AddTransient<IMessageHandlersFactory, MessageHandlersFactory>();
+        builder.Services.ConfigureMessageHandlers();
 
         builder.Services.AddScoped<ICallbackDistributor, CallbackDistributor>();
         builder.Services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();
