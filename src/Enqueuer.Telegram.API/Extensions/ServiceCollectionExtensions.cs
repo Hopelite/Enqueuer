@@ -30,9 +30,14 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureCallbackHandlers(this IServiceCollection services)
     {
         services.AddScoped<EnqueueMeCallbackHandler>();
-        services.AddScoped<ListChatsCallbackHandler>();
         services.AddScoped<GetChatCallbackHandler>();
         services.AddScoped<GetQueueCallbackHandler>();
+        services.AddScoped<ListChatsCallbackHandler>();
+        services.AddScoped<EnqueueCallbackHandler>();
+        services.AddScoped<EnqueueAtCallbackHandler>();
+        services.AddScoped<DequeueMeCallbackHandler>();
+        services.AddScoped<RemoveQueueCallbackHandler>();
+        services.AddScoped<SwitchQueueDynamicHandler>();
 
         return services;
     }

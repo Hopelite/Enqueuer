@@ -207,8 +207,38 @@ public class QueueService : IQueueService
         return _enqueuerContext.Queues.Where(q => q.GroupId == groupId).ToListAsync(cancellationToken);
     }
 
-    public Task MakeQueueDynamicAsync(long queueId, CancellationToken cancellationToken)
+    public async Task SwitchQueueStatusAsync(long queueId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
+        {   
+            return; // TODO: throw exception or return false
+        }
+
+        queue.IsDynamic = !queue.IsDynamic;
+        if (queue.IsDynamic)
+        {
+            CompressQueuePositionsAsync(queue);
+        }
+
+        _enqueuerContext.Update(queue);
+        await _enqueuerContext.SaveChangesAsync();
+    }
+
+    private static void CompressQueuePositionsAsync(Queue queue)
+    {
+        var members = queue.Members.OrderBy(m => m.Position);
+        var currentPosition = 1;
+        foreach (var member in members)
+        {
+            if (member.Position != currentPosition)
+            {
+                member.Position = currentPosition;
+            }
+
+            currentPosition++;
+        }
     }
 }

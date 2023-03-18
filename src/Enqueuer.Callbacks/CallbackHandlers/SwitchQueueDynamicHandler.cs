@@ -7,7 +7,6 @@ using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Callbacks.CallbackHandlers;
@@ -60,34 +59,33 @@ public class SwitchQueueDynamicHandler : CallbackHandlerBaseWithReturnToQueueBut
 
     private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
     {
-        await Task.CompletedTask;
-        // if (queue.IsDynamic)
-        // {
-        //     queue.IsDynamic = false;
-        //     await _queueService.UpdateQueueAsync(queue);
-        //     return await botClient.EditMessageTextAsync(
-        //         callbackQuery.Message.Chat,
-        //         callbackQuery.Message.MessageId,
-        //         $"Queue <b>'{queue.Name}' is not dynamic now.</b>",
-        //         ParseMode.Html,
-        //         replyMarkup: GetReturnToQueueButton(callback));
-        // }
+        var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
+        var isDynamic = queue.IsDynamic;
+        await _queueService.SwitchQueueStatusAsync(queue.Id, CancellationToken.None);
 
-        // queue.IsDynamic = true;
-        // await _queueService.UpdateQueueAsync(queue);
-        // await _userInQueueService.CompressQueuePositionsAsync(queue);
+        if (isDynamic)
+        {
+            await TelegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                $"Queue <b>'{queue.Name}' is not dynamic now.</b>",
+                ParseMode.Html,
+                replyMarkup: GetReturnToQueueButton(callback.CallbackData));
 
-        // var chat = queue.Group;
-        // await botClient.SendTextMessageAsync(
-        //     chat.Id,
-        //     $"{callbackQuery.From.FirstName} {callbackQuery.From.LastName + ' ' ?? string.Empty}made <b>'{queue.Name}'</b> queue dynamic. Keep up!",
-        //     ParseMode.Html);
+            return;
+        }
 
-        // return await botClient.EditMessageTextAsync(
-        //     callbackQuery.Message.Chat,
-        //     callbackQuery.Message.MessageId,
-        //     $"Queue <b>'{queue.Name}' is dynamic now.</b>",
-        //     ParseMode.Html,
-        //     replyMarkup: GetReturnToQueueButton(callback));
+        var chat = queue.Group;
+        await TelegramBotClient.SendTextMessageAsync(
+            chat.Id,
+            $"{user.FullName} made <b>'{queue.Name}'</b> queue dynamic. Keep up!",
+            ParseMode.Html);
+
+        await TelegramBotClient.EditMessageTextAsync(
+            callback.Message.Chat,
+            callback.Message.MessageId,
+            $"Queue <b>'{queue.Name}' is dynamic now.</b>",
+            ParseMode.Html,
+            replyMarkup: GetReturnToQueueButton(callback.CallbackData));
     }
 }

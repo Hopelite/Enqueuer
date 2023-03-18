@@ -49,7 +49,7 @@ public interface IQueueService
     Task<List<Queue>> GetGroupQueuesAsync(long groupId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Changes
+    /// Changes the queue's with the specified <paramref name="queueId"/> status to the opposite one.
     /// </summary>
-    Task MakeQueueDynamicAsync(long queueId, CancellationToken cancellationToken);
+    Task SwitchQueueStatusAsync(long queueId, CancellationToken cancellationToken);
 }
