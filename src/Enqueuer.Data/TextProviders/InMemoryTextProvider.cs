@@ -90,10 +90,24 @@ public class InMemoryTextProvider : IMessageProvider
             CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button => "First available",
             CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_SelectPosition_Message => "Select an available position in queue <b>'{0}'</b>:",
 
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueHasBeenDeleted_Message => "This queue has been deleted.",
             CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_UserAlreadyParticipates_Message => "You're already participating in queue '<b>{0}</b>'. To change your position, please, dequeue yourself first.",
             CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message => "Queue '<b>{0}</b>' is now dynamic. Please, return and press the 'First available' button.",
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message => "Queue '<b>{0}</b>' is now dynamic. Please, return and press the 'First available' button.",
+            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message => "Position '<b>{0}</b>' in queue '<b>{1}</b>' is reserved. Please, reserve other position.",
+            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message => "Successfully added to the queue '<b>{0}</b>' on position <b>{1}</b>!",
+
+            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_UserDoesNotParticipate_Message => "You've already dequeued from the '<b>{0}</b>' queue.",
+            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_Success_Message => "Successfully removed from the '<b>{0}</b>' queue!",
+
+            CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_QueueHasBeenDeleted_Message => "This queue has already been deleted.",
+            CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AreYouSureToDeleteQueue_Message => "Do you really want to delete the <b>'{0}'</b> queue? This action cannot be undone.",
+            CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AgreeToDelete_Button => "Yes, delete it",
+            CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_UserHasNoRightsToDelete_Message => "Unable to delete <b>'{0}'</b> queue: you are not queue creator or the chat admin.",
+            CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_Success_PublicChat_Message => "{0} deleted <b>'{1}'</b> queue. I shall miss it.",
+            CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_Success_Message => "Successfully deleted the <b>'{0}'</b> queue.",
+
+            CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsNotDynamicNow_Message => "Queue <b>'{0}'</b> is not dynamic now.",
+            CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsDynamicNow_PublicChat_Message => "{0} made <b>'{1}'</b> queue dynamic. Keep up!",
+            CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsDynamicNow_Message => "Queue <b>'{0}'</b> is dynamic now.",
 
             CallbackMessageKeys.OutdatedCallback_Message => "This message is outdated.",
             CallbackMessageKeys.EverythingIsUpToDate_Message => "Everything is up to date.",

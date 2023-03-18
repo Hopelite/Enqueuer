@@ -51,7 +51,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueHasBeenDeleted_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
 
             return;
@@ -104,16 +104,16 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
         var position = callbackData.QueueData.Position!.Value;
         if (await _queueService.TryEnqueueUserOnPositionAsync(user, queue.Id, position, CancellationToken.None))
         {
-            return $"Position '<b>{position}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.";
+            return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message, position, queue.Name);
         }
 
-        return $"Successfully added to the queue '<b>{queue.Name}</b>' on position <b>{position}</b>!";
+        return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, queue.Name, position);
     }
 
     private async Task<string> HandleCallbackWithoutPositionProvided(Queue queue, User user)
     {
         var firstPositionAvailable = await _queueService.AddAtFirstAvailablePosition(user, queue.Id, CancellationToken.None);
-        return $"Successfully added to the queue '<b>{queue.Name}</b>' on position <b>{firstPositionAvailable}</b>!";
+        return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, queue.Name, firstPositionAvailable);
     }
 
     private static bool HasSpecifiedPosition(CallbackData callbackData)

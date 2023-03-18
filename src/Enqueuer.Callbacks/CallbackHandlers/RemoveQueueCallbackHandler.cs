@@ -54,7 +54,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                "This queue has already been deleted.",
+                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
 
             return;
@@ -63,23 +63,24 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
         await HandleCallbackWithExistingQueueAsync(queue, callback);
     }
 
-    private async Task<Message> HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
+    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
     {
         if (HasUserAgreement(callback.CallbackData!))
         {
-            return await HandleCallbackWithUserAgreementAsync(callback, queue);
+            await HandleCallbackWithUserAgreementAsync(callback, queue);
+            return;
         }
 
         var replyMarkup = new InlineKeyboardButton[][]
         {
-            new InlineKeyboardButton[] { GetRemoveQueueButton("Yes, delete it", callback.CallbackData, true) },
+            new InlineKeyboardButton[] { GetRemoveQueueButton(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AgreeToDelete_Button, callback.CallbackData, true) },
             new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
         };
 
-        return await TelegramBotClient.EditMessageTextAsync(
+        await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            $"Do you really want to delete the <b>'{queue.Name}'</b> queue? This action cannot be undone.",
+            MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AreYouSureToDeleteQueue_Message, queue.Name),
             ParseMode.Html,
             replyMarkup: replyMarkup);
     }
@@ -96,7 +97,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
                 return await TelegramBotClient.EditMessageTextAsync(
                     callback.Message.Chat,
                     callback.Message.MessageId,
-                    $"Unable to delete <b>'{queue.Name}'</b> queue: you are not queue creator or the chat admin.",
+                    MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_UserHasNoRightsToDelete_Message, queue.Name),
                     ParseMode.Html,
                     replyMarkup: GetReturnToQueueButton(callback.CallbackData));
             }
@@ -105,13 +106,13 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
 
             await TelegramBotClient.SendTextMessageAsync(
                 chat.Id,
-                $"{user.FullName} deleted <b>'{queue.Name}'</b> queue. I shall miss it.",
+                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_Success_PublicChat_Message, user.FullName, queue.Name),
                 ParseMode.Html);
 
             return await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                $"Successfully deleted the <b>'{queue.Name}'</b> queue.",
+                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_Success_Message, queue.Name),
                 ParseMode.Html,
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
         }

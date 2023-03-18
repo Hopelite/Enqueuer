@@ -88,7 +88,7 @@ public class ListChatsCallbackHandler : ICallbackHandler
             };
 
             var serializedCallbackData = _dataSerializer.Serialize(callbackData);
-            replyButtons[row][i] = InlineKeyboardButton.WithCallbackData($"{chats[chatIndex].Title}", serializedCallbackData);
+            replyButtons[row][i] = InlineKeyboardButton.WithCallbackData(chats[chatIndex].Title, serializedCallbackData);
         }
     }
 }

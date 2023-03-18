@@ -57,13 +57,44 @@ public static class CallbackMessageKeys
 
     public static class EnqueueAtCallbackHandler
     {
-        public const string EnqueueAtCallback_QueueHasBeenDeleted_Message = "EnqueueAtCallback_QueueHasBeenDeleted_Message";
-
         public const string EnqueueAtCallback_UserAlreadyParticipates_Message = "EnqueueAtCallback_UserAlreadyParticipates_Message";
 
         public const string EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message = "EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message";
 
         public const string EnqueueAtCallback_PositionIsReserved_Message = "EnqueueAtCallback_PositionIsReserved_Message";
+
+        public const string EnqueueAtCallback_Success_Message = "EnqueueAtCallback_Success_Message";
+    }
+
+    public static class DequeueMeCallbackHandler
+    {
+        public const string DequeueMeCallback_UserDoesNotParticipate_Message = "DequeueMeCallback_UserDoesNotParticipate_Message";
+
+        public const string DequeueMeCallback_Success_Message = "DequeueMeCallback_Success_Message";
+    }
+
+    public static class RemoveQueueCallbackHandler
+    {
+        public const string RemoveQueueCallback_QueueHasBeenDeleted_Message = "RemoveQueueCallback_QueueHasBeenDeleted_Message";
+
+        public const string RemoveQueueCallback_AreYouSureToDeleteQueue_Message = "RemoveQueueCallback_AreYouSureToDeleteQueue_Message";
+
+        public const string RemoveQueueCallback_AgreeToDelete_Button = "RemoveQueueCallback_AgreeToDelete_Button";
+
+        public const string RemoveQueueCallback_UserHasNoRightsToDelete_Message = "RemoveQueueCallback_UserHasNoRightsToDelete_Message";
+
+        public const string RemoveQueueCallback_Success_PublicChat_Message = "RemoveQueueCallback_Success_PublicChat_Message";
+
+        public const string RemoveQueueCallback_Success_Message = "RemoveQueueCallback_Success_Message";
+    }
+
+    public static class SwitchQueueCallbackHandler
+    {
+        public const string SwitchQueueCallback_QueueIsNotDynamicNow_Message = "SwitchQueueCallback_QueueIsNotDynamicNow_Message";
+
+        public const string SwitchQueueCallback_QueueIsDynamicNow_PublicChat_Message = "SwitchQueueCallback_QueueIsDynamicNow_PublicChat_Message";
+
+        public const string SwitchQueueCallback_QueueIsDynamicNow_Message = "SwitchQueueCallback_QueueIsDynamicNow_Message";
     }
 
     public const string OutdatedCallback_Message = "CallbackMessageKeys_OutdatedCallback_Message";

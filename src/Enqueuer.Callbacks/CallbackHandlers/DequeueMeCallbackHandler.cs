@@ -48,7 +48,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueHasBeenDeleted_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
 
             return;
@@ -59,12 +59,10 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
 
     private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
     {
-        string responseMessage = $"You've already dequeued from the '<b>{queue.Name}</b>' queue.";
         var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
-        if (await _queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None))
-        {
-            responseMessage = $"Successfully removed from the '<b>{queue.Name}</b>' queue!";
-        }
+        var responseMessage = await _queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None)
+            ? MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_Success_Message, queue.Name)
+            : MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_UserDoesNotParticipate_Message, queue.Name);
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
