@@ -20,6 +20,12 @@
     <ProjectReference Include="..\Enqueuer.Callbacks\Enqueuer.Callbacks.csproj" />
     <ProjectReference Include="..\Enqueuer.Messages\Enqueuer.Messages.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Enqueuer.Telegram.API.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Migrations\" />

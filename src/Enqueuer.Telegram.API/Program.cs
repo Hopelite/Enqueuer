@@ -22,7 +22,7 @@ using Telegram.Bot.Types;
 
 namespace Enqueuer.Telegram.API;
 
-internal static class Program
+internal class Program
 {
     public static void Main(string[] args)
     {
@@ -54,8 +54,8 @@ internal static class Program
 
         builder.Services.AddTransient<IBotConfiguration, BotConfiguration>(services => 
         {
-                var configuration = services.GetRequiredService<IConfiguration>();
-                return configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
+            var configuration = services.GetRequiredService<IConfiguration>();
+            return configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
         });
 
         builder.Services.AddScoped<IMessageDistributor, MessageDistributor>();
