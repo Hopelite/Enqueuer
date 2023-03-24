@@ -75,12 +75,17 @@ public class GroupService : IGroupService
         var group = await IncludeProperties(_enqueuerContext, includeQueues).SingleOrDefaultAsync(g => g.Id == telegramGroup.Id, cancellationToken);
         var user = await _enqueuerContext.FindAsync<User>(new object[] { telegramUser.Id }, cancellationToken);
 
-        var isSaveNeeded = AddOrUpdateGroup(_enqueuerContext, group, telegramGroup) | AddOrUpdateUser(_enqueuerContext, user, telegramUser);
+        var isGroupAdded = AddOrUpdateGroup(_enqueuerContext, ref group, telegramGroup);
+        var isSaveNeeded = AddOrUpdateUser(_enqueuerContext, ref user, telegramUser) | isGroupAdded;
+
         if (!group.Members.Any(m => m.Id == user.Id))
         {
             group.Members.Add(user);
-            _enqueuerContext.Update(group);
-            isSaveNeeded = true;
+            if (!isGroupAdded)
+            {
+                _enqueuerContext.Update(group);
+                isSaveNeeded = true;
+            }
         }
 
         if (isSaveNeeded)
@@ -101,7 +106,7 @@ public class GroupService : IGroupService
             return enqueuerContext.Groups.Include(g => g.Members);
         }
 
-        static bool AddOrUpdateGroup(EnqueuerContext enqueuerContext, [NotNull] Group? group, Telegram.Bot.Types.Chat telegramGroup)
+        static bool AddOrUpdateGroup(EnqueuerContext enqueuerContext, [NotNull] ref Group? group, Telegram.Bot.Types.Chat telegramGroup)
         {
             if (group == null)
             {
@@ -120,7 +125,7 @@ public class GroupService : IGroupService
             return false;
         }
 
-        static bool AddOrUpdateUser(EnqueuerContext enqueuerContext, [NotNull] User? user, Telegram.Bot.Types.User telegramUser)
+        static bool AddOrUpdateUser(EnqueuerContext enqueuerContext, [NotNull] ref User? user, Telegram.Bot.Types.User telegramUser)
         {
             if (user == null)
             {

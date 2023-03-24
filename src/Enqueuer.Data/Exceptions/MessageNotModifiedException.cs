@@ -1,20 +1,17 @@
 ﻿using System;
 using Telegram.Bot.Exceptions;
 
-namespace Enqueuer.Data.Exceptions
+namespace Enqueuer.Data.Exceptions;
+
+public class MessageNotModifiedException : ApiRequestException
 {
-    public class MessageNotModifiedException : ApiRequestException
+    public MessageNotModifiedException(string message, int errorCode)
+        : base(message, errorCode)
     {
-        private const int BadRequestErrorCode = 400;
+    }
 
-        public MessageNotModifiedException(string message)
-            : base(message, BadRequestErrorCode)
-        {
-        }
-
-        public MessageNotModifiedException(string message, Exception innerException)
-            : base(message, BadRequestErrorCode, innerException)
-        {
-        }
+    public MessageNotModifiedException(string message, int errorCode, Exception innerException)
+        : base(message, errorCode, innerException)
+    {
     }
 }

@@ -36,13 +36,13 @@ internal static class Program
         {
             if (context.Request.HasJsonContentType())
             {
-                var update = context.DeserializeBody<Update>();
+                var update = await context.DeserializeBodyAsync<Update>();
                 var handler = context.RequestServices.GetRequiredService<IUpdateHandler>();
                 await handler.HandleAsync(update);
             }
         });
 
-        app.UseMiddleware<SendExceptionsToChatMiddleware>();
+        //app.UseMiddleware<SendExceptionsToChatMiddleware>();
 
         app.Run();
     }
@@ -50,7 +50,7 @@ internal static class Program
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<EnqueuerContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Enqueuer.Telegram.API")));
+            options.UseSqlite(builder.Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Enqueuer.Telegram.API")));
 
         builder.Services.AddTransient<IBotConfiguration, BotConfiguration>(services => 
         {
