@@ -10,32 +10,23 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Xunit;
 
-namespace Enqueuer.Telegram.API.Tests;
+namespace Enqueuer.Telegram.API.Tests.MessageHandlersTests;
 
-public sealed class EnqueuerApiTests : IDisposable
+public class CreateQueueMessageHandlerTests
 {
     private readonly EnqueuerApplication _application;
 
-    public EnqueuerApiTests()
+    public CreateQueueMessageHandlerTests()
     {
         _application = new EnqueuerApplication();
     }
 
-    public void Dispose()
-    {
-        _application.Dispose();
-    }
-
-    [Theory]
-    [InlineData(MessageConstants.CreateQueueCommand)]
-    [InlineData(MessageConstants.DequeueCommand)]
-    [InlineData(MessageConstants.EnqueueCommand)]
-    [InlineData(MessageConstants.QueueCommand)]
-    [InlineData(MessageConstants.RemoveQueueCommand)]
-    public async Task PostMessage_NewUserAndGroup_SavesUserAndGroup(string command)
+    [Fact]
+    public async Task QueueNameProvided_CreatesQueue()
     {
         const string groupTitle = "Test";
         const string userFirstName = "TestUser";
+        const string queueName = "TestQueue";
 
         var update = new Update
         {
@@ -56,7 +47,7 @@ public sealed class EnqueuerApiTests : IDisposable
                     Type = ChatType.Group,
                     Title = groupTitle,
                 },
-                Text = command,
+                Text = $"{MessageConstants.CreateQueueCommand} {queueName}",
             }
         };
 
@@ -67,12 +58,8 @@ public sealed class EnqueuerApiTests : IDisposable
         using var scope = _application.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
-        var user = dbContext.Users.FirstOrDefault(u => u.FirstName.Equals(userFirstName));
-        Assert.NotNull(user);
-
-        var group = dbContext.Groups.Include(g => g.Members).FirstOrDefault(g => g.Title.Equals(groupTitle));
-        Assert.NotNull(group);
-
-        Assert.Contains(group.Members, m => m.Id == user.Id);
+        var queue = dbContext.Queues.Include(q => q.Group).FirstOrDefault(q => q.Name.Equals(queueName));
+        Assert.NotNull(queue);
+        Assert.Equal(groupTitle, queue.Group.Title);
     }
 }

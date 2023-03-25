@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Telegram.Bot;
 
-namespace Enqueuer.Telegram.API.Tests;
+namespace Enqueuer.Telegram.API.Tests.Utilities;
 
 public class EnqueuerApplication : WebApplicationFactory<Program>
 {

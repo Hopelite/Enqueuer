@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Telegram.API.Tests;
+namespace Enqueuer.Telegram.API.Tests.Utilities;
 
 public class EnqueuerTelegramClient
 {
@@ -40,7 +40,7 @@ public class EnqueuerTelegramClient
         {
         }
 
-        public EnqueuerClientException(string? message, Exception? innerException) 
+        public EnqueuerClientException(string? message, Exception? innerException)
             : base(message, innerException)
         {
         }
