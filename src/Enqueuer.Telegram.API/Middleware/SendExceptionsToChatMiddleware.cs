@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Enqueuer.Data.Configuration;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Telegram.Bot;
 
 namespace Enqueuer.Telegram.Middleware;
 
@@ -29,22 +26,8 @@ public class SendExceptionsToChatMiddleware // TODO: replace with LogProvider
         {
             await _next(context);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            //var botClient = context.RequestServices.GetService<ITelegramBotClient>();
-            //var botConfiguration = context.RequestServices.GetService<IBotConfiguration>();
-
-            //try
-            //{
-            //    await botClient.SendTextMessageAsync(
-            //        botConfiguration.DevelopmentChatId,
-            //        $"Exception thrown during application work.\n"
-            //        + $"Exception message: {ex.Message}\n"
-            //        + $"Stack trace: {ex.StackTrace}");
-            //}
-            //catch (Exception)
-            //{
-            //}
         }
     }
 }

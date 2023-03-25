@@ -9,7 +9,6 @@ using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
 using Enqueuer.Telegram.Configuration;
 using Enqueuer.Telegram.Extensions;
-using Enqueuer.Telegram.Middleware;
 using Enqueuer.Telegram.UpdateHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +21,7 @@ using Telegram.Bot.Types;
 
 namespace Enqueuer.Telegram.API;
 
-internal class Program
+public class Program
 {
     public static void Main(string[] args)
     {
@@ -41,8 +40,6 @@ internal class Program
                 await handler.HandleAsync(update);
             }
         });
-
-        //app.UseMiddleware<SendExceptionsToChatMiddleware>();
 
         app.Run();
     }
