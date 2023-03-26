@@ -67,6 +67,6 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
         var position = await _queueService.AddAtFirstAvailablePosition(user, queue.Id, CancellationToken.None);
         await _telegramBotClient.AnswerCallbackQueryAsync(
             callback.Id,
-            _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification, queue.Name, position));
+            _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification, queue.Name, position));
     }
 }

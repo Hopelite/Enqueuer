@@ -1,5 +1,4 @@
 ﻿using System;
-using Telegram.Bot.Types;
 
 namespace Enqueuer.Data.TextProviders;
 
@@ -70,7 +69,7 @@ public class InMemoryTextProvider : IMessageProvider
             CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification => "You're already participating in queue '{0}'!",
             CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification => "Successfully added to queue '{0}' at the '{1}' position!",
 
-            CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message => "I haven't seen you before. Please, write any command in any chat with me, and I'll notice you there. Then come here and write <b>'/start'</b> again.",
+            CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message => "I haven't seen you before. Please, write any command in any chat with me, and I'll notice you there.",
             CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_ListChats_Message => "I know that you do participate in these chats. If one of the chats is not presented, please write any command in this chat, and I'll notice you there.",
 
             CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ChatHasNoQueues_Message => "This chat has no queues. Are you thinking of creating one?",
@@ -97,6 +96,8 @@ public class InMemoryTextProvider : IMessageProvider
 
             CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_UserDoesNotParticipate_Message => "You've already dequeued from the '<b>{0}</b>' queue.",
             CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_Success_Message => "Successfully removed from the '<b>{0}</b>' queue!",
+            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AreYouSureToBeDequeued_Message => "Do you really want to leave the <b>'{0}'</b> queue?",
+            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AgreeToDequeue_Button => "Yes, I want to leave",
 
             CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_QueueHasBeenDeleted_Message => "This queue has already been deleted.",
             CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AreYouSureToDeleteQueue_Message => "Do you really want to delete the <b>'{0}'</b> queue? This action cannot be undone.",

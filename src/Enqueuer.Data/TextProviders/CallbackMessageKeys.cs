@@ -70,6 +70,10 @@ public static class CallbackMessageKeys
     {
         public const string DequeueMeCallback_UserDoesNotParticipate_Message = "DequeueMeCallback_UserDoesNotParticipate_Message";
 
+        public const string DequeueMeCallback_AreYouSureToBeDequeued_Message = "DequeueMeCallback_AreYouSureToBeDequeued_Message";
+
+        public const string DequeueMeCallback_AgreeToDequeue_Button = "DequeueMeCallback_AgreeToDequeue_Button";
+
         public const string DequeueMeCallback_Success_Message = "DequeueMeCallback_Success_Message";
     }
 

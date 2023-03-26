@@ -9,6 +9,7 @@ using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
 using Enqueuer.Telegram.Configuration;
 using Enqueuer.Telegram.Extensions;
+using Enqueuer.Telegram.Middleware;
 using Enqueuer.Telegram.UpdateHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -41,6 +42,7 @@ public class Program
             }
         });
 
+        app.UseMiddleware<LogExceptionsMiddleware>();
         app.Run();
     }
 

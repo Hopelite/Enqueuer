@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Exceptions;
 using Enqueuer.Callbacks.Extensions;
-using Enqueuer.Data;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Persistence.Extensions;
@@ -65,7 +64,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
 
     private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
     {
-        if (HasUserAgreement(callback.CallbackData!))
+        if (callback.CallbackData.HasUserAgreement)
         {
             await HandleCallbackWithUserAgreementAsync(callback, queue);
             return;
@@ -73,7 +72,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
 
         var replyMarkup = new InlineKeyboardButton[][]
         {
-            new InlineKeyboardButton[] { GetRemoveQueueButton(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AgreeToDelete_Button, callback.CallbackData, true) },
+            new InlineKeyboardButton[] { GetRemoveQueueButton(MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AgreeToDelete_Button), callback.CallbackData, true) },
             new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
         };
 
@@ -91,8 +90,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
         if (callback.CallbackData.QueueData.IsUserAgreed!.Value)
         {
             var userId = callback.From.Id;
-            var chat = queue.Group;
-            if (!queue.IsQueueCreator(userId) && !await TelegramBotClient.IsChatAdmin(userId, chat.Id))
+            if (!queue.IsQueueCreator(userId) && !await TelegramBotClient.IsChatAdmin(userId, queue.GroupId))
             {
                 return await TelegramBotClient.EditMessageTextAsync(
                     callback.Message.Chat,
@@ -105,7 +103,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
             await _queueService.DeleteQueueAsync(queue, CancellationToken.None);
 
             await TelegramBotClient.SendTextMessageAsync(
-                chat.Id,
+                queue.GroupId,
                 MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_Success_PublicChat_Message, user.FullName, queue.Name),
                 ParseMode.Html);
 
@@ -118,10 +116,5 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
         }
 
         throw new CallbackMessageHandlingException("False 'IsUserAgreed' value passed to message handler.");
-    }
-
-    private static bool HasUserAgreement(CallbackData callbackData)
-    {
-        return callbackData.QueueData.IsUserAgreed.HasValue;
     }
 }

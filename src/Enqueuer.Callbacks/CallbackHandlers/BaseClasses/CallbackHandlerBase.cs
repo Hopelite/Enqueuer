@@ -24,15 +24,16 @@ public abstract class CallbackHandlerBase : ICallbackHandler
         MessageProvider = messageProvider;
     }
 
-    public Task HandleAsync(Callback callback)
+    public async Task HandleAsync(Callback callback)
     {
         try
         {
-            return HandleAsyncImplementation(callback);
+            await HandleAsyncImplementation(callback);
+            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id);
         }
         catch (MessageNotModifiedException)
         {
-            return TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, MessageProvider.GetMessage(CallbackMessageKeys.EverythingIsUpToDate_Message));
+            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, MessageProvider.GetMessage(CallbackMessageKeys.EverythingIsUpToDate_Message));
         }
     }
 
@@ -47,6 +48,6 @@ public abstract class CallbackHandlerBase : ICallbackHandler
     protected InlineKeyboardButton GetRefreshButton(CallbackData callbackData)
     {
         var serializedCallbackData = DataSerializer.Serialize(callbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.EverythingIsUpToDate_Message), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.RefreshMessage_Button), serializedCallbackData);
     }
 }

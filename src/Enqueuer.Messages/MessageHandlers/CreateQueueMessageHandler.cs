@@ -1,8 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data;
 using Enqueuer.Data.Configuration;
-using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
@@ -18,32 +16,29 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Messages.MessageHandlers;
 
-public class CreateQueueMessageHandler : IMessageHandler
+public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly IMessageProvider _messageProvider;
     private readonly IGroupService _groupService;
     private readonly IQueueService _queueService;
     private readonly IBotConfiguration _botConfiguration;
-    private readonly IDataSerializer _dataSerializer;
 
     public CreateQueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService, IBotConfiguration botConfiguration, IDataSerializer dataSerializer)
+        : base(messageProvider, dataSerializer)
     {
         _botClient = botClient;
-        _messageProvider = messageProvider;
         _groupService = groupService;
         _queueService = queueService;
         _botConfiguration = botConfiguration;
-        _dataSerializer = dataSerializer;
     }
 
-    public Task HandleAsync(Message message)
+    public override Task HandleAsync(Message message)
     {
         if (message.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                _messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
+                MessageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html);
         }
 
@@ -63,7 +58,7 @@ public class CreateQueueMessageHandler : IMessageHandler
 
         await _botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                _messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
     }
@@ -74,7 +69,7 @@ public class CreateQueueMessageHandler : IMessageHandler
         {
             return _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message),
+                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
         }
@@ -95,7 +90,7 @@ public class CreateQueueMessageHandler : IMessageHandler
 
         return _botClient.SendTextMessageAsync(
             chat.Id,
-            _messageProvider.GetMessage(responseMessage),
+            MessageProvider.GetMessage(responseMessage),
             ParseMode.Html,
             replyToMessageId: message.MessageId);
     }
@@ -107,7 +102,7 @@ public class CreateQueueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameTooLong_Message),
+                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameTooLong_Message),
                 replyToMessageId: message.MessageId);
 
             return;
@@ -117,7 +112,7 @@ public class CreateQueueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueAlreadyExists_Message, queueName),
+                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueAlreadyExists_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId);
 
@@ -132,26 +127,11 @@ public class CreateQueueMessageHandler : IMessageHandler
         };
 
         await _queueService.AddQueueAsync(queue, CancellationToken.None);
-        var callbackButtonData = new CallbackData()
-        {
-            Command = CallbackConstants.EnqueueMeCommand,
-            ChatId = group.Id,
-            QueueData = new QueueData()
-            {
-                QueueId = queue.Id,
-            },
-        };
-
-        var serializedButtonData = _dataSerializer.Serialize(callbackButtonData);
-        var replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData(
-            _messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_EnqueueMeButton),
-            serializedButtonData));
-
         await _botClient.SendTextMessageAsync(
             group.Id,
-            _messageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameTooLong_Message, queue.Name),
+            MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message, queue.Name),
             ParseMode.Html,
-            replyMarkup: replyMarkup);
+            replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue)));
     }
 
     private static bool QueueHasNumberAtTheEnd(string[] messageWords)

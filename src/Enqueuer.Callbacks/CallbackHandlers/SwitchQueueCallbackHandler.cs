@@ -75,9 +75,8 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
             return;
         }
 
-        var chat = queue.Group;
         await TelegramBotClient.SendTextMessageAsync(
-            chat.Id,
+            queue.GroupId,
             MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsDynamicNow_PublicChat_Message, user.FullName, queue.Name),
             ParseMode.Html);
 

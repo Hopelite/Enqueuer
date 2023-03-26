@@ -24,5 +24,8 @@ namespace Enqueuer.Data
         /// </summary>
         [JsonProperty("d")]
         public QueueData QueueData { get; set; }
+
+        [JsonIgnore]
+        public bool HasUserAgreement => QueueData?.IsUserAgreed.HasValue ?? false;
     }
 }

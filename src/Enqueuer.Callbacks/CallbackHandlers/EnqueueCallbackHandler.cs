@@ -83,7 +83,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         return await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button, queue.Name),
+            MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_SelectPosition_Message, queue.Name),
             ParseMode.Html,
             replyMarkup: replyButtons);
     }

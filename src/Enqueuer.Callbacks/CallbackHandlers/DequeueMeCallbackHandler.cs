@@ -1,6 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
+using Enqueuer.Data.Constants;
+using Enqueuer.Data;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Persistence.Models;
@@ -8,6 +10,7 @@ using Enqueuer.Services;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Callbacks.CallbackHandlers;
 
@@ -59,6 +62,28 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
 
     private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
     {
+        if (callback.CallbackData.HasUserAgreement)
+        {
+            await HandleCallbackWithUserAgreementAsync(queue, callback);
+            return;
+        }
+
+        var replyMarkup = new InlineKeyboardButton[][]
+        {
+            new InlineKeyboardButton[] { GetDequeueButton(MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AgreeToDequeue_Button), callback.CallbackData, true) },
+            new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
+        };
+
+        await TelegramBotClient.EditMessageTextAsync(
+            callback.Message.Chat,
+            callback.Message.MessageId,
+            MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AreYouSureToBeDequeued_Message, queue.Name),
+            ParseMode.Html,
+            replyMarkup: replyMarkup);
+    }
+
+    private async Task HandleCallbackWithUserAgreementAsync(Queue queue, Callback callback)
+    {
         var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
         var responseMessage = await _queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None)
             ? MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_Success_Message, queue.Name)
@@ -70,5 +95,22 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             responseMessage,
             ParseMode.Html,
             replyMarkup: GetReturnToQueueButton(callback.CallbackData!));
+    }
+
+    private InlineKeyboardButton GetDequeueButton(string buttonText, CallbackData callbackData, bool? isAgreed = null)
+    {
+        var buttonCallbackData = new CallbackData()
+        {
+            Command = CallbackConstants.DequeueMeCommand,
+            ChatId = callbackData.ChatId,
+            QueueData = new QueueData()
+            {
+                QueueId = callbackData.QueueData.QueueId,
+                IsUserAgreed = isAgreed
+            }
+        };
+
+        var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
+        return InlineKeyboardButton.WithCallbackData(buttonText, serializedCallbackData);
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
@@ -14,41 +15,37 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Callbacks.CallbackHandlers;
 
-public class ListChatsCallbackHandler : ICallbackHandler
+public class ListChatsCallbackHandler : CallbackHandlerBase
 {
     private const int MaxChatsPerRow = 2;
-    private readonly ITelegramBotClient _telegramBotClient;
     private readonly IGroupService _groupService;
-    private readonly IDataSerializer _dataSerializer;
-    private readonly IMessageProvider _messageProvider;
 
     public ListChatsCallbackHandler(ITelegramBotClient telegramBotClient, IGroupService groupService, IDataSerializer dataSerializer, IMessageProvider messageProvider)
+        : base(telegramBotClient, dataSerializer, messageProvider)
     {
-        _telegramBotClient = telegramBotClient;
         _groupService = groupService;
-        _dataSerializer = dataSerializer;
-        _messageProvider = messageProvider;
     }
 
-    public async Task HandleAsync(Callback callback)
+    protected override async Task HandleAsyncImplementation(Callback callback)
     {
         var groups = (await _groupService.GetUserGroups(callback.From.Id, CancellationToken.None)).ToList();
         if (groups.Count == 0)
         {
-            await _telegramBotClient.EditMessageTextAsync(
+            await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                _messageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message),
-                ParseMode.Html);
+                MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message),
+                ParseMode.Html,
+                replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] { GetRefreshButton(callback.CallbackData) }));
 
             return;
         }
 
         var replyMarkup = BuildReplyMarkup(groups);
-        await _telegramBotClient.EditMessageTextAsync(
+        await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            _messageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_ListChats_Message),
+            MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_ListChats_Message),
             ParseMode.Html,
             replyMarkup: replyMarkup);
     }
@@ -65,6 +62,8 @@ public class ListChatsCallbackHandler : ICallbackHandler
             replyButtons[i] = new InlineKeyboardButton[MaxChatsPerRow];
             AddButtonsRow(replyButtons, i, MaxChatsPerRow, chats, ref chatsIndex);
         }
+
+        // TODO: add GetRefreshButton(callback.CallbackData) to the last row
 
         AddLastButtonsRow(replyButtons, rowsTotal, buttonsAtTheLastRow, chats, chatsIndex);
         return new InlineKeyboardMarkup(replyButtons);
@@ -87,7 +86,7 @@ public class ListChatsCallbackHandler : ICallbackHandler
                 ChatId = chats[chatIndex].Id,
             };
 
-            var serializedCallbackData = _dataSerializer.Serialize(callbackData);
+            var serializedCallbackData = DataSerializer.Serialize(callbackData);
             replyButtons[row][i] = InlineKeyboardButton.WithCallbackData(chats[chatIndex].Title, serializedCallbackData);
         }
     }

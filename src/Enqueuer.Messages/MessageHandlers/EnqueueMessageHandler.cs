@@ -5,7 +5,6 @@ using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Services.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -74,7 +73,7 @@ public class EnqueueMessageHandler : IMessageHandler
             return;
         }
 
-        var queue = group.GetQueueByName(queueName);
+        var queue = await _queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, CancellationToken.None);
         if (queue == null)
         {
             await _botClient.SendTextMessageAsync(
