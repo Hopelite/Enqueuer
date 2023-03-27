@@ -18,12 +18,14 @@ namespace Enqueuer.Callbacks.CallbackHandlers;
 public class GetChatCallbackHandler : CallbackHandlerBase
 {
     private readonly IQueueService _queueService;
+    private readonly IGroupService _groupService;
     private readonly ILogger<EnqueueMeCallbackHandler> _logger;
 
-    public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IDataSerializer dataSerializer, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
+    public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, IDataSerializer dataSerializer, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
         _queueService = queueService;
+        _groupService = groupService;
         _logger = logger;
     }
 
@@ -44,8 +46,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
 
     private async Task HandleAsyncInternal(Callback callback)
     {
-        var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.ChatId, CancellationToken.None);
-        if (queues.Count == 0)
+        if (!await _groupService.DoesGroupExist(callback.CallbackData!.ChatId))
         {
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
@@ -56,6 +57,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
             return;
         }
 
+        var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.ChatId, CancellationToken.None);
         var responseMessage = (queues.Count == 0
             ? MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ChatHasNoQueues_Message)
             : MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_Message))

@@ -154,4 +154,9 @@ public class GroupService : IGroupService
 
         return user?.Groups ?? Enumerable.Empty<Group>();
     }
+
+    public Task<bool> DoesGroupExist(long groupId)
+    {
+        return _enqueuerContext.Groups.AnyAsync(g => g.Id == groupId);
+    }
 }

@@ -83,7 +83,7 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsNotDynamicNow_Message, queue.Name),
+            MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsDynamicNow_Message, queue.Name),
             ParseMode.Html,
             replyMarkup: GetReturnToQueueButton(callback.CallbackData));
     }

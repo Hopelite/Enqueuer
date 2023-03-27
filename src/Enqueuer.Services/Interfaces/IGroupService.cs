@@ -21,4 +21,9 @@ public interface IGroupService
     /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
     /// </summary>
     Task<IEnumerable<Group>> GetUserGroups(long userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Task<bool> DoesGroupExist(long groupId);
 }
