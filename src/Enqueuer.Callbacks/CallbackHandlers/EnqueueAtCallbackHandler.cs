@@ -104,10 +104,10 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
         var position = callbackData.QueueData.Position!.Value;
         if (await _queueService.TryEnqueueUserOnPositionAsync(user, queue.Id, position, CancellationToken.None))
         {
-            return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message, position, queue.Name);
+            return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, position, queue.Name);
         }
 
-        return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, queue.Name, position);
+        return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message, queue.Name, position);
     }
 
     private async Task<string> HandleCallbackWithoutPositionProvided(Queue queue, User user)

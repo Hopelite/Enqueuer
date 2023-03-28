@@ -174,6 +174,11 @@ public class QueueService : IQueueService
         }
 
         queue.Members.Remove(userInQueue);
+        if (queue.IsDynamic)
+        {
+            CompressQueuePositions(queue);
+        }
+
         await _enqueuerContext.SaveChangesAsync(cancellationToken);
         return true;
     }
@@ -220,14 +225,14 @@ public class QueueService : IQueueService
         queue.IsDynamic = !queue.IsDynamic;
         if (queue.IsDynamic)
         {
-            CompressQueuePositionsAsync(queue);
+            CompressQueuePositions(queue);
         }
 
         _enqueuerContext.Update(queue);
         await _enqueuerContext.SaveChangesAsync();
     }
 
-    private static void CompressQueuePositionsAsync(Queue queue)
+    private static void CompressQueuePositions(Queue queue)
     {
         var members = queue.Members.OrderBy(m => m.Position);
         var currentPosition = 1;

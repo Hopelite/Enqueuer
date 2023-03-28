@@ -52,7 +52,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
     private async Task HandleAsyncInternal(Callback callback)
     {
         var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData.QueueId, includeMembers: true, CancellationToken.None);
-        if (queue is null)
+        if (queue == null)
         {
             var returnButton = GetReturnToChatButton(callback.CallbackData);
             await TelegramBotClient.EditMessageTextAsync(
@@ -91,7 +91,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
             : new InlineKeyboardButton[] { GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_EnqueueMe_Button), CallbackConstants.EnqueueCommand, callbackData, queue.Id) }
         };
 
-        if (queue.IsQueueCreator(user) || await TelegramBotClient.IsChatAdmin(user.Id, queue.Group.Id))
+        if (queue.IsQueueCreator(user) || await TelegramBotClient.IsChatAdmin(user.Id, queue.GroupId))
         {
             replyMarkupButtons.Add(new InlineKeyboardButton[] 
             {

@@ -21,5 +21,4 @@ RUN dotnet publish -c Release -o /Enqueuer/publish
 FROM base AS final
 WORKDIR /Enqueuer
 COPY --from=build /Enqueuer/publish ./
-# COPY --from=build /Enqueuer/src/Enqueuer.Telegram.API/enqueuer.db ./data/
 ENTRYPOINT [ "dotnet", "Enqueuer.Telegram.API.dll" ]

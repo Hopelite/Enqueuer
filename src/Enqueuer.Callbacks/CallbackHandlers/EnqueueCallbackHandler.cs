@@ -68,10 +68,10 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         InlineKeyboardMarkup replyButtons;
         if (queue.IsDynamic)
         {
-            replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[]
+            replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[2][]
             {
-                GetEnqueueAtButton(callback.CallbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)),
-                GetReturnToQueueButton(callback.CallbackData)
+                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)) },
+                new InlineKeyboardButton[] {  GetReturnToQueueButton(callback.CallbackData) }
             });
         }
         else
