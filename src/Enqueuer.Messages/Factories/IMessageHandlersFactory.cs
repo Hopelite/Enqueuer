@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Messages.MessageHandlers;
+using Telegram.Bot.Types;
 
-namespace Enqueuer.Messages.Factories
+namespace Enqueuer.Messages.Factories;
+
+/// <summary>
+/// Creates message handlers to handle incoming messages.
+/// </summary>
+public interface IMessageHandlersFactory
 {
     /// <summary>
-    /// Creates message handlers to handle incoming messages.
+    /// Tries to create an appropriate message handler for the <paramref name="message"/>.
     /// </summary>
-    public interface IMessageHandlersFactory
-    {
-        /// <summary>
-        /// Creates <see cref="IEnumerable{T}"/> of message handlers to handle incoming messages.
-        /// </summary>
-        /// <returns>Message handlers.</returns>
-        public IEnumerable<IMessageHandler> CreateMessageHandlers();
-    }
+    bool TryCreateMessageHandler(Message message, [NotNullWhen(returnValue: true)] out IMessageHandler? messageHandler);
 }

@@ -1,129 +1,130 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data.Constants;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Data.DataSerialization;
+using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
+using Enqueuer.Persistence.Models;
+using Enqueuer.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Chat = Enqueuer.Persistence.Models.Chat;
+using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Messages.MessageHandlers
+namespace Enqueuer.Messages.MessageHandlers;
+
+public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
 {
-    /// <inheritdoc/>
-    public class QueueMessageHandler : MessageHandlerBase
+    private readonly ITelegramBotClient _botClient;
+    private readonly IGroupService _groupService;
+    private readonly IQueueService _queueService;
+
+    public QueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService, IDataSerializer dataSerializer)
+        : base(messageProvider, dataSerializer)
     {
-        private readonly IQueueService queueService;
+        _botClient = botClient;
+        _groupService = groupService;
+        _queueService = queueService;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QueueMessageHandler"/> class.
-        /// </summary>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="queueService">Queue service to use.</param>
-        public QueueMessageHandler(
-            IChatService chatService,
-            IUserService userService,
-            IQueueService queueService)
-            : base(chatService, userService)
+    public override Task HandleAsync(Message message)
+    {
+        if (message.IsFromPrivateChat())
         {
-            this.queueService = queueService;
-        }
-
-        /// <inheritdoc/>
-        public override string Command => MessageConstants.QueueCommand;
-
-        /// <inheritdoc/>
-        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
-        {
-            if (message.IsPrivateChat())
-            {
-                return await botClient.SendUnsupportedOperationMessage(message);
-            }
-
-            var (_, chat) = await this.GetNewOrExistingUserAndChat(message);
-            var messageWords = message.Text.SplitToWords();
-            if (messageWords.HasParameters())
-            {
-                return await this.HandleMessageWithParameters(botClient, message, messageWords, chat);
-            }
-
-            return await this.HandleMessageWithoutParameters(botClient, message, chat);
-        }
-
-        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, Chat chat)
-        {
-            var queueName = messageWords.GetQueueName();
-            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
-            if (queue is null)
-            {
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"This chat has no queue with name '<b>{queueName}</b>'.",
-                    ParseMode.Html,
-                    replyToMessageId: message.MessageId);
-            }
-
-            if (queue.Users.Count == 0)
-            {
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"Queue '<b>{queue.Name}</b>' has no participants.",
-                    ParseMode.Html);
-            }
-
-            var responseMessage = BuildResponseMessageWithQueueParticipants(queue);
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
-                responseMessage,
+            return _botClient.SendTextMessageAsync(
+                message.Chat,
+                MessageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html);
         }
 
-        private async Task<Message> HandleMessageWithoutParameters(ITelegramBotClient botClient, Message message, Chat chat)
-        {
-            var chatQueues = this.queueService.GetTelegramChatQueues(chat.ChatId);
-            if (!chatQueues.Any())
-            {
-                return await botClient.SendTextMessageAsync(
-                        chat.ChatId,
-                        $"This chat has no queues. To create new one write '<b>/createqueue</b> <i>queue_name</i>'.",
-                        ParseMode.Html,
-                        replyToMessageId: message.MessageId);
-            }
+        return HandlePublicChatAsync(message);
+    }
 
-            var replyMessage = BuildResponseMessageWithChatQueues(chatQueues);
-            return await botClient.SendTextMessageAsync(
-                chat.ChatId,
-                replyMessage,
+    private async Task HandlePublicChatAsync(Message message)
+    {
+        (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+
+        var messageWords = message.Text!.SplitToWords();
+        if (messageWords.HasParameters())
+        {
+            await HandleMessageWithParameters(message, messageWords, group);
+            return;
+        }
+
+        await HandleMessageWithoutParameters(group);
+    }
+
+    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group)
+    {
+        var queueName = messageWords.GetQueueName();
+        var queue = await _queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, CancellationToken.None);
+        if (queue == null)
+        {
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId);
+
+            return;
+        }
+
+        if (queue.Members.Count == 0)
+        {
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueEmpty_Message, queueName),
+                ParseMode.Html,
+                replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue)));
+
+            return;
+        }
+
+        var responseMessage = BuildResponseMessageWithQueueParticipants(queue);
+        await _botClient.SendTextMessageAsync(group.Id, responseMessage, ParseMode.Html);
+    }
+
+    private async Task HandleMessageWithoutParameters(Group group)
+    {
+        if (group.Queues.Count == 0)
+        {
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_NoQueues_Message),
                 ParseMode.Html);
+
+            return;
         }
 
-        private static string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)
+        var replyMessage = BuildResponseMessageWithChatQueues(group.Queues);
+        await _botClient.SendTextMessageAsync(group.Id, replyMessage, ParseMode.Html);
+    }
+
+    private string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)
+    {
+        var replyMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_Message));
+        foreach (var queue in chatQueues)
         {
-            var replyMessage = new StringBuilder("This chat has these queues:\n");
-            foreach (var queue in chatQueues)
-            {
-                replyMessage.AppendLine($"• {queue.Name}");
-            }
-
-            replyMessage.AppendLine("To get info about one of them write '<b>/queue</b> <i>[queue_name]</i>'.");
-            return replyMessage.ToString();
+            replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_DisplayQueue_Message, queue.Name));
         }
 
-        private static string BuildResponseMessageWithQueueParticipants(Queue queue)
+        replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_PostScriptum_Message));
+        return replyMessage.ToString();
+    }
+
+    private string BuildResponseMessageWithQueueParticipants(Queue queue)
+    {
+        var responseMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueueParticipants_Message, queue.Name));
+        var queueParticipants = queue.Members.OrderBy(queueUser => queueUser.Position)
+            .Select(queueUser => (queueUser.Position, queueUser.User));
+
+        foreach ((var position, var user) in queueParticipants)
         {
-            var responseMessage = new StringBuilder($"'<b>{queue.Name}</b>' has these participants:\n");
-            var queueParticipants = queue.Users.OrderBy(queueUser => queueUser.Position)
-                .Select(queueUser => (queueUser.Position, queueUser.User));
-            foreach (var queueParticipant in queueParticipants)
-            {
-                responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FirstName} {queueParticipant.User.LastName}</b>");
-            }
-
-            return responseMessage.ToString();
+            responseMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_DisplayQueueParticipant_Message, position, user.FullName));
         }
+
+        return responseMessage.ToString();
     }
 }

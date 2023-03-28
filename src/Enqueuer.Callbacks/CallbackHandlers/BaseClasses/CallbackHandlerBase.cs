@@ -1,50 +1,53 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.Exceptions;
+using Enqueuer.Data.TextProviders;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses
+namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
+
+/// <summary>
+/// Contains basic implementation for callback handlers.
+/// </summary>
+public abstract class CallbackHandlerBase : ICallbackHandler
 {
-    /// <summary>
-    /// Contains the basic implementation for callback handlers with refresh button.
-    /// </summary>
-    public abstract class CallbackHandlerBase : ICallbackHandler
+    protected readonly ITelegramBotClient TelegramBotClient;
+    protected readonly IDataSerializer DataSerializer;
+    protected readonly IMessageProvider MessageProvider;
+
+    protected CallbackHandlerBase(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider)
     {
-        protected readonly IDataSerializer DataSerializer;
+        TelegramBotClient = telegramBotClient;
+        DataSerializer = dataSerializer;
+        MessageProvider = messageProvider;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CallbackHandlerBase"/> class.
-        /// </summary>
-        /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
-        public CallbackHandlerBase(IDataSerializer dataSerializer)
+    public async Task HandleAsync(Callback callback)
+    {
+        try
         {
-            DataSerializer = dataSerializer;
+            await HandleAsyncImplementation(callback);
+            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id);
         }
-
-        public abstract string Command { get; }
-
-        public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+        catch (MessageNotModifiedException)
         {
-            try
-            {
-                return await HandleCallbackAsyncImplementation(botClient, callbackQuery, callbackData);
-            }
-            catch (MessageNotModifiedException)
-            {
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Everything is up to date.");
-                return null;
-            }
+            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, MessageProvider.GetMessage(CallbackMessageKeys.EverythingIsUpToDate_Message));
         }
+    }
 
-        protected abstract Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData);
+    /// <summary>
+    /// Contains the implementation of <paramref name="callback"/> handling.
+    /// </summary>
+    protected abstract Task HandleAsyncImplementation(Callback callback);
 
-        protected InlineKeyboardButton GetRefreshButton(CallbackData callbackData)
-        {
-            var serializedCallbackData = DataSerializer.Serialize(callbackData);
-            return InlineKeyboardButton.WithCallbackData("Refresh", serializedCallbackData);
-        }
+    /// <summary>
+    /// Creates the refresh button with the <paramref name="callbackData"/>.
+    /// </summary>
+    protected InlineKeyboardButton GetRefreshButton(CallbackData callbackData)
+    {
+        var serializedCallbackData = DataSerializer.Serialize(callbackData);
+        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.RefreshMessage_Button), serializedCallbackData);
     }
 }

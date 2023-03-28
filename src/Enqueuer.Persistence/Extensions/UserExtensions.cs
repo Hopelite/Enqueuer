@@ -1,37 +1,25 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Enqueuer.Persistence.Models;
 
-namespace Enqueuer.Persistence.Extensions
+namespace Enqueuer.Persistence.Extensions;
+
+/// <summary>
+/// Contains extension methods for <see cref="User"/>.
+/// </summary>
+public static class UserExtensions
 {
     /// <summary>
-    /// Contains extension methods for <see cref="User"/>.
+    /// Checks if <paramref name="user"/> participates in <paramref name="queue"/>.
     /// </summary>
-    public static class UserExtensions
+    /// <returns>True, if <paramref name="user"/> participates in <paramref name="queue"/>; false otherwise.</returns>
+    public static bool IsParticipatingIn(this User user, Queue queue)
     {
-        /// <summary>
-        /// Checks if <paramref name="user"/> participates in <paramref name="queue"/>.
-        /// </summary>
-        /// <returns>True, if <paramref name="user"/> participates in <paramref name="queue"/>; false otherwise.</returns>
-        public static bool IsParticipatingIn(this User user, Queue queue)
+        if (queue?.Members == null)
         {
-            return queue.Users.Any(queueUser => queueUser.UserId == user.Id);
+            throw new ArgumentNullException(nameof(queue), "Queue Members are null.");
         }
 
-        /// <summary>
-        /// Tries to get <paramref name="user"/> position in <paramref name="queue"/>.
-        /// </summary>
-        /// <returns>True, if <paramref name="user"/> participates in <paramref name="queue"/>; false otherwise.</returns>
-        public static bool TryGetUserPosition(this User user, Queue queue, out int position)
-        {
-            position = -1;
-            var userInQueue = queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
-            if (userInQueue == null)
-            {
-                return false;
-            }
-
-            position = userInQueue.Position;
-            return true;
-        }
+        return queue.Members.Any(queueUser => queueUser.UserId == user.Id);
     }
 }

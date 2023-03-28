@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
+﻿using System.Diagnostics.CodeAnalysis;
+using Enqueuer.Callbacks.CallbackHandlers;
 
-namespace Enqueuer.Callbacks.Factories
+namespace Enqueuer.Callbacks.Factories;
+
+/// <summary>
+/// Creates callback handlers to handle incoming callbacks.
+/// </summary>
+public interface ICallbackHandlersFactory
 {
     /// <summary>
-    /// Creates callback handlers to handle incoming callbacks.
+    /// Tries to create an appropriate callback handler for the <paramref name="callback"/>.
     /// </summary>
-    public interface ICallbackHandlersFactory
-    {
-        /// <summary>
-        /// Creates <see cref="IEnumerable{T}"/> of callback handlers to handle incoming callbacks.
-        /// </summary>
-        /// <returns>Callback handlers.</returns>
-        public IEnumerable<ICallbackHandler> CreateCallbackHandlers();
-    }
+    bool TryCreateCallbackHandler(Callback callback, [NotNullWhen(returnValue: true)] out ICallbackHandler? callbackHandler);
 }

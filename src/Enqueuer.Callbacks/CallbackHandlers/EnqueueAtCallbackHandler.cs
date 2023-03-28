@@ -1,127 +1,123 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Callbacks.Exceptions;
 using Enqueuer.Data;
-using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
+using Enqueuer.Data.TextProviders;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Services;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Callbacks.CallbackHandlers
+namespace Enqueuer.Callbacks.CallbackHandlers;
+
+public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {
-    public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
+    private readonly IUserService _userService;
+    private readonly IQueueService _queueService;
+    private readonly ILogger<EnqueueCallbackHandler> _logger;
+
+    public EnqueueAtCallbackHandler(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider, IUserService userService, IQueueService queueService, ILogger<EnqueueCallbackHandler> logger)
+        : base(telegramBotClient, dataSerializer, messageProvider)
     {
-        private readonly IUserService _userService;
-        private readonly IQueueService _queueService;
-        private readonly IUserInQueueService _userInQueueService;
+        _userService = userService;
+        _queueService = queueService;
+        _logger = logger;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GetQueueCallbackHandler"/> class.
-        /// </summary>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="queueService">Queue service to use.</param>
-        /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
-        public EnqueueAtCallbackHandler(
-            IUserService userService,
-            IQueueService queueService,
-            IUserInQueueService userInQueueService,
-            IDataSerializer dataSerializer)
-            : base(dataSerializer)
+    protected override Task HandleAsyncImplementation(Callback callback)
+    {
+        if (callback.CallbackData?.QueueData == null)
         {
-            _userService = userService;
-            _queueService = queueService;
-            _userInQueueService = userInQueueService;
+            _logger.LogWarning("Handled outdated callback.");
+            return TelegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                ParseMode.Html);
         }
 
-        public override string Command => CallbackConstants.EnqueueAtCommand;
+        return HandleAsyncInternal(callback);
+    }
 
-        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+    private async Task HandleAsyncInternal(Callback callback)
+    {
+        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData.QueueId, includeMembers: true, CancellationToken.None);
+        if (queue == null)
         {
-            if (callbackData.QueueData is not null)
-            {
-                var queue = _queueService.GetQueueById(callbackData.QueueData.QueueId);
-                if (queue is null)
-                {
-                    return await botClient.EditMessageTextAsync(
-                        callbackQuery.Message.Chat,
-                        callbackQuery.Message.MessageId,
-                        "This queue has been deleted.",
-                        replyMarkup: GetReturnToChatButton(callbackData));
-                }
+            await TelegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                MessageProvider.GetMessage(CallbackMessageKeys.QueueHasBeenDeleted_Message),
+                replyMarkup: GetReturnToChatButton(callback.CallbackData));
 
-                return await HandleCallbackWithExistingQueueAsync(botClient, callbackQuery, queue, callbackData);
-            }
-
-            throw new CallbackMessageHandlingException("Null queue data passed to callback handler.");
+            return;
         }
 
-        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
+        await HandleCallbackWithExistingQueueAsync(queue, callback);
+    }
+
+    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
+    {
+        var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
+        if (user.IsParticipatingIn(queue))
         {
-            var user = await _userService.GetNewOrExistingUserAsync(callbackQuery.From);
-            if (user.IsParticipatingIn(queue))
-            {
-                return await botClient.EditMessageTextAsync(
-                        callbackQuery.Message.Chat,
-                        callbackQuery.Message.MessageId,
-                        $"You're already participating in queue '<b>{queue.Name}</b>'. To change your position, please, dequeue yourself first.",
-                        ParseMode.Html,
-                        replyMarkup: GetReturnToQueueButton(callbackData));
-            }
-
-            if (HasSpecifiedPosition(callbackData) && queue.IsDynamic)
-            {
-                return await botClient.EditMessageTextAsync(
-                    callbackQuery.Message.Chat,
-                    callbackQuery.Message.MessageId,
-                    $"Queue '<b>{queue.Name}</b>' is now dynamic. Please, return and press the 'First available' button.",
-                    ParseMode.Html,
-                    replyMarkup: GetReturnToQueueButton(callbackData));
-            }
-
-            var (message, position) = HasSpecifiedPosition(callbackData)
-                ? HandleCallbackWithSpecifiedPosition(callbackData, queue)
-                : HandleCallbackWithoutPositionProvided(queue);
-
-            if (position.HasValue)
-            {
-                await _userInQueueService.AddUserToQueueAsync(user, queue, position.Value);
-            }
-
-            return await botClient.EditMessageTextAsync(
-                callbackQuery.Message.Chat,
-                callbackQuery.Message.MessageId,
-                message,
+            await TelegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_UserAlreadyParticipates_Message, queue.Name),
                 ParseMode.Html,
-                replyMarkup: GetReturnToQueueButton(callbackData));
+                replyMarkup: GetReturnToQueueButton(callback.CallbackData!));
+
+            return;
         }
 
-        private (string message, int? position) HandleCallbackWithSpecifiedPosition(CallbackData callbackData, Queue queue)
+        if (queue.IsDynamic && HasSpecifiedPosition(callback.CallbackData!))
         {
-            var position = callbackData.QueueData.Position.Value;
-            if (_userInQueueService.IsPositionReserved(queue, position))
-            {
-                var notAvailableMessage = $"Position '<b>{position}</b>' in queue '<b>{queue.Name}</b>' is reserved. Please, reserve other position.";
-                return (notAvailableMessage, null);
-            }
+            await TelegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message, queue.Name),
+                ParseMode.Html,
+                replyMarkup: GetReturnToQueueButton(callback.CallbackData));
 
-            var message = $"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{position}</b>!";
-            return (message, position);
+            return;
         }
 
-        private (string message, int position) HandleCallbackWithoutPositionProvided(Queue queue)
+        var message = HasSpecifiedPosition(callback.CallbackData)
+            ? await HandleCallbackWithSpecifiedPosition(callback.CallbackData, queue, user)
+            : await HandleCallbackWithoutPositionProvided(queue, user);
+
+        await TelegramBotClient.EditMessageTextAsync(
+            callback.Message.Chat,
+            callback.Message.MessageId,
+            message,
+            ParseMode.Html,
+            replyMarkup: GetReturnToQueueButton(callback.CallbackData));
+    }
+
+    private async Task<string> HandleCallbackWithSpecifiedPosition(CallbackData callbackData, Queue queue, User user)
+    {
+        var position = callbackData.QueueData.Position!.Value;
+        if (await _queueService.TryEnqueueUserOnPositionAsync(user, queue.Id, position, CancellationToken.None))
         {
-            var firstPositionAvailable = _userInQueueService.GetFirstAvailablePosition(queue);
-            return ($"Successfully added to queue '<b>{queue.Name}</b>' on position <b>{firstPositionAvailable}</b>!", firstPositionAvailable);
+            return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, position, queue.Name);
         }
 
-        private static bool HasSpecifiedPosition(CallbackData callbackData)
-        {
-            return callbackData.QueueData.Position.HasValue;
-        }
+        return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message, queue.Name, position);
+    }
+
+    private async Task<string> HandleCallbackWithoutPositionProvided(Queue queue, User user)
+    {
+        var firstPositionAvailable = await _queueService.AddAtFirstAvailablePosition(user, queue.Id, CancellationToken.None);
+        return MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, queue.Name, firstPositionAvailable);
+    }
+
+    private static bool HasSpecifiedPosition(CallbackData callbackData)
+    {
+        return callbackData.QueueData.Position.HasValue;
     }
 }

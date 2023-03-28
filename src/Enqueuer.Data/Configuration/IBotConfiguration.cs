@@ -1,33 +1,22 @@
-﻿namespace Enqueuer.Data.Configuration
+﻿namespace Enqueuer.Data.Configuration;
+
+/// <summary>
+/// Contains bot configuration.
+/// </summary>
+public interface IBotConfiguration
 {
     /// <summary>
-    /// Contains bot configuration.
+    /// Gets the bot access token.
     /// </summary>
-    public interface IBotConfiguration
-    {
-        /// <summary>
-        /// Gets or sets bot access token.
-        /// </summary>
-        public string AccessToken { get; set; }
+    public string AccessToken { get; }
 
-        /// <summary>
-        /// Gets or sets application host.
-        /// </summary>
-        public string ApplicationHost { get; set;  }
+    /// <summary>
+    /// Gets the maximal number of queues per chat.
+    /// </summary>
+    public int QueuesPerChat { get; }
 
-        /// <summary>
-        /// Gets or sets maximal number of queues per chat.
-        /// </summary>
-        public int QueuesPerChat { get; set; }
-
-        /// <summary>
-        /// Gets or sets bot version.
-        /// </summary>
-        public string BotVersion { get; set; }
-
-        /// <summary>
-        /// Gets or sets bot development chat ID to send errors to.
-        /// </summary>
-        public long DevelopmentChatId { get; set; }
-    }
+    /// <summary>
+    /// Gets the bot version.
+    /// </summary>
+    public string BotVersion { get; }
 }

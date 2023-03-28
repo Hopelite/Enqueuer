@@ -1,0 +1,46 @@
+# Ignore files and directories used by Visual Studio
+.editorconfig
+.vscode/
+.vs/
+*.suo
+*.user
+*.csproj.user
+*.userprefs
+bin/
+obj/
+Debug/
+Release/
+*.dbmdl
+*.jfm
+*.pfx
+*.snk
+*.cache
+*.sln.docstates
+*.sln
+
+# Ignore files and directories created by the build process
+node_modules/
+bower_components/
+*.log
+*.bak
+*.cache
+*.tmp
+obj/
+bin/
+
+# Ignore files specific to the Docker build context
+.dockerignore
+.docker/docker-compose.yml
+.docker/docker-compose.*.yml
+.docker/*.env
+
+# Ignore source control directories
+.gitignore
+.git/
+.svn/
+
+# Ignore etc.
+*.md
+
+# Ignore tests
+tests/

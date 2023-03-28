@@ -1,101 +1,72 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data;
-using Enqueuer.Data.Constants;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Callbacks.Exceptions;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Data.TextProviders;
+using Enqueuer.Services;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Callbacks.CallbackHandlers
+namespace Enqueuer.Callbacks.CallbackHandlers;
+
+public class EnqueueMeCallbackHandler : ICallbackHandler
 {
-    /// <inheritdoc/>
-    public class EnqueueMeCallbackHandler : ICallbackHandler
+    private readonly ITelegramBotClient _telegramBotClient;
+    private readonly IQueueService _queueService;
+    private readonly IGroupService _groupService;
+    private readonly IMessageProvider _messageProvider;
+    private readonly ILogger<EnqueueMeCallbackHandler> _logger;
+
+    public EnqueueMeCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
     {
-        private readonly IChatService chatService;
-        private readonly IUserService userService;
-        private readonly IQueueService queueService;
-        private readonly IUserInQueueService userInQueueService;
+        _telegramBotClient = telegramBotClient;
+        _queueService = queueService;
+        _groupService = groupService;
+        _messageProvider = messageProvider;
+        _logger = logger;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EnqueueMeCallbackHandler"/> class.
-        /// </summary>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="queueService">Queue service to use.</param>
-        /// <param name="userInQueueService">User in queue service to use.</param>
-        public EnqueueMeCallbackHandler(
-            IChatService chatService,
-            IUserService userService,
-            IQueueService queueService,
-            IUserInQueueService userInQueueService)
+    public Task HandleAsync(Callback callback)
+    {
+        if (callback.CallbackData?.QueueData == null)
         {
-            this.chatService = chatService;
-            this.userService = userService;
-            this.queueService = queueService;
-            this.userInQueueService = userInQueueService;
+            _logger.LogWarning("Handled outdated callback.");
+            return _telegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                _messageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                ParseMode.Html);
         }
 
-        /// <inheritdoc/>
-        public string Command => CallbackConstants.EnqueueMeCommand;
+        return HandleAsyncInternal(callback);
+    }
 
-        /// <inheritdoc/>
-        public async Task<Message> HandleCallbackAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+    private async Task HandleAsyncInternal(Callback callback)
+    {
+        (var _, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(callback.Message!.Chat, callback.From, includeQueues: false, CancellationToken.None);
+        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData.QueueId, includeMembers: true, CancellationToken.None);
+        if (queue == null)
         {
-            if (callbackData.QueueData is not null)
-            {
-                var queue = this.queueService.GetQueueById(callbackData.QueueData.QueueId);
-                if (queue is null)
-                {
-                    return await botClient.EditMessageTextAsync(
-                        callbackQuery.Message.Chat,
-                        callbackQuery.Message.MessageId,
-                        "This queue has been deleted. Please, create a new one to participate in.",
-                        ParseMode.Html);
-                }
+            await _telegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_QueueHasBeenDeleted_Message),
+                ParseMode.Html);
 
-                return await this.HandleCallbackWithExistingQueueAsync(botClient, callbackQuery.From, callbackQuery, queue, callbackData);
-            }
-
-            throw new CallbackMessageHandlingException("Null queue data passed to message handler.");
+            return;
         }
 
-        private async Task<Message> HandleCallbackWithExistingQueueAsync(ITelegramBotClient botClient, Telegram.Bot.Types.User telegramUser, CallbackQuery callbackQuery, Queue queue, CallbackData callbackData)
+        if (queue.Members.Any(m => m.UserId == user.Id))
         {
-            var user = await this.AddUserAndChatToDbAsync(callbackQuery, callbackData.ChatId);
-            var userInReplyMessage = GetUserName(telegramUser);
-            if (DoesUserNotParticipateInQueue(queue, user))
-            {
-                var positionInQueue = this.userInQueueService.GetFirstAvailablePosition(queue);
-                await this.userInQueueService.AddUserToQueueAsync(user, queue, positionInQueue);
-                await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"Successfully added to queue '{queue.Name}' at the '{positionInQueue}' position!");
-                return null;
-            }
-
-            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"You're already participating in queue '{queue.Name}'!");
-            return null;
+            await _telegramBotClient.AnswerCallbackQueryAsync(
+                callback.Id,
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification, queue.Name));
+            return;
         }
 
-        private static bool DoesUserNotParticipateInQueue(Queue queue, User user)
-        {
-            return !queue.Users.Any(queueUser => queueUser.UserId == user.Id);
-        }
-
-        private static string GetUserName(Telegram.Bot.Types.User telegramUser)
-        {
-            return $"{(telegramUser.Username is null ? telegramUser.FirstName + (telegramUser.LastName is null ? string.Empty : " " + telegramUser.LastName) : "@" + telegramUser.Username)}";
-        }
-
-        private async Task<User> AddUserAndChatToDbAsync(CallbackQuery callbackQuery, int chatId)
-        {
-            var user = await this.userService.GetNewOrExistingUserAsync(callbackQuery.From);
-            var chat = this.chatService.GetChatById(chatId);
-            await this.chatService.AddUserToChatIfNotAlready(user, chat);
-            return user;
-        }
+        var position = await _queueService.AddAtFirstAvailablePosition(user, queue.Id, CancellationToken.None);
+        await _telegramBotClient.AnswerCallbackQueryAsync(
+            callback.Id,
+            _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification, queue.Name, position));
     }
 }
