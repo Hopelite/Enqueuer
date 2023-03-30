@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Enqueuer.Telegram.API.Migrations
+namespace Enqueuer.Persistence.Migrations
 {
     [DbContext(typeof(EnqueuerContext))]
-    [Migration("20230323222246_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230330121918_AddedPositionsReferenceTable")]
+    partial class AddedPositionsReferenceTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,14 @@ namespace Enqueuer.Telegram.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("Enqueuer.Persistence.Models.Position", b =>
+                {
+                    b.Property<int>("Value")
+                        .HasColumnType("INTEGER");
+
+                    b.ToTable("Position");
                 });
 
             modelBuilder.Entity("Enqueuer.Persistence.Models.Queue", b =>

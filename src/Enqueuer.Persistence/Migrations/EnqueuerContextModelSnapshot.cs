@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Enqueuer.Telegram.API.Migrations
+namespace Enqueuer.Persistence.Migrations
 {
     [DbContext(typeof(EnqueuerContext))]
     partial class EnqueuerContextModelSnapshot : ModelSnapshot
@@ -31,6 +31,14 @@ namespace Enqueuer.Telegram.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("Enqueuer.Persistence.Models.Position", b =>
+                {
+                    b.Property<int>("Value")
+                        .HasColumnType("INTEGER");
+
+                    b.ToTable("Position");
                 });
 
             modelBuilder.Entity("Enqueuer.Persistence.Models.Queue", b =>

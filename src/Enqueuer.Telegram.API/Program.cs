@@ -49,7 +49,7 @@ public class Program
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<EnqueuerContext>(options =>
-            options.UseSqlite(builder.Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Enqueuer.Telegram.API")));
+            options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
         builder.Services.AddTransient<IBotConfiguration, BotConfiguration>(services => 
         {
