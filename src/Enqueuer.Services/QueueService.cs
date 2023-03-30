@@ -115,34 +115,26 @@ public class QueueService : IQueueService
         {
             throw new ArgumentException("Queue with the specified ID does not exist.", nameof(queueId));
         }
+        
+        var firstUnreservedPosition = _enqueuerContext.Positions
+            .GroupJoin(_enqueuerContext.QueueMembers.Where(qm => qm.QueueId == queueId),
+                    p => p.Value,
+                    qm => qm.Position,
+                    (p, qms) => new { Position = p, QueueMembers = qms })
+            .Where(x => !x.QueueMembers.Any())
+            .Select(x => x.Position.Value)
+            .Min();
 
-        var position = GetFirstAvailablePosition();
-        queue.Members.Add(new QueueMember
+        _enqueuerContext.QueueMembers.Add(new QueueMember
         {
-            Position = position,
+            Position = firstUnreservedPosition,
             UserId = user.Id,
             QueueId = queueId
         });
 
-        await _enqueuerContext.SaveChangesAsync(cancellationToken);
-        return position;
+        _enqueuerContext.SaveChanges();
 
-        int GetFirstAvailablePosition()
-        {
-            var firstAvailablePosition = 1;
-            var positions = queue.Members.OrderBy(m => m.Position).Select(m => m.Position);
-            foreach (var position in positions)
-            {
-                if (position != firstAvailablePosition)
-                {
-                    return firstAvailablePosition;
-                }
-
-                firstAvailablePosition++;
-            }
-
-            return firstAvailablePosition;
-        }
+        return firstUnreservedPosition;
     }
 
     /// <inheritdoc/>

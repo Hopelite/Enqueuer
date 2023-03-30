@@ -24,10 +24,19 @@ public class EnqueuerContext : DbContext
     /// </summary>
     public DbSet<Queue> Queues { get; set; }
 
+    /// <summary>
+    /// Queue members with their positions.
+    /// </summary>
+    public DbSet<QueueMember> QueueMembers { get; set; }
+
+    /// <summary>
+    /// Readonly. All possible positions in queue.
+    /// </summary>
+    public DbSet<Position> Positions { get; set; }
+
     public EnqueuerContext(DbContextOptions<EnqueuerContext> dbContextOptions)
         : base(dbContextOptions)
     {
-        Database.EnsureCreated();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,7 +45,8 @@ public class EnqueuerContext : DbContext
             .ApplyConfiguration(new GroupChatEntityConfiguration())
             .ApplyConfiguration(new UserEntityConfiguration())
             .ApplyConfiguration(new QueueEntityConfiguration())
-            .ApplyConfiguration(new QueueMemberEntityConfiguration());
+            .ApplyConfiguration(new QueueMemberEntityConfiguration())
+            .ApplyConfiguration(new PositionEntityConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }
