@@ -36,7 +36,7 @@ public class InMemoryTextProvider : IMessageProvider
             MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_PostScriptum_Message => "To get info about one of them write '<b>/queue</b> <i>[queue_name]</i>'.",
 
             MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueNameIsNotProvided_Message => "To be enqueued, please write the command this way: '<b>/enqueue</b> <i>[queue_name] [position(optional)]</i>'.",
-            MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message => "Please, use positive numbers for user position.",
+            MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message => "Please, use positive numbers for user position, but not greater than 500.",
             MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueDoesNotExist_Message => "There is no queue with name '<b>{0}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
             MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_UserAlreadyParticipates_Message => "You're already participating in queue '<b>{0}</b>'.",
             MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message => "Queue '<b>{0}</b>' is dynamic - you can enqueue yourself only at the end of queue.",

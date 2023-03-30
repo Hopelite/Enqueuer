@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
+using Enqueuer.Persistence.Constants;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
@@ -153,6 +154,6 @@ public class EnqueueMessageHandler : IMessageHandler
 
     private static bool IsUserPositionInvalid(int? userPosition)
     {
-        return userPosition.HasValue && userPosition.Value <= 0;
+        return userPosition.HasValue && (userPosition.Value <= 0 || userPosition.Value > QueueConstants.MaxPosition);
     }
 }
