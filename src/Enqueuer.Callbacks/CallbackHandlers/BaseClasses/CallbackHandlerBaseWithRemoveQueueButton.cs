@@ -24,10 +24,10 @@ public abstract class CallbackHandlerBaseWithRemoveQueueButton : CallbackHandler
         {
             Command = CallbackConstants.RemoveQueueCommand,
             ChatId = callbackData.ChatId,
+            UserAgreement = isAgreed,
             QueueData = new QueueData()
             {
                 QueueId = callbackData.QueueData.QueueId,
-                IsUserAgreed = isAgreed
             }
         };
 

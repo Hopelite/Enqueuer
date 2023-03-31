@@ -103,10 +103,10 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
         {
             Command = CallbackConstants.DequeueMeCommand,
             ChatId = callbackData.ChatId,
+            UserAgreement = isAgreed,
             QueueData = new QueueData()
             {
                 QueueId = callbackData.QueueData.QueueId,
-                IsUserAgreed = isAgreed
             }
         };
 

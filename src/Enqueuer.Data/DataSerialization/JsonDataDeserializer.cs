@@ -1,16 +1,26 @@
 ﻿using Newtonsoft.Json;
 
-namespace Enqueuer.Data.DataSerialization
+namespace Enqueuer.Data.DataSerialization;
+
+/// <summary>
+/// Deserializes JSON data.
+/// </summary>
+public class JsonDataDeserializer : IDataDeserializer
 {
-    /// <summary>
-    /// Deserializes JSON data.
-    /// </summary>
-    public class JsonDataDeserializer : IDataDeserializer
+    private static readonly JsonSerializerSettings Settings = new()
     {
-        /// <inheritdoc/>
-        public T Deserialize<T>(string data)
+        MissingMemberHandling = MissingMemberHandling.Error,
+    };
+
+    public T Deserialize<T>(string data)
+    {
+        try
         {
-            return JsonConvert.DeserializeObject<T>(data);
+            return JsonConvert.DeserializeObject<T>(data, Settings);
+        }
+        catch (JsonSerializationException)
+        {
+            return default;
         }
     }
 }

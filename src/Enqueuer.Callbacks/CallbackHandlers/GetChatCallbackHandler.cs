@@ -31,7 +31,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
 
     protected override Task HandleAsyncImplementation(Callback callback)
     {
-        if (callback.CallbackData == null)
+        if (callback.CallbackData == null || !callback.CallbackData!.ChatId.HasValue)
         {
             _logger.LogWarning("Handled outdated callback.");
             return TelegramBotClient.EditMessageTextAsync(
@@ -46,7 +46,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
 
     private async Task HandleAsyncInternal(Callback callback)
     {
-        if (!await _groupService.DoesGroupExist(callback.CallbackData!.ChatId))
+        if (!await _groupService.DoesGroupExist(callback.CallbackData!.ChatId.Value))
         {
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
@@ -57,7 +57,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
             return;
         }
 
-        var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.ChatId, CancellationToken.None);
+        var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.ChatId.Value, CancellationToken.None);
         var responseMessage = (queues.Count == 0
             ? MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ChatHasNoQueues_Message)
             : MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_Message))

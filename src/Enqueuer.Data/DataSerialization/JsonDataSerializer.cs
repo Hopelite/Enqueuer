@@ -7,12 +7,14 @@ namespace Enqueuer.Data.DataSerialization;
 /// </summary>
 public class JsonDataSerializer : IDataSerializer
 {
+    private static readonly JsonSerializerSettings Settings = new()
+    {
+        NullValueHandling = NullValueHandling.Ignore,
+        Formatting = Formatting.None
+    };
+
     public string Serialize<T>(T data)
     {
-        return JsonConvert.SerializeObject(data, new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.None
-        });
+        return JsonConvert.SerializeObject(data, Settings); 
     }
 }
