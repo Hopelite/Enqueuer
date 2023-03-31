@@ -14,10 +14,10 @@ public class CallbackData
     public string Command { get; set; }
 
     /// <summary>
-    /// Optional. Telegram chat ID.
+    /// Optional. The ID of the Telegram chat targeted by this callback.
     /// </summary>
     [JsonProperty("i")]
-    public long? ChatId { get; set; }
+    public long? TargetChatId { get; set; }
 
     /// <summary>
     /// Optional. Page number.

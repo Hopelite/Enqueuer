@@ -25,7 +25,7 @@ public abstract class CallbackHandlerBaseWithReturnToQueueButton : CallbackHandl
         var buttonCallbackData = new CallbackData()
         {
             Command = CallbackConstants.GetQueueCommand,
-            ChatId = callbackData.ChatId,
+            TargetChatId = callbackData.TargetChatId,
             QueueData = callbackData.QueueData,
         };
 

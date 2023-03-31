@@ -102,7 +102,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
         var buttonCallbackData = new CallbackData()
         {
             Command = CallbackConstants.DequeueMeCommand,
-            ChatId = callbackData.ChatId,
+            TargetChatId = callbackData.TargetChatId,
             UserAgreement = isAgreed,
             QueueData = new QueueData()
             {

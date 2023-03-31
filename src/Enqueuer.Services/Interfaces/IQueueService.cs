@@ -52,4 +52,8 @@ public interface IQueueService
     /// Changes the queue's with the specified <paramref name="queueId"/> status to the opposite one.
     /// </summary>
     Task SwitchQueueStatusAsync(long queueId, CancellationToken cancellationToken);
+
+    ValueTask<QueueMember?> GetQueueMemberAsync(long userId, long queueId, CancellationToken cancellationToken);
+
+    Task SwitchMembersPositionsAsync(int queueId, long firstUserId, long secondUserId, CancellationToken cancellationToken);
 }

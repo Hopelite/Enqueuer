@@ -50,4 +50,23 @@ public abstract class CallbackHandlerBase : ICallbackHandler
         var serializedCallbackData = DataSerializer.Serialize(callbackData);
         return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.RefreshMessage_Button), serializedCallbackData);
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    protected InlineKeyboardButton GetAnotherPageButton(CallbackData previousCallbackData, int page, string buttonText)
+    {
+        var newCallbackData = new CallbackData
+        {
+            Command = previousCallbackData.Command,
+            Page = page,
+            UserAgreement = previousCallbackData.UserAgreement,
+            QueueData = previousCallbackData.QueueData,
+            TargetChatId = previousCallbackData.TargetChatId,
+            TargetUserId = previousCallbackData.TargetUserId,
+        };
+
+        var serializedCallbackData = DataSerializer.Serialize(newCallbackData);
+        return InlineKeyboardButton.WithCallbackData(buttonText, serializedCallbackData);
+    }
 }

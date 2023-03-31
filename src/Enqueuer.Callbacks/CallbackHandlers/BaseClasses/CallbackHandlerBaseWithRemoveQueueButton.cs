@@ -23,7 +23,7 @@ public abstract class CallbackHandlerBaseWithRemoveQueueButton : CallbackHandler
         var buttonCallbackData = new CallbackData()
         {
             Command = CallbackConstants.RemoveQueueCommand,
-            ChatId = callbackData.ChatId,
+            TargetChatId = callbackData.TargetChatId,
             UserAgreement = isAgreed,
             QueueData = new QueueData()
             {

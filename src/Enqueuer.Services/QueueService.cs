@@ -204,6 +204,7 @@ public class QueueService : IQueueService
         return _enqueuerContext.Queues.Where(q => q.GroupId == groupId).ToListAsync(cancellationToken);
     }
 
+    // TODO: fix
     public async Task SwitchQueueStatusAsync(long queueId, CancellationToken cancellationToken)
     {
         var queue = await _enqueuerContext.Queues.Include(q => q.Members)
@@ -222,6 +223,28 @@ public class QueueService : IQueueService
 
         _enqueuerContext.Update(queue);
         await _enqueuerContext.SaveChangesAsync();
+    }
+
+    public ValueTask<QueueMember?> GetQueueMemberAsync(long userId, long queueId, CancellationToken cancellationToken)
+    {
+        return _enqueuerContext.QueueMembers.FindAsync(new object[] { userId, queueId }, cancellationToken);
+    }
+
+    public async Task SwitchMembersPositionsAsync(int queueId, long firstUserId, long secondUserId, CancellationToken cancellationToken)
+    {
+        var firstMember = await _enqueuerContext.QueueMembers.FindAsync(new object[] { firstUserId, queueId }, cancellationToken);
+        var secondMember = await _enqueuerContext.QueueMembers.FindAsync(new object[] { secondUserId, queueId }, cancellationToken);
+
+        if (firstMember != null && secondMember != null)
+        {
+            // Swap the positions of the two members
+            (secondMember.Position, firstMember.Position) = (firstMember.Position, secondMember.Position);
+
+            // Update the database
+            _enqueuerContext.Update(firstMember);
+            _enqueuerContext.Update(secondMember);
+            await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private static void CompressQueuePositions(Queue queue)

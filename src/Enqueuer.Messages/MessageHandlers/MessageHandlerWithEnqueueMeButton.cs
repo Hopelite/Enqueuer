@@ -27,7 +27,7 @@ public abstract class MessageHandlerWithEnqueueMeButton : IMessageHandler
         var callbackButtonData = new CallbackData()
         {
             Command = CallbackConstants.EnqueueMeCommand,
-            ChatId = group.Id,
+            TargetChatId = group.Id,
             QueueData = new QueueData()
             {
                 QueueId = queue.Id,

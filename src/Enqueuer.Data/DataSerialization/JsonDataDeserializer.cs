@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Enqueuer.Callbacks.Exceptions;
+using Newtonsoft.Json;
 
 namespace Enqueuer.Data.DataSerialization;
 
@@ -18,9 +19,9 @@ public class JsonDataDeserializer : IDataDeserializer
         {
             return JsonConvert.DeserializeObject<T>(data, Settings);
         }
-        catch (JsonSerializationException)
+        catch (JsonSerializationException ex)
         {
-            return default;
+            throw new OutdatedCallbackException("Received an outdated callback.", ex);
         }
     }
 }

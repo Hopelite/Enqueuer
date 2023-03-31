@@ -63,7 +63,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         await HandleCallbackWithExistingQueueAsync(queue, callback);
     }
 
-    private async Task<Message> HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
+    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
     {
         InlineKeyboardMarkup replyButtons;
         if (queue.IsDynamic)
@@ -80,7 +80,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
             replyButtons = BuildKeyboardMarkup(availablePositions, callback.CallbackData);
         }
 
-        return await TelegramBotClient.EditMessageTextAsync(
+        await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
             MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_SelectPosition_Message, queue.Name),
@@ -119,7 +119,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         var buttonCallbackData = new CallbackData()
         {
             Command = CallbackConstants.EnqueueAtCommand,
-            ChatId = callbackData.ChatId,
+            TargetChatId = callbackData.TargetChatId,
             QueueData = new QueueData()
             {
                 QueueId = callbackData.QueueData.QueueId,
