@@ -84,9 +84,10 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
 
     private async Task<InlineKeyboardMarkup> BuildReplyMarkup(User user, Queue queue, CallbackData callbackData)
     {
+        var doesUserParticipate = user.IsParticipatingIn(queue);
         var replyMarkupButtons = new List<InlineKeyboardButton[]>()
         {
-            user.IsParticipatingIn(queue)
+            doesUserParticipate
             ? new InlineKeyboardButton[] { GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_DequeueMe_Button), CallbackConstants.DequeueMeCommand, callbackData, queue.Id) }
             : new InlineKeyboardButton[] { GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_EnqueueMe_Button), CallbackConstants.EnqueueCommand, callbackData, queue.Id) }
         };
@@ -100,6 +101,11 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
             });
         }
 
+        if (doesUserParticipate)
+        {
+            replyMarkupButtons.Add(new InlineKeyboardButton[] { GetQueueRelatedButton("Exchange positions", CallbackConstants.ExchangePositionsCommand, callbackData, queue.Id) });
+        }
+
         replyMarkupButtons.Add(new InlineKeyboardButton[] { GetRefreshButton(callbackData) });
         replyMarkupButtons.Add(new InlineKeyboardButton[] { GetReturnToChatButton(callbackData) });
         return new InlineKeyboardMarkup(replyMarkupButtons);
@@ -110,7 +116,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
         var buttonCallbackData = new CallbackData()
         {
             Command = command,
-            ChatId = callbackData.ChatId,
+            TargetChatId = callbackData.TargetChatId,
             QueueData = new QueueData()
             { 
                 QueueId = queueId,
@@ -126,7 +132,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
         var buttonCallbackData = new CallbackData()
         {
             Command = command,
-            ChatId = callbackData.ChatId,
+            TargetChatId = callbackData.TargetChatId,
             QueueData = new QueueData()
             {
                 QueueId = queue.Id,

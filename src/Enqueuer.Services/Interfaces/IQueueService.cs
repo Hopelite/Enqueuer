@@ -52,4 +52,10 @@ public interface IQueueService
     /// Changes the queue's with the specified <paramref name="queueId"/> status to the opposite one.
     /// </summary>
     Task SwitchQueueStatusAsync(long queueId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Swaps the <paramref name="firstUserId"/>'s position with the <paramref name="secondUserId"/>'s one
+    /// in a queue with the specified <paramref name="queueId"/>.
+    /// </summary>
+    Task SwapMembersPositionsAsync(int queueId, long firstUserId, long secondUserId, CancellationToken cancellationToken);
 }

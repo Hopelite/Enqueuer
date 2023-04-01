@@ -83,7 +83,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
             var callbackData = new CallbackData()
             {
                 Command = CallbackConstants.GetChatCommand,
-                ChatId = chats[chatIndex].Id,
+                TargetChatId = chats[chatIndex].Id,
             };
 
             var serializedCallbackData = DataSerializer.Serialize(callbackData);

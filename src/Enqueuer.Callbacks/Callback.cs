@@ -19,10 +19,9 @@ public class Callback
     public User From { get; set; }
 
     /// <summary>
-    /// Description with the callback button that originated the query. Note that message content and
-    /// message date will not be available if the message is too old.
+    /// Description with the callback button that originated the query.
     /// </summary>
-    public Message? Message { get; set; }
+    public Message Message { get; set; }
 
     /// <summary>
     /// Optional. Deserialized callback data if exists.
@@ -34,6 +33,6 @@ public class Callback
         Id = callbackQuery.Id;
         From = callbackQuery.From;
         CallbackData = callbackData;
-        Message = callbackQuery.Message;
+        Message = callbackQuery.Message!;
     }
 }

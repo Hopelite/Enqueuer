@@ -87,7 +87,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
     private async Task<Message> HandleCallbackWithUserAgreementAsync(Callback callback, Queue queue)
     {
         var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
-        if (callback.CallbackData.QueueData.IsUserAgreed!.Value)
+        if (callback.CallbackData.HasUserAgreement)
         {
             var userId = callback.From.Id;
             if (!queue.IsQueueCreator(userId) && !await TelegramBotClient.IsChatAdmin(userId, queue.GroupId))

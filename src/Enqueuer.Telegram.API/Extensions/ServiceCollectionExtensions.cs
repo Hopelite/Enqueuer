@@ -52,6 +52,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DequeueMeCallbackHandler>();
         services.AddScoped<RemoveQueueCallbackHandler>();
         services.AddScoped<SwitchQueueCallbackHandler>();
+        services.AddScoped<SwapPositionsCallbackHandler>();
 
         return services;
     }

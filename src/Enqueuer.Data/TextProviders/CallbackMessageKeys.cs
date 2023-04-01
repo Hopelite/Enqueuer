@@ -101,6 +101,37 @@ public static class CallbackMessageKeys
         public const string SwitchQueueCallback_QueueIsDynamicNow_Message = "SwitchQueueCallback_QueueIsDynamicNow_Message";
     }
 
+    public static class SwapPositionsCallbackHandler
+    {
+        public const string SwapPositionsCallback_QueueHasBeenDeleted_Message = "SwapPositionsCallback_QueueHasBeenDeleted_Message";
+
+        public const string SwapPositionsCallback_UserDoesNotParticipate_Message = "SwapPositionsCallback_UserDoesNotParticipate_Message";
+
+        public const string SwapPositionsCallback_SelectUserToSwapWith_Message = "SwapPositionsCallback_SelectUserToSwapWith_Message";
+
+        public const string SwapPositionsCallback_UserHasLeftTheQueue_Message = "SwapPositionsCallback_UserHasLeftTheQueue_Message";
+
+        public const string SwapPositionsCallback_UserWantsToSwapWithYou_Message = "SwapPositionsCallback_UserWantsToSwapWithYou_Message";
+
+        public const string SwapPositionsCallback_SwapRequestHasBeenSent_Message = "SwapPositionsCallback_SwapRequestHasBeenSent_Message";
+
+        public const string SwapPositionsCallback_RequestersPositionHasChanged_Message = "SwapPositionsCallback_RequestersPositionHasChanged_Message";
+
+        public const string SwapPositionsCallback_SuccessfullySwappedPositions_Message = "SwapPositionsCallback_SuccessfullySwappedPositions_Message";
+
+        public const string SwapPositionsCallback_SwapWasSuccessfulyRefused_Message = "SwapPositionsCallback_SwapWasSuccessfulyDenied_Message";
+
+        public const string SwapPositionsCallback_SwapRequestWasRefusedByUser_Message = "SwapPositionsCallback_SwapWasDeniedByUser_Message";
+
+        public const string SwapPositionsCallback_AgreeToSwap_Button = "SwapPositionsCallback_AgreeToSwap_Button";
+
+        public const string SwapPositionsCallback_RefuseToSwap_Button = "SwapPositionsCallback_RefuseToSwap_Button";
+
+        public const string SwapPositionsCallback_ListOfMembers_OnlyPreviousPageAvailable_Button = "SwapPositionsCallback_ListOfMembers_OnlyPreviousPageAvailable_Button";
+
+        public const string SwapPositionsCallback_ListOfMembers_OnlyNextPageAvailable_Button = "SwapPositionsCallback_ListOfMembers_OnlyNextPageAvailable_Button";
+    }
+
     public const string OutdatedCallback_Message = "CallbackMessageKeys_OutdatedCallback_Message";
 
     public const string EverythingIsUpToDate_Message = "CallbackMessageKeys_EverythingIsUpToDate_Message";

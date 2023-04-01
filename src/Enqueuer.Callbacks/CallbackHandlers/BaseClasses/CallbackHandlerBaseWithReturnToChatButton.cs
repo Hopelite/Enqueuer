@@ -25,7 +25,7 @@ public abstract class CallbackHandlerBaseWithReturnToChatButton : CallbackHandle
         var buttonCallbackData = new CallbackData()
         {
             Command = CallbackConstants.GetChatCommand,
-            ChatId = callbackData.ChatId,
+            TargetChatId = callbackData.TargetChatId,
         };
 
         var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
