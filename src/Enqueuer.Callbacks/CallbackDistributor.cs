@@ -15,16 +15,23 @@ public class CallbackDistributor : ICallbackDistributor
     private readonly ICallbackHandlersFactory _callbackHandlersFactory;
     private readonly IDataDeserializer _dataDeserializer;
     private readonly ITelegramBotClient _telegramBotClient;
+    private readonly IMessageProvider _messageProvider;
 
-    public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory, IDataDeserializer dataDeserializer, ITelegramBotClient telegramBotClient)
+    public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory, IDataDeserializer dataDeserializer, ITelegramBotClient telegramBotClient, IMessageProvider messageProvider)
     {
         _callbackHandlersFactory = callbackHandlersFactory;
         _dataDeserializer = dataDeserializer;
         _telegramBotClient = telegramBotClient;
+        _messageProvider = messageProvider;
     }
 
     public async Task DistributeAsync(CallbackQuery callbackQuery)
     {
+        if (callbackQuery.Message == null)
+        {
+            return;
+        }
+
         CallbackData? callbackData = null;
         if (callbackQuery.Data != null)
         {
@@ -37,7 +44,7 @@ public class CallbackDistributor : ICallbackDistributor
                 await _telegramBotClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                "Message is outdated",
+                _messageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
                 ParseMode.Html);
                 return;
             }

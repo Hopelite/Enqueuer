@@ -39,7 +39,7 @@ public class CallbackHandlersFactory : ICallbackHandlersFactory
             CallbackConstants.DequeueMeCommand => _serviceProvider.GetRequiredService<DequeueMeCallbackHandler>(),
             CallbackConstants.RemoveQueueCommand => _serviceProvider.GetRequiredService<RemoveQueueCallbackHandler>(),
             CallbackConstants.SwitchQueueDynamicCommand => _serviceProvider.GetRequiredService<SwitchQueueCallbackHandler>(),
-            CallbackConstants.ExchangePositionsCommand => _serviceProvider.GetRequiredService<ExchangePositionsCallbackHandler>(),
+            CallbackConstants.ExchangePositionsCommand => _serviceProvider.GetRequiredService<SwapPositionsCallbackHandler>(),
             _ => null
         };
 

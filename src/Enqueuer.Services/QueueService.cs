@@ -225,12 +225,7 @@ public class QueueService : IQueueService
         await _enqueuerContext.SaveChangesAsync();
     }
 
-    public ValueTask<QueueMember?> GetQueueMemberAsync(long userId, long queueId, CancellationToken cancellationToken)
-    {
-        return _enqueuerContext.QueueMembers.FindAsync(new object[] { userId, queueId }, cancellationToken);
-    }
-
-    public async Task SwitchMembersPositionsAsync(int queueId, long firstUserId, long secondUserId, CancellationToken cancellationToken)
+    public async Task SwapMembersPositionsAsync(int queueId, long firstUserId, long secondUserId, CancellationToken cancellationToken)
     {
         var firstMember = await _enqueuerContext.QueueMembers.FindAsync(new object[] { firstUserId, queueId }, cancellationToken);
         var secondMember = await _enqueuerContext.QueueMembers.FindAsync(new object[] { secondUserId, queueId }, cancellationToken);

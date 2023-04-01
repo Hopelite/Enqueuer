@@ -35,7 +35,7 @@ public class CallbackData
     /// Optional. Queue-related data.
     /// </summary>
     [JsonProperty("d")]
-    public QueueData QueueData { get; set; }
+    public QueueData? QueueData { get; set; }
 
     /// <summary>
     /// Optional. Whether the user has given their explicit consent or not.

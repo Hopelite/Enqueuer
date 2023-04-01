@@ -53,7 +53,9 @@ public interface IQueueService
     /// </summary>
     Task SwitchQueueStatusAsync(long queueId, CancellationToken cancellationToken);
 
-    ValueTask<QueueMember?> GetQueueMemberAsync(long userId, long queueId, CancellationToken cancellationToken);
-
-    Task SwitchMembersPositionsAsync(int queueId, long firstUserId, long secondUserId, CancellationToken cancellationToken);
+    /// <summary>
+    /// Swaps the <paramref name="firstUserId"/>'s position with the <paramref name="secondUserId"/>'s one
+    /// in a queue with the specified <paramref name="queueId"/>.
+    /// </summary>
+    Task SwapMembersPositionsAsync(int queueId, long firstUserId, long secondUserId, CancellationToken cancellationToken);
 }
