@@ -81,6 +81,7 @@ public class InMemoryTextProvider : IMessageProvider
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_RemoveQueue_Button => "Remove queue",
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_MakeQueueStatic_Button => "Make static",
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_MakeQueueDynamic_Button => "Make dynamic",
+            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_SwapPositions_Button => "Swap positions",
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_QueueIsEmpty_Message => "Queue <b>'{0}'</b> has no participants.",
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_Message => "Queue <b>'{0}'</b> has these participants:\n",
             CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message => "Queue is <i>dynamic</i>",
