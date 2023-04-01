@@ -1,55 +1,47 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Callbacks.CallbackHandlers;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Data.Constants;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Enqueuer.Callbacks.Factories
+namespace Enqueuer.Callbacks.Factories;
+
+public class CallbackHandlersFactory : ICallbackHandlersFactory
 {
-    public class CallbackHandlersFactory : ICallbackHandlersFactory
+    private readonly IServiceProvider _serviceProvider;
+
+    public CallbackHandlersFactory(IServiceProvider serviceProvider)
     {
-        private readonly IChatService _chatService;
-        private readonly IUserService _userService;
-        private readonly IQueueService _queueService;
-        private readonly IUserInQueueService _userInQueueService;
-        private readonly IDataSerializer _dataSerializer;
+        _serviceProvider = serviceProvider;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CallbackHandlersFactory"/> class.
-        /// </summary>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="queueService">Queue service to use.</param>
-        /// <param name="userInQueueService">User in queue service to use.</param>
-        /// <param name="dataSerializer"></param>
-        public CallbackHandlersFactory(
-            IChatService chatService,
-            IUserService userService,
-            IQueueService queueService,
-            IUserInQueueService userInQueueService,
-            IDataSerializer dataSerializer)
+    public bool TryCreateCallbackHandler(Callback callback, [NotNullWhen(true)] out ICallbackHandler? callbackHandler)
+    {
+        callbackHandler = null;
+        if (callback == null || callback.CallbackData == null)
         {
-            _chatService = chatService;
-            _userService = userService;
-            _queueService = queueService;
-            _userInQueueService = userInQueueService;
-            _dataSerializer = dataSerializer;
+            return false;
         }
 
-        public IEnumerable<ICallbackHandler> CreateCallbackHandlers()
+        return TryCreateCallbackHandler(callback.CallbackData.Command, out callbackHandler);
+    }
+
+    private bool TryCreateCallbackHandler(string command, out ICallbackHandler? callbackHandler)
+    {
+        callbackHandler = command switch
         {
-            return new ICallbackHandler[]
-            {
-                new EnqueueMeCallbackHandler(_chatService, _userService, _queueService, _userInQueueService),
-                new GetChatCallbackHandler(_chatService, _dataSerializer),
-                new GetQueueCallbackHandler(_queueService, _userService, _dataSerializer),
-                new ListChatsCallbackHandler(_userService, _dataSerializer),
-                new EnqueueCallbackHandler(_queueService, _userInQueueService, _dataSerializer),
-                new EnqueueAtCallbackHandler(_userService, _queueService, _userInQueueService, _dataSerializer),
-                new DequeueMeCallbackHandler(_userService, _queueService, _userInQueueService, _dataSerializer),
-                new RemoveQueueCallbackHandler(_queueService, _dataSerializer),
-                new SwitchQueueDynamicHandler(_queueService, _userInQueueService, _dataSerializer),
-            };
-        }
+            CallbackConstants.EnqueueMeCommand => _serviceProvider.GetRequiredService<EnqueueMeCallbackHandler>(),
+            CallbackConstants.GetChatCommand => _serviceProvider.GetRequiredService<GetChatCallbackHandler>(),
+            CallbackConstants.GetQueueCommand => _serviceProvider.GetRequiredService<GetQueueCallbackHandler>(),
+            CallbackConstants.ListChatsCommand => _serviceProvider.GetRequiredService<ListChatsCallbackHandler>(),
+            CallbackConstants.EnqueueCommand => _serviceProvider.GetRequiredService<EnqueueCallbackHandler>(),
+            CallbackConstants.EnqueueAtCommand => _serviceProvider.GetRequiredService<EnqueueAtCallbackHandler>(),
+            CallbackConstants.DequeueMeCommand => _serviceProvider.GetRequiredService<DequeueMeCallbackHandler>(),
+            CallbackConstants.RemoveQueueCommand => _serviceProvider.GetRequiredService<RemoveQueueCallbackHandler>(),
+            CallbackConstants.SwitchQueueDynamicCommand => _serviceProvider.GetRequiredService<SwitchQueueCallbackHandler>(),
+            _ => null
+        };
+
+        return callbackHandler != null;
     }
 }

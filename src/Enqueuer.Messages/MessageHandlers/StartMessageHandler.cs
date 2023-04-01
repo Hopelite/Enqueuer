@@ -1,78 +1,66 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
-using Enqueuer.Services.Interfaces;
-using Enqueuer.Data.Configuration;
+using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
+using Enqueuer.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Messages.MessageHandlers
+namespace Enqueuer.Messages.MessageHandlers;
+
+public class StartMessageHandler : IMessageHandler
 {
-    /// <inheritdoc/>
-    public class StartMessageHandler : MessageHandlerBase
+    private readonly ITelegramBotClient _botClient;
+    private readonly IMessageProvider _messageProvider;
+    private readonly IUserService _userService;
+    private readonly IDataSerializer _dataSerializer;
+
+    public StartMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IUserService userService, IDataSerializer dataSerializer)
     {
-        private readonly IBotConfiguration botConfiguration;
-        private readonly IDataSerializer dataSerializer;
+        _botClient = botClient;
+        _messageProvider = messageProvider;
+        _userService = userService;
+        _dataSerializer = dataSerializer;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StartMessageHandler"/> class.
-        /// </summary>
-        /// <param name="botConfiguration"><see cref="IBotConfiguration"/> with bot configuration.</param>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="dataSerializer"><see cref="IDataDeserializer"/> to serialize data for callback handlers.</param>
-        public StartMessageHandler(
-            IBotConfiguration botConfiguration,
-            IChatService chatService,
-            IUserService userService,
-            IDataSerializer dataSerializer)
-            : base(chatService, userService)
+    public Task HandleAsync(Message message)
+    {
+        if (!message.IsFromPrivateChat())
         {
-            this.botConfiguration = botConfiguration;
-            this.dataSerializer = dataSerializer;
-        }
-
-        /// <inheritdoc/>
-        public override string Command => MessageConstants.StartCommand;
-
-        /// <inheritdoc/>
-        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
-        {
-            if (message.IsPrivateChat())
-            {
-                await this.userService.GetNewOrExistingUserAsync(message.From);
-                var callbackButtonData = new CallbackData()
-                {
-                    Command = CallbackConstants.ListChatsCommand,
-                };
-
-                var serializedCallbackData = this.dataSerializer.Serialize(callbackButtonData);
-                var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
-                {
-                    InlineKeyboardButton.WithCallbackData("View chats", serializedCallbackData),
-                });
-
-                return await botClient.SendTextMessageAsync(
-                    message.Chat.Id,
-                    "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
-                    + "And your personal queue manager too!\n"
-                    + "Start by pressing the button below:",
-                    ParseMode.Html,
-                    replyMarkup: viewChatsButton);
-            }
-
-            await this.GetNewOrExistingUserAndChat(message);
-            return await botClient.SendTextMessageAsync(
+            return _botClient.SendTextMessageAsync(
                 message.Chat,
-                "Hello there! I'm <b>Enqueuer Bot</b>, the master of creating and managing queues.\n"
-                + "To get the list of commands, write '<b>/help</b>'.\n"
-                + "<i>Please, message this guy (@hopelite) to get help, give feedback or report a bug.</i>\n"
-                + $"\n<i>Bot version: {this.botConfiguration.BotVersion}</i>",
+                _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PublicChat_Message),
                 ParseMode.Html);
         }
+
+        return HandlePrivateChatAsync(message);
+    }
+
+    private async Task HandlePrivateChatAsync(Message message)
+    {
+        await _userService.GetOrStoreUserAsync(message.From!, CancellationToken.None);
+
+        var callbackButtonData = new CallbackData()
+        {
+            Command = CallbackConstants.ListChatsCommand,
+        };
+
+        var serializedCallbackData = _dataSerializer.Serialize(callbackButtonData);
+
+        var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
+        {
+            InlineKeyboardButton.WithCallbackData(_messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
+        });
+
+        await _botClient.SendTextMessageAsync(
+            message.Chat,
+            _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_Message),
+            ParseMode.Html,
+            replyMarkup: viewChatsButton);
     }
 }

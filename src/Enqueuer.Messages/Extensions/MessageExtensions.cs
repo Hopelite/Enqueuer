@@ -1,21 +1,20 @@
 ﻿using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace Enqueuer.Messages.Extensions
+namespace Enqueuer.Messages.Extensions;
+
+/// <summary>
+/// Contains extension methods for <see cref="Message"/>.
+/// </summary>
+public static class MessageExtensions
 {
     /// <summary>
-    /// Contains extension methods for <see cref="Message"/>.
+    /// Checks if <paramref name="message"/> was sent in private chat.
     /// </summary>
-    public static class MessageExtensions
+    /// <param name="message"><see cref="Message"/> to check.</param>
+    /// <returns>True, if message came from private chat; false otherwise.</returns>
+    public static bool IsFromPrivateChat(this Message message)
     {
-        /// <summary>
-        /// Checks if <paramref name="message"/> was sent in private chat.
-        /// </summary>
-        /// <param name="message"><see cref="Message"/> to check.</param>
-        /// <returns>True, if message came from private chat; false otherwise.</returns>
-        public static bool IsPrivateChat(this Message message)
-        {
-            return message.Chat.Type == ChatType.Private;
-        }
+        return message.Chat.Type == ChatType.Private;
     }
 }

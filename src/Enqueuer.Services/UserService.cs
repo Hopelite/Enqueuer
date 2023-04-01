@@ -1,53 +1,51 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Persistence;
+using Enqueuer.Services.Extensions;
 using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Services
-{
-    /// <inheritdoc/>
-    public class UserService : IUserService
-    {
-        private readonly IRepository<User> userRepository;
+namespace Enqueuer.Services;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserService"/> class.
-        /// </summary>
-        /// <param name="userRepository"><see cref="IRepository{T}"/> with <see cref="User"/> entities.</param>
-        public UserService(IRepository<User> userRepository)
+public class UserService : IUserService
+{
+    private readonly EnqueuerContext _enqueuerContext;
+
+    public UserService(EnqueuerContext enqueuerContext)
+    {
+        _enqueuerContext = enqueuerContext;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<User> GetOrStoreUserAsync(Telegram.Bot.Types.User telegramUser, CancellationToken cancellationToken)
+    {
+        if (telegramUser == null)
         {
-            this.userRepository = userRepository;
+            throw new ArgumentNullException(nameof(telegramUser));
         }
 
-        /// <inheritdoc/>
-        public async Task<User> GetNewOrExistingUserAsync(Telegram.Bot.Types.User telegramUser)
+        return GetOrStoreUserAsyncInternal(telegramUser, cancellationToken);
+    }
+
+    private async Task<User> GetOrStoreUserAsyncInternal(Telegram.Bot.Types.User telegramUser, CancellationToken cancellationToken)
+    {
+        var user = await _enqueuerContext.Users.FindAsync(new object[] { telegramUser.Id }, cancellationToken);
+        if (user == null)
         {
-            var user = this.GetUserByUserId(telegramUser.Id);
-
-            if (user is null)
-            {
-                await this.userRepository.AddAsync(telegramUser);
-                return this.GetUserByUserId(telegramUser.Id);
-            }
-
+            user = telegramUser.ConvertToEntity();
+            _enqueuerContext.Add(user);
+            await _enqueuerContext.SaveChangesAsync(cancellationToken);
             return user;
         }
 
-        /// <inheritdoc/>
-        public User GetUserByUserId(long userId)
+        if (user.FirstName != telegramUser.FirstName || !string.Equals(user.LastName, telegramUser.LastName))
         {
-            return this.userRepository.GetAll()
-                    .FirstOrDefault(user => user.UserId == userId);
+            user.FirstName = telegramUser.FirstName;
+            user.LastName = telegramUser.LastName;
+            await _enqueuerContext.SaveChangesAsync(cancellationToken);
         }
 
-        /// <inheritdoc/>
-        public IEnumerable<Chat> GetUserChats(long userId)
-        {
-            return this.userRepository.GetAll()
-                .FirstOrDefault(user => user.UserId == userId)?.Chats;
-        }
+        return user;
     }
 }

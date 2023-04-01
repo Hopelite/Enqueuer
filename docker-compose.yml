@@ -1,0 +1,12 @@
+services:
+  enqueuer-app:
+    image: hopelite/enqueuer-bot:final
+    ports:
+      - 8443:8443
+    volumes:
+      - enqueuer-data:/home/data/
+    environment:
+      - ConnectionStrings__Default=/home/data/enqueuer.db
+
+volumes:
+  enqueuer-data:

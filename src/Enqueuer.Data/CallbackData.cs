@@ -17,12 +17,15 @@ namespace Enqueuer.Data
         /// Gets or sets chat ID.
         /// </summary>
         [JsonProperty("id")]
-        public int ChatId { get; set; }
+        public long ChatId { get; set; }
 
         /// <summary>
         /// Optional. Gets or sets callback queue data.
         /// </summary>
         [JsonProperty("d")]
         public QueueData QueueData { get; set; }
+
+        [JsonIgnore]
+        public bool HasUserAgreement => QueueData?.IsUserAgreed.HasValue ?? false;
     }
 }

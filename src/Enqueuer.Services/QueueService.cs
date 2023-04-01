@@ -1,66 +1,241 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Persistence;
 using Enqueuer.Persistence.Models;
-using Enqueuer.Persistence.Repositories;
-using Enqueuer.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-namespace Enqueuer.Services
+namespace Enqueuer.Services;
+
+public class QueueService : IQueueService
 {
-    public class QueueService : IQueueService
+    private readonly EnqueuerContext _enqueuerContext;
+
+    public QueueService(EnqueuerContext enqueuerContext)
     {
-        private readonly IRepository<Queue> _queueRepository;
+        _enqueuerContext = enqueuerContext;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QueueService"/> class.
-        /// </summary>
-        /// <param name="queueRepository"><see cref="IRepository{T}"/> with <see cref="Queue"/> entities.</param>
-        public QueueService(IRepository<Queue> queueRepository)
+    public Task<Queue?> GetQueueAsync(int id, bool includeMembers, CancellationToken cancellationToken)
+    {
+        if (includeMembers)
         {
-            _queueRepository = queueRepository;
+            return _enqueuerContext.Queues.Include(q => q.Members)
+                .ThenInclude(m => m.User)
+                .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
         }
 
-        public Queue GetChatQueueByName(string name, long chatId)
+        return _enqueuerContext.Queues.FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task AddQueueAsync(Queue queue, CancellationToken cancellationToken)
+    {
+        if (queue == null)
         {
-            return _queueRepository.GetAll()
-                .FirstOrDefault(queue => queue.Chat.ChatId == chatId && queue.Name.Equals(name));
+            throw new ArgumentNullException(nameof(queue));
         }
 
-        public IEnumerable<Queue> GetChatQueues(int chatId)
+        _enqueuerContext.Queues.Add(queue);
+        return _enqueuerContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task DeleteQueueAsync(Queue queue, CancellationToken cancellationToken)
+    {
+        if (queue == null)
         {
-            return _queueRepository.GetAll()
-                .Where(queue => queue.ChatId == chatId);
+            throw new ArgumentNullException(nameof(queue));
         }
 
-        public IEnumerable<Queue> GetTelegramChatQueues(long chatId)
+        _enqueuerContext.Queues.Remove(queue);
+        return _enqueuerContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<bool> TryEnqueueUserOnPositionAsync(User user, int queueId, int position, CancellationToken cancellationToken)
+    {
+        if (user == null)
         {
-            return _queueRepository.GetAll()
-                .Where(queue => queue.Chat.ChatId == chatId);
+            throw new ArgumentNullException(nameof(user));
         }
 
-        public Queue GetQueueById(int id)
+        return TryAddUserOnPositionAsyncInternal(user, queueId, position, cancellationToken);
+    }
+
+    private async Task<bool> TryAddUserOnPositionAsyncInternal(User user, int queueId, int position, CancellationToken cancellationToken)
+    {
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
         {
-            return _queueRepository.Get(id);
+            throw new ArgumentException("Queue with the specified ID does not exist.", nameof(queueId));
         }
 
-        public async Task RemoveUserAsync(Queue queue, User user)
+        if (queue.Members.Any(m => m.Position == position))
         {
-            var userToRemove = queue.Users.FirstOrDefault(queueUser => queueUser.UserId == user.Id);
-            if (userToRemove is not null)
+            return false;
+        }
+
+        queue.Members.Add(new QueueMember
+        {
+            Position = position,
+            UserId = user.Id,
+            QueueId = queueId
+        });
+
+        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<int> AddAtFirstAvailablePosition(User user, int queueId, CancellationToken cancellationToken)
+    {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user));
+        }
+
+        return AddAtFirstAvailablePositionInternal(user, queueId, cancellationToken);
+    }
+
+    private async Task<int> AddAtFirstAvailablePositionInternal(User user, int queueId, CancellationToken cancellationToken)
+    {
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
+        {
+            throw new ArgumentException("Queue with the specified ID does not exist.", nameof(queueId));
+        }
+        
+        var firstUnreservedPosition = _enqueuerContext.Positions
+            .GroupJoin(_enqueuerContext.QueueMembers.Where(qm => qm.QueueId == queueId),
+                    p => p.Value,
+                    qm => qm.Position,
+                    (p, qms) => new { Position = p, QueueMembers = qms })
+            .Where(x => !x.QueueMembers.Any())
+            .Select(x => x.Position.Value)
+            .Min();
+
+        _enqueuerContext.QueueMembers.Add(new QueueMember
+        {
+            Position = firstUnreservedPosition,
+            UserId = user.Id,
+            QueueId = queueId
+        });
+
+        _enqueuerContext.SaveChanges();
+
+        return firstUnreservedPosition;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<bool> TryDequeueUserAsync(User user, int queueId, CancellationToken cancellationToken)
+    {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user));
+        }
+
+        return TryDequeueUserAsyncInternal(user, queueId, cancellationToken);
+    }
+
+    private async Task<bool> TryDequeueUserAsyncInternal(User user, int queueId, CancellationToken cancellationToken)
+    {
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
+        {
+            throw new ArgumentException("Queue with the specified ID does not exist.", nameof(queueId));
+        }
+
+        var userInQueue = queue.Members.FirstOrDefault(m => m.UserId == user.Id);
+        if (userInQueue == null)
+        {
+            return false;
+        }
+
+        queue.Members.Remove(userInQueue);
+        if (queue.IsDynamic)
+        {
+            CompressQueuePositions(queue);
+        }
+
+        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
+    public Task<Queue?> GetQueueByNameAsync(long groupId, string name, bool includeMembers, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+
+        return GetQueueAsyncInternal(groupId, name, includeMembers, cancellationToken);
+    }
+
+    private Task<Queue?> GetQueueAsyncInternal(long groupId, string name, bool includeMembers, CancellationToken cancellationToken)
+    {
+        if (includeMembers)
+        {
+            return _enqueuerContext.Queues.Include(q => q.Members)
+                .ThenInclude(m => m.User)
+                .FirstOrDefaultAsync(q => q.GroupId == groupId && q.Name.Equals(name), cancellationToken);
+        }
+
+        return _enqueuerContext.Queues.FirstOrDefaultAsync(q => q.GroupId == groupId && q.Name.Equals(name), cancellationToken);
+    }
+
+    public Task<List<Queue>> GetGroupQueuesAsync(long groupId, CancellationToken cancellationToken)
+    {
+        return _enqueuerContext.Queues.Where(q => q.GroupId == groupId).ToListAsync(cancellationToken);
+    }
+
+    public async Task SwitchQueueStatusAsync(long queueId, CancellationToken cancellationToken)
+    {
+        var queue = await _enqueuerContext.Queues.Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
+        {   
+            return; // TODO: throw exception or return false
+        }
+
+        queue.IsDynamic = !queue.IsDynamic;
+        if (queue.IsDynamic)
+        {
+            CompressQueuePositions(queue);
+        }
+
+        _enqueuerContext.Update(queue);
+        await _enqueuerContext.SaveChangesAsync();
+    }
+
+    private static void CompressQueuePositions(Queue queue)
+    {
+        var members = queue.Members.OrderBy(m => m.Position);
+        var currentPosition = 1;
+        foreach (var member in members)
+        {
+            if (member.Position != currentPosition)
             {
-                queue.Users.Remove(userToRemove);
-                await _queueRepository.UpdateAsync(queue);
+                member.Position = currentPosition;
             }
-        }
 
-        public async Task DeleteQueueAsync(Queue queue)
-        {
-            await _queueRepository.DeleteAsync(queue);
-        }
-
-        public async Task UpdateQueueAsync(Queue queue)
-        {
-            await _queueRepository.UpdateAsync(queue);
+            currentPosition++;
         }
     }
 }

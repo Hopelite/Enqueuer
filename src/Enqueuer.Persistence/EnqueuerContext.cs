@@ -1,47 +1,53 @@
-﻿using Enqueuer.Persistence.Models;
+﻿using Enqueuer.Persistence.EntityConfigurations;
+using Enqueuer.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Enqueuer.Persistence 
+namespace Enqueuer.Persistence;
+
+/// <summary>
+/// A <see cref="DbContext"/> to work with Enqueuer Bot entities.
+/// </summary>
+public class EnqueuerContext : DbContext
 {
     /// <summary>
-    /// A <see cref="DbContext"/> to work with Enqueuer Bot entities.
+    /// Telegram groups and supergroups known to the bot.
     /// </summary>
-    public class EnqueuerContext : DbContext
+    public DbSet<Group> Groups { get; set; }
+
+    /// <summary>
+    /// Telegram users known to the bot.
+    /// </summary>
+    public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    /// Created queues.
+    /// </summary>
+    public DbSet<Queue> Queues { get; set; }
+
+    /// <summary>
+    /// Queue members with their positions.
+    /// </summary>
+    public DbSet<QueueMember> QueueMembers { get; set; }
+
+    /// <summary>
+    /// Readonly. All possible positions in queue.
+    /// </summary>
+    public DbSet<Position> Positions { get; set; }
+
+    public EnqueuerContext(DbContextOptions<EnqueuerContext> dbContextOptions)
+        : base(dbContextOptions)
     {
-        /// <summary>
-        /// Gets or sets queryable set of <see cref="Chat"/> entities.
-        /// </summary>
-        public DbSet<Chat> Chats { get; set; }
+    }
 
-        /// <summary>
-        /// Gets or sets queryable set of <see cref="User"/> entities.
-        /// </summary>
-        public DbSet<User> Users { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyConfiguration(new GroupChatEntityConfiguration())
+            .ApplyConfiguration(new UserEntityConfiguration())
+            .ApplyConfiguration(new QueueEntityConfiguration())
+            .ApplyConfiguration(new QueueMemberEntityConfiguration())
+            .ApplyConfiguration(new PositionEntityConfiguration());
 
-        /// <summary>
-        /// Gets or sets queryable set of <see cref="Queue"/> entities.
-        /// </summary>
-        public DbSet<Queue> Queues { get; set; }
-
-        /// <summary>
-        /// Gets or sets queryable set of <see cref="UserInQueue"/> entities.
-        /// </summary>
-        public DbSet<UserInQueue> UserInQueue { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EnqueuerContext"/> class.
-        /// </summary>
-        /// <param name="dbContextOptions">The options for <see cref="EnqueuerContext"/>.</param>
-        public EnqueuerContext(DbContextOptions<EnqueuerContext> dbContextOptions)
-            : base(dbContextOptions)
-        {
-            Database.EnsureCreated();
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseLazyLoadingProxies();
-            base.OnConfiguring(optionsBuilder);
-        }
+        base.OnModelCreating(modelBuilder);
     }
 }

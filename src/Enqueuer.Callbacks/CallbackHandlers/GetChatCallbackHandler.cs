@@ -1,97 +1,109 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
+using Enqueuer.Data.TextProviders;
 using Enqueuer.Persistence.Models;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Services;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers
+namespace Enqueuer.Callbacks.CallbackHandlers;
+
+public class GetChatCallbackHandler : CallbackHandlerBase
 {
-    /// <inheritdoc/>
-    public class GetChatCallbackHandler : CallbackHandlerBase
+    private readonly IQueueService _queueService;
+    private readonly IGroupService _groupService;
+    private readonly ILogger<EnqueueMeCallbackHandler> _logger;
+
+    public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, IDataSerializer dataSerializer, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
+        : base(telegramBotClient, dataSerializer, messageProvider)
     {
-        private const string UnableToCreateQueueMessage = "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>";
-        private readonly IChatService _chatService;
+        _queueService = queueService;
+        _groupService = groupService;
+        _logger = logger;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GetChatCallbackHandler"/> class.
-        /// </summary>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="dataSerializer"><see cref="IDataSerializer"/> to serialize with.</param>
-        public GetChatCallbackHandler(IChatService chatService, IDataSerializer dataSerializer)
-            : base(dataSerializer)
+    protected override Task HandleAsyncImplementation(Callback callback)
+    {
+        if (callback.CallbackData == null)
         {
-            _chatService = chatService;
+            _logger.LogWarning("Handled outdated callback.");
+            return TelegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                ParseMode.Html);
         }
 
-        public override string Command => CallbackConstants.GetChatCommand;
+        return HandleAsyncInternal(callback);
+    }
 
-        protected override async Task<Message> HandleCallbackAsyncImplementation(ITelegramBotClient botClient, CallbackQuery callbackQuery, CallbackData callbackData)
+    private async Task HandleAsyncInternal(Callback callback)
+    {
+        if (!await _groupService.DoesGroupExist(callback.CallbackData!.ChatId))
         {
-            var chatQueues = _chatService.GetChatById(callbackData.ChatId)?.Queues.ToList();
-            if (chatQueues is null)
-            {
-                return await botClient.EditMessageTextAsync(
-                        callbackQuery.Message.Chat,
-                        callbackQuery.Message.MessageId,
-                        "This chat has been deleted.",
-                        replyMarkup: GetReturnButton());
-            }
+            await TelegramBotClient.EditMessageTextAsync(
+                callback.Message.Chat,
+                callback.Message.MessageId,
+                MessageProvider.GetMessage(CallbackMessageKeys.ChatHasBeenDeleted_Message),
+                replyMarkup: GetReturnButton());
 
-            var responseMessage = (chatQueues.Count == 0
-                ? "This chat has no queues. Are you thinking of creating one?"
-                : "This chat has these queues. You can manage any one of them be selecting it.")
-                + UnableToCreateQueueMessage;
-
-            var replyMarkup = BuildReplyMarkup(chatQueues, callbackData, callbackData.ChatId);
-            return await botClient.EditMessageTextAsync(
-                    callbackQuery.Message.Chat,
-                    callbackQuery.Message.MessageId,
-                    responseMessage,
-                    ParseMode.Html,
-                    replyMarkup: replyMarkup);
+            return;
         }
 
-        private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, int chatId)
+        var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.ChatId, CancellationToken.None);
+        var responseMessage = (queues.Count == 0
+            ? MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ChatHasNoQueues_Message)
+            : MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_Message))
+                + MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_PostScriptum_Message);
+
+        var replyMarkup = BuildReplyMarkup(queues, callback.CallbackData, callback.CallbackData.ChatId);
+        await TelegramBotClient.EditMessageTextAsync(
+            callback.Message.Chat,
+            callback.Message.MessageId,
+            responseMessage,
+            ParseMode.Html,
+            replyMarkup: replyMarkup);
+    }
+
+    private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, long chatId)
+    {
+        var replyButtons = new InlineKeyboardButton[chatQueues.Count + 2][];
+        for (int i = 0; i < chatQueues.Count; i++)
         {
-            var replyButtons = new InlineKeyboardButton[chatQueues.Count + 2][];
-            for (int i = 0; i < chatQueues.Count; i++)
+            var newCallbackData = new CallbackData()
             {
-                var newCallbackData = new CallbackData()
+                Command = CallbackConstants.GetQueueCommand,
+                ChatId = chatId,
+                QueueData = new QueueData()
                 {
-                    Command = CallbackConstants.GetQueueCommand,
-                    ChatId = chatId,
-                    QueueData = new QueueData()
-                    {
-                        QueueId = chatQueues[i].Id,
-                    },
-                };
-
-                var serializedCallbackData = DataSerializer.Serialize(newCallbackData);
-                replyButtons[i] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData($"'{chatQueues[i].Name}'", serializedCallbackData) };
-            }
-
-            replyButtons[^2] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
-            replyButtons[^1] = new InlineKeyboardButton[] { GetReturnButton() };
-            return new InlineKeyboardMarkup(replyButtons);
-        }
-
-        private InlineKeyboardButton GetReturnButton()
-        {
-            var callbackData = new CallbackData()
-            {
-                Command = CallbackConstants.ListChatsCommand,
+                    QueueId = chatQueues[i].Id,
+                },
             };
 
-            var serializedCallbackData = this.DataSerializer.Serialize(callbackData);
-            return InlineKeyboardButton.WithCallbackData("Return", serializedCallbackData);
+            var serializedCallbackData = DataSerializer.Serialize(newCallbackData);
+            replyButtons[i] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData($"'{chatQueues[i].Name}'", serializedCallbackData) };
         }
+
+        replyButtons[^2] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
+        replyButtons[^1] = new InlineKeyboardButton[] { GetReturnButton() };
+        return new InlineKeyboardMarkup(replyButtons);
+    }
+
+    private InlineKeyboardButton GetReturnButton()
+    {
+        var callbackData = new CallbackData()
+        {
+            Command = CallbackConstants.ListChatsCommand,
+        };
+
+        var serializedCallbackData = DataSerializer.Serialize(callbackData);
+        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Return_Button), serializedCallbackData);
     }
 }

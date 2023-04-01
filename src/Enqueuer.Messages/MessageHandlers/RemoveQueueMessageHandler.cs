@@ -1,97 +1,100 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data.Constants;
-using Enqueuer.Services.Interfaces;
+using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
+using Enqueuer.Persistence.Models;
+using Enqueuer.Services;
+using Enqueuer.Services.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Chat = Enqueuer.Persistence.Models.Chat;
 using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Messages.MessageHandlers
+namespace Enqueuer.Messages.MessageHandlers;
+
+public class RemoveQueueMessageHandler : IMessageHandler
 {
-    /// <inheritdoc/>
-    public class RemoveQueueMessageHandler : MessageHandlerBase
+    private readonly ITelegramBotClient _botClient;
+    private readonly IMessageProvider _messageProvider;
+    private readonly IGroupService _groupService;
+    private readonly IQueueService _queueService;
+
+    public RemoveQueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService)
     {
-        private readonly IQueueService queueService;
+        _botClient = botClient;
+        _messageProvider = messageProvider;
+        _groupService = groupService;
+        _queueService = queueService;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RemoveQueueMessageHandler"/> class.
-        /// </summary>
-        /// <param name="chatService">Chat service to use.</param>
-        /// <param name="userService">User service to use.</param>
-        /// <param name="queueService">Queue service to use.</param>
-        public RemoveQueueMessageHandler(
-            IChatService chatService,
-            IUserService userService,
-            IQueueService queueService)
-            : base(chatService, userService)
+    public Task HandleAsync(Message message)
+    {
+        if (message.IsFromPrivateChat())
         {
-            this.queueService = queueService;
+            return _botClient.SendTextMessageAsync(
+                message.Chat,
+                _messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
+                ParseMode.Html);
         }
 
-        /// <inheritdoc/>
-        public override string Command => MessageConstants.RemoveQueueCommand;
+        return HandlePublicChatAsync(message);
+    }
 
-        /// <inheritdoc/>
-        public override async Task<Message> HandleMessageAsync(ITelegramBotClient botClient, Message message)
+    private async Task HandlePublicChatAsync(Message message)
+    {
+        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+
+        var messageWords = message.Text!.SplitToWords();
+        if (messageWords.HasParameters())
         {
-            if (message.IsPrivateChat())
-            {
-                return await botClient.SendUnsupportedOperationMessage(message);
-            }
-
-            var messageWords = message.Text.SplitToWords();
-            if (messageWords.HasParameters())
-            {
-                var (user, chat) = await this.GetNewOrExistingUserAndChat(message);
-                return await HandleMessageWithParameters(botClient, message, messageWords, user, chat);
-            }
-
-            return await botClient.SendTextMessageAsync(
-                    message.Chat.Id,
-                    "To delete queue, please write command this way: '<b>/removequeue</b> <i>[queue_name]</i>'.",
-                    ParseMode.Html);
+            await HandleMessageWithParameters(messageWords, message, group, user);
+            return;
         }
 
-        private async Task<Message> HandleMessageWithParameters(ITelegramBotClient botClient, Message message, string[] messageWords, User user, Chat chat)
+        await _botClient.SendTextMessageAsync(
+                message.Chat.Id,
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                ParseMode.Html);
+    }
+
+    private async Task HandleMessageWithParameters(string[] messageWords, Message message, Group group, User user)
+    {
+        var queueName = messageWords.GetQueueName();
+        var queue = group.GetQueueByName(queueName);
+        if (queue == null)
         {
-            var queueName = messageWords.GetQueueName();
-            var queue = this.queueService.GetChatQueueByName(queueName, chat.ChatId);
-            if (queue is null)
-            {
-                return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"There is no queue with name '<b>{queueName}</b>'. You can get list of chat queues using '<b>/queue</b>' command.",
-                    ParseMode.Html,
-                    replyToMessageId: message.MessageId);
-            }
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId);
 
-            if (queue.Creator.UserId != user.UserId)
-            {
-                if (!await IsUserAnAdmin(botClient, chat, user))
-                {
-                    return await botClient.SendTextMessageAsync(
-                                chat.ChatId,
-                                $"Unable to delete queue '<b>{queueName}</b>'. It can be deleted only by it's creator or chat administrators.",
-                                ParseMode.Html,
-                                replyToMessageId: message.MessageId);
-                }
-            }
-
-            await this.queueService.DeleteQueueAsync(queue);
-            return await botClient.SendTextMessageAsync(
-                    chat.ChatId,
-                    $"Successfully deleted queue '<b>{queueName}</b>'!",
-                    ParseMode.Html,
-                    replyToMessageId: message.MessageId);
+            return;
         }
 
-        private static async Task<bool> IsUserAnAdmin(ITelegramBotClient botClient, Chat chat, User user)
+        if (queue.Creator.Id != user.Id && !await IsUserAdmin(group, user))
         {
-            var admins = await botClient.GetChatAdministratorsAsync(chat.ChatId);
-            return admins.Any(admin => admin.User.Id == user.UserId);
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message, queueName),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId);
+
+            return;
         }
+
+        await _queueService.DeleteQueueAsync(queue, CancellationToken.None);
+        await _botClient.SendTextMessageAsync(
+                group.Id,
+                _messageProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message, queueName),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId);
+    }
+
+    private async Task<bool> IsUserAdmin(Group group, User user)
+    {
+        var admins = await _botClient.GetChatAdministratorsAsync(group.Id);
+        return admins.Any(admin => admin.User.Id == user.Id);
     }
 }
