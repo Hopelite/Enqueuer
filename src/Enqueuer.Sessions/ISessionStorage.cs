@@ -17,5 +17,5 @@ public interface ISessionStorage
     /// <summary>
     /// Updates the existing <paramref name="session"/> in storage.
     /// </summary>
-    Task UpdateSessionsAsync(Session session, CancellationToken cancellationToken);
+    Task UpdateSessionAsync(Session session, CancellationToken cancellationToken);
 }
