@@ -103,7 +103,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
 
         if (doesUserParticipate)
         {
-            replyMarkupButtons.Add(new InlineKeyboardButton[] { GetQueueRelatedButton("Exchange positions", CallbackConstants.ExchangePositionsCommand, callbackData, queue.Id) });
+            replyMarkupButtons.Add(new InlineKeyboardButton[] { GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_SwapPositions_Button), CallbackConstants.ExchangePositionsCommand, callbackData, queue.Id) });
         }
 
         replyMarkupButtons.Add(new InlineKeyboardButton[] { GetRefreshButton(callbackData) });

@@ -44,6 +44,8 @@ public static class CallbackMessageKeys
         public const string GetQueueCallback_ListQueueMembers_Message = "GetQueueCallback_ListQueueMembers_Message";
 
         public const string GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message = "GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message";
+
+        public const string GetQueueCallback_SwapPositions_Button = "GetQueueCallback_SwapPositions_Button";
     }
 
     public static class EnqueueCallbackHandler
