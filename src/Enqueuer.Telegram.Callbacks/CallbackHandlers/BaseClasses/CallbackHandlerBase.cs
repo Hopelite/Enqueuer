@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Exceptions;
 using Enqueuer.Telegram.Core.Localization;
