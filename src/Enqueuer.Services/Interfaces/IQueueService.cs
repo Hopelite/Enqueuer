@@ -41,6 +41,11 @@ public interface IQueueService
     Task AddQueueAsync(Queue queue, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Tries to add the <paramref name="queue"/> if it doesn't exist salready.
+    /// </summary>
+    Task<bool> TryAddQueueAsync(Queue queue, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Deletes the <paramref name="queue"/>.
     /// </summary>
     Task DeleteQueueAsync(Queue queue, CancellationToken cancellationToken);

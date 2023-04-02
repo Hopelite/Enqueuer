@@ -253,6 +253,30 @@ public class QueueService : IQueueService
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
+    public Task<bool> TryAddQueueAsync(Queue queue, CancellationToken cancellationToken)
+    {
+        if (queue == null)
+        {
+            throw new ArgumentNullException(nameof(queue));
+        }
+
+        return TryAddQueueAsyncInternal(queue, cancellationToken);
+    }
+
+    private async Task<bool> TryAddQueueAsyncInternal(Queue queue, CancellationToken cancellationToken)
+    {
+        if (_enqueuerContext.Queues.Any(q => q.Id == queue.Id))
+        {
+            return false;
+        }
+
+        _enqueuerContext.Queues.Add(queue);
+        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"/>
     public Task DeleteQueueAsync(Queue queue, CancellationToken cancellationToken)
     {
         if (queue == null)

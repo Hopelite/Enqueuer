@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
 namespace Enqueuer.Sessions.Types;
 
@@ -10,10 +10,10 @@ public class CommandContext
     /// <summary>
     /// Command text without parameters.
     /// </summary>
-    public string Command { get; set; }
+    public string Command { get; init; }
 
     /// <summary>
-    /// Parameters that were specified after the command. 
+    /// Command parameters that were either specified after the command text or added to the context later. 
     /// </summary>
-    public CommandParameter[] Parameters { get; set; } = Array.Empty<CommandParameter>();
+    public IDictionary<string, CommandParameter> Parameters { get; init; } = new Dictionary<string, CommandParameter>();
 }

@@ -154,7 +154,7 @@ public class GroupService : IGroupService
         }
     }
 
-    public async Task<IEnumerable<Group>> GetUserGroups(long userId, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Group>> GetUserGroupsAsync(long userId, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
