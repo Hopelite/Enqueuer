@@ -1,7 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Callbacks.Exceptions;
+//using Enqueuer.Callbacks.Exceptions;
 using Enqueuer.Callbacks.Extensions;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
@@ -30,7 +31,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
         _logger = logger;
     }
 
-    protected override Task HandleAsyncImplementation(Callback callback)
+    protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData?.QueueData == null)
         {
@@ -115,6 +116,6 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
         }
 
-        throw new CallbackMessageHandlingException("False 'IsUserAgreed' value passed to message handler.");
+        throw new Exception("False 'IsUserAgreed' value passed to message handler.");
     }
 }

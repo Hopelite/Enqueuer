@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
 namespace Enqueuer.Callbacks.CallbackHandlers;
@@ -11,5 +12,5 @@ public interface ICallbackHandler
     /// <summary>
     /// Handles the incoming <paramref name="callback"/>.
     /// </summary>
-    Task HandleAsync(Callback callback);
+    Task HandleAsync(Callback callback, CancellationToken cancellationToken);
 }

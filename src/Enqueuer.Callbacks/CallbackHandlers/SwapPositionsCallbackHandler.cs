@@ -30,7 +30,7 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
         _logger = logger;
     }
 
-    protected override Task HandleAsyncImplementation(Callback callback)
+    protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData?.QueueData == null)
         {

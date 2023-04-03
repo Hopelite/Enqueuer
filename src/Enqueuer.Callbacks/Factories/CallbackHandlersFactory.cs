@@ -15,7 +15,7 @@ public class CallbackHandlersFactory : ICallbackHandlersFactory
         _serviceProvider = serviceProvider;
     }
 
-    public bool TryCreateCallbackHandler(Callback callback, [NotNullWhen(true)] out ICallbackHandler? callbackHandler)
+    public bool TryCreateCallbackHandler(Callback callback, [NotNullWhen(returnValue: true)] out ICallbackHandler? callbackHandler)
     {
         callbackHandler = null;
         if (callback == null || callback.CallbackData == null)

@@ -7,6 +7,4 @@ public class BotConfiguration : IBotConfiguration
     public string AccessToken { get; set; }
 
     public int QueuesPerChat { get; set; }
-
-    public string BotVersion { get; set; }
 }

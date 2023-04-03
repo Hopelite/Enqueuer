@@ -26,7 +26,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
         _groupService = groupService;
     }
 
-    protected override async Task HandleAsyncImplementation(Callback callback)
+    protected override async Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
         var groups = (await _groupService.GetUserGroups(callback.From.Id, CancellationToken.None)).ToList();
         if (groups.Count == 0)

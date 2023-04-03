@@ -1,4 +1,5 @@
 ﻿using Enqueuer.Callbacks.CallbackHandlers;
+using Enqueuer.Core.Serialization;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Services;
@@ -23,7 +24,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureSerialization(this IServiceCollection services)
     {
         services.AddTransient<IDataSerializer, JsonDataSerializer>();
-        services.AddTransient<IDataDeserializer, JsonDataDeserializer>();
+        services.AddTransient<ICallbackDataDeserializer, JsonCallbackDataDeserializer>();
 
         return services;
     }

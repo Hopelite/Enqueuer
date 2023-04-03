@@ -1,4 +1,5 @@
-﻿using Enqueuer.Callbacks;
+﻿using System.Threading.Tasks;
+using Enqueuer.Callbacks;
 using Enqueuer.Callbacks.Factories;
 using Enqueuer.Data.Configuration;
 using Enqueuer.Data.Exceptions;
@@ -31,18 +32,27 @@ public class Program
 
         var app = builder.Build();
 
+        app.UseMiddleware<LogExceptionsMiddleware>();
+
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
-        app.MapPost($"/bot{botConfiguration.AccessToken}", async (HttpContext context) =>
+        app.MapPost($"/bot{botConfiguration.AccessToken}", async Task<IResult> (HttpContext context) =>
         {
-            if (context.Request.HasJsonContentType())
+            if (!context.Request.HasJsonContentType())
             {
-                var update = await context.DeserializeBodyAsync<Update>();
-                var handler = context.RequestServices.GetRequiredService<IUpdateHandler>();
-                await handler.HandleAsync(update);
+                return Results.StatusCode(StatusCodes.Status415UnsupportedMediaType);
             }
+
+            var update = await context.DeserializeBodyAsync<Update>();
+            if (update == null)
+            {
+                return Results.BadRequest();
+            }
+
+            var handler = context.RequestServices.GetRequiredService<IUpdateHandler>();
+            await handler.HandleAsync(update);
+            return Results.Ok();
         });
 
-        app.UseMiddleware<LogExceptionsMiddleware>();
         app.Run();
     }
 

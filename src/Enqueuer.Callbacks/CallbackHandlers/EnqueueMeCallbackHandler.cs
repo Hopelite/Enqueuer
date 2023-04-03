@@ -26,7 +26,7 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
         _logger = logger;
     }
 
-    public Task HandleAsync(Callback callback)
+    public Task HandleAsync(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData?.QueueData == null)
         {

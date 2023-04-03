@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Enqueuer.Callbacks\Enqueuer.Callbacks.csproj" />
+    <ProjectReference Include="..\Enqueuer.Core\Enqueuer.Core.csproj" />
     <ProjectReference Include="..\Enqueuer.Messages\Enqueuer.Messages.csproj" />
   </ItemGroup>
   

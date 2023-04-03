@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Callbacks;
 using Enqueuer.Messages;
 using Telegram.Bot.Types;
@@ -25,7 +26,7 @@ public class UpdateHandler : IUpdateHandler
         }
         else if (update?.Type == UpdateType.CallbackQuery)
         {
-            return _callbackDistributor.DistributeAsync(update.CallbackQuery);
+            return _callbackDistributor.DistributeAsync(update.CallbackQuery, CancellationToken.None);
         }
 
         return Task.CompletedTask;

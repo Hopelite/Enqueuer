@@ -9,7 +9,7 @@ namespace Enqueuer.Callbacks.Factories;
 public interface ICallbackHandlersFactory
 {
     /// <summary>
-    /// Tries to create an appropriate callback handler for the <paramref name="callback"/>.
+    /// Tries to create an appropriate <paramref name="callbackHandler"/> for the <paramref name="callback"/>.
     /// </summary>
     bool TryCreateCallbackHandler(Callback callback, [NotNullWhen(returnValue: true)] out ICallbackHandler? callbackHandler);
 }

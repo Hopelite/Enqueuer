@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.Exceptions;
@@ -24,11 +25,11 @@ public abstract class CallbackHandlerBase : ICallbackHandler
         MessageProvider = messageProvider;
     }
 
-    public async Task HandleAsync(Callback callback)
+    public async Task HandleAsync(Callback callback, CancellationToken cancellationToken)
     {
         try
         {
-            await HandleAsyncImplementation(callback);
+            await HandleAsyncImplementation(callback, cancellationToken);
             await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id);
         }
         catch (MessageNotModifiedException)
@@ -40,7 +41,7 @@ public abstract class CallbackHandlerBase : ICallbackHandler
     /// <summary>
     /// Contains the implementation of <paramref name="callback"/> handling.
     /// </summary>
-    protected abstract Task HandleAsyncImplementation(Callback callback);
+    protected abstract Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates the refresh button with the <paramref name="callbackData"/>.

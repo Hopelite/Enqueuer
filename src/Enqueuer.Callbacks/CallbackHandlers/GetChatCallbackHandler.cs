@@ -29,7 +29,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
         _logger = logger;
     }
 
-    protected override Task HandleAsyncImplementation(Callback callback)
+    protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData == null || !callback.CallbackData!.TargetChatId.HasValue)
         {

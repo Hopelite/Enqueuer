@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enqueuer.Data\Enqueuer.Data.csproj" />
+    <ProjectReference Include="..\Enqueuer.Core\Enqueuer.Core.csproj" />
     <ProjectReference Include="..\Enqueuer.Services\Enqueuer.Services.csproj" />
   </ItemGroup>
 
