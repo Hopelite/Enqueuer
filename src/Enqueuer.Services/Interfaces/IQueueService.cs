@@ -2,11 +2,22 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
+using Enqueuer.Services.Responses;
 
 namespace Enqueuer.Services;
 
 public interface IQueueService
 {
+    /// <summary>
+    /// Adds user with the specified <paramref name="userId"/> on the first available position in a queue with the <paramref name="queueId"/>.
+    /// </summary>
+    Task<EnqueueResponse> EnqueueOnFirstAvailablePositionAsync(long userId, int queueId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Adds user with the specified <paramref name="userId"/> on the specified <paramref name="position"/> in a queue with the <paramref name="queueId"/>.
+    /// </summary>
+    Task<EnqueueResponse> EnqueueOnPositionAsync(long userId, int queueId, int position, CancellationToken cancellationToken);
+
     /// <summary>
     /// Gets <see cref="Queue"/> with the specified <paramref name="id"/>.
     /// </summary>

@@ -61,9 +61,13 @@ public static class CallbackMessageKeys
     {
         public const string EnqueueAtCallback_UserAlreadyParticipates_Message = "EnqueueAtCallback_UserAlreadyParticipates_Message";
 
+        public const string EnqueueAtCallback_QueueIsFull_Message = "EnqueueAtCallback_QueueIsFull_Message";
+
         public const string EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message = "EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message";
 
         public const string EnqueueAtCallback_PositionIsReserved_Message = "EnqueueAtCallback_PositionIsReserved_Message";
+
+        public const string EnqueueAtCallback_PositionIsReserved_ChooseAnother_Button = "EnqueueAtCallback_PositionIsReserved_ChooseAnother_Button";
 
         public const string EnqueueAtCallback_Success_Message = "EnqueueAtCallback_Success_Message";
     }
