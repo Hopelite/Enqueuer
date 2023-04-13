@@ -28,20 +28,21 @@ public class EnqueueMessageHandler : IMessageHandler
         _queueService = queueService;
     }
 
-    public Task HandleAsync(Message message)
+    public Task HandleAsync(Message message, CancellationToken cancellationToken)
     {
         if (message.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
                 _messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandlePublicChatAsync(message);
+        return HandlePublicChatAsync(message, cancellationToken);
     }
 
-    private async Task HandlePublicChatAsync(Message message)
+    private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
     {
         (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
 
@@ -52,15 +53,16 @@ public class EnqueueMessageHandler : IMessageHandler
                 message.Chat,
                 _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueNameIsNotProvided_Message),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
 
             return;
         }
 
-        await HandleMessageWithParameters(messageWords, message, user, group);
+        await HandleMessageWithParameters(messageWords, message, user, group, cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(string[] messageWords, Message message, User user, Group group)
+    private async Task HandleMessageWithParameters(string[] messageWords, Message message, User user, Group group, CancellationToken cancellationToken)
     {
         var (queueName, userPosition) = GetQueueNameAndPosition(messageWords);
         if (IsUserPositionInvalid(userPosition))
@@ -69,7 +71,8 @@ public class EnqueueMessageHandler : IMessageHandler
                 group.Id,
                 _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
 
             return;
         }
@@ -81,14 +84,15 @@ public class EnqueueMessageHandler : IMessageHandler
                 group.Id,
                 _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
 
             return;
         }
 
         if (!user.IsParticipatingIn(queue))
         {
-            await HandleMessageWithUserNotParticipatingInQueue(message, user, group, queue, userPosition);
+            await HandleMessageWithUserNotParticipatingInQueue(message, user, group, queue, userPosition, cancellationToken);
             return;
         }
 
@@ -96,10 +100,11 @@ public class EnqueueMessageHandler : IMessageHandler
                 group.Id,
                 _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_UserAlreadyParticipates_Message, queueName),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
     }
 
-    private async Task HandleMessageWithUserNotParticipatingInQueue(Message message, User user, Group chat, Queue queue, int? position)
+    private async Task HandleMessageWithUserNotParticipatingInQueue(Message message, User user, Group chat, Queue queue, int? position, CancellationToken cancellationToken)
     {
         if (position != null && queue.IsDynamic)
         {
@@ -107,7 +112,8 @@ public class EnqueueMessageHandler : IMessageHandler
                 chat.Id,
                 _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message, queue.Name),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
 
             return;
         }
@@ -120,7 +126,8 @@ public class EnqueueMessageHandler : IMessageHandler
                     chat.Id,
                     _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, position.Value),
                     ParseMode.Html,
-                    replyToMessageId: message.MessageId);
+                    replyToMessageId: message.MessageId,
+                    cancellationToken: cancellationToken);
 
                 return;
             }
@@ -129,7 +136,8 @@ public class EnqueueMessageHandler : IMessageHandler
                     chat.Id,
                     _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionIsReserved_Message, position.Value, queue.Name),
                     ParseMode.Html,
-                    replyToMessageId: message.MessageId);
+                    replyToMessageId: message.MessageId,
+                    cancellationToken: cancellationToken);
 
             return;
         }
@@ -139,7 +147,8 @@ public class EnqueueMessageHandler : IMessageHandler
             chat.Id,
             _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, userPosition),
             ParseMode.Html,
-            replyToMessageId: message.MessageId);
+            replyToMessageId: message.MessageId,
+            cancellationToken: cancellationToken);
     }
 
     private static (string QueueName, int? UserPosition) GetQueueNameAndPosition(string[] messageWords)

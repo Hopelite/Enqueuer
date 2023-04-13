@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
 namespace Enqueuer.Messages.MessageHandlers;
@@ -11,5 +12,5 @@ public interface IMessageHandler
     /// <summary>
     /// Handles the incoming <paramref name="message"/>.
     /// </summary>
-    Task HandleAsync(Message message);
+    Task HandleAsync(Message message, CancellationToken cancellationToken);
 }

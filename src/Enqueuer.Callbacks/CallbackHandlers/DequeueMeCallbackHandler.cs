@@ -37,7 +37,8 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
                 callback.Message.Chat,
                 callback.Message.MessageId,
                 MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
         return HandleAsyncInternal(callback);

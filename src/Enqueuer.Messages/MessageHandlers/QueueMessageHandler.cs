@@ -29,44 +29,46 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         _queueService = queueService;
     }
 
-    public override Task HandleAsync(Message message)
+    public override Task HandleAsync(Message message, CancellationToken cancellationToken)
     {
         if (message.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
                 MessageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandlePublicChatAsync(message);
+        return HandlePublicChatAsync(message, cancellationToken);
     }
 
-    private async Task HandlePublicChatAsync(Message message)
+    private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
     {
-        (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+        (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, cancellationToken);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(message, messageWords, group);
+            await HandleMessageWithParameters(message, messageWords, group, cancellationToken);
             return;
         }
 
-        await HandleMessageWithoutParameters(group);
+        await HandleMessageWithoutParameters(group, cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group)
+    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group, CancellationToken cancellationToken)
     {
         var queueName = messageWords.GetQueueName();
-        var queue = await _queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, CancellationToken.None);
+        var queue = await _queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, cancellationToken);
         if (queue == null)
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
                 MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
 
             return;
         }
@@ -77,29 +79,31 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
                 group.Id,
                 MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueEmpty_Message, queueName),
                 ParseMode.Html,
-                replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue)));
+                replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue.Id)),
+                cancellationToken: cancellationToken);
 
             return;
         }
 
         var responseMessage = BuildResponseMessageWithQueueParticipants(queue);
-        await _botClient.SendTextMessageAsync(group.Id, responseMessage, ParseMode.Html);
+        await _botClient.SendTextMessageAsync(group.Id, responseMessage, ParseMode.Html, cancellationToken: cancellationToken);
     }
 
-    private async Task HandleMessageWithoutParameters(Group group)
+    private async Task HandleMessageWithoutParameters(Group group, CancellationToken cancellationToken)
     {
         if (group.Queues.Count == 0)
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
                 MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_NoQueues_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
 
             return;
         }
 
         var replyMessage = BuildResponseMessageWithChatQueues(group.Queues);
-        await _botClient.SendTextMessageAsync(group.Id, replyMessage, ParseMode.Html);
+        await _botClient.SendTextMessageAsync(group.Id, replyMessage, ParseMode.Html, cancellationToken: cancellationToken);
     }
 
     private string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)

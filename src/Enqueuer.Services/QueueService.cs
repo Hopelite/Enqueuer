@@ -26,6 +26,69 @@ public class QueueService : IQueueService
 
     /// <inheritdoc/>
     /// <exception cref="UserDoesNotExistException" />
+    /// <exception cref="ArgumentNullException" />
+    /// <exception cref="QueueNameIsTooLongException" />
+    /// <exception cref="InvalidQueueNameException" />
+    /// <exception cref="InvalidMemberPositionException" />
+    public async Task<CreateQueueResponse> CreateQueueAsync(long creatorId, long groupId, string queueName, int? position = null, CancellationToken cancellationToken = default)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var creator = await enqueuerContext.Users.FindAsync(new object[] { creatorId }, cancellationToken);
+        if (creator == null)
+        {
+            throw new UserDoesNotExistException($"User with the \"{creatorId}\" ID does not exist.");
+        }
+
+        if (string.IsNullOrWhiteSpace(queueName))
+        {
+            throw new ArgumentNullException(nameof(queueName), "Queue name can't be null, empty or a whitespace.");
+        }
+
+        if (queueName.Length > QueueConstants.MaxNameLength)
+        {
+            throw new QueueNameIsTooLongException(queueName, $"Queue name cannot be longer than {QueueConstants.MaxNameLength}.");
+        }
+
+        if (queueName.All(c => char.IsDigit(c)))
+        {
+            throw new InvalidQueueNameException("Queue name can't contain only digits.");
+        }
+
+        var queue = new Queue
+        {
+            Name = queueName,
+            GroupId = groupId,
+            Creator = creator,
+            Members = new List<QueueMember>(),
+        };
+
+        if (position.HasValue)
+        {
+            if (position <= 0 || position > QueueConstants.MaxPosition)
+            {
+                throw new InvalidMemberPositionException($"Member's position can't be negative or greater than {QueueConstants.MaxPosition}.");
+            }
+
+            var member = new QueueMember
+            {
+                Position = position.Value,
+                User = creator,
+                Queue = queue,
+            };
+
+            queue.Members.Add(member);
+        }
+
+        await enqueuerContext.Queues.AddAsync(queue, cancellationToken);
+        await enqueuerContext.SaveChangesAsync(cancellationToken);
+
+        return new CreateQueueResponse(queue.Id, queue.Name);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="UserDoesNotExistException" />
     /// <exception cref="QueueDoesNotExistException" />
     /// <exception cref="UserAlreadyParticipatesException" />
     /// <exception cref="QueueIsFullException" />
@@ -134,6 +197,27 @@ public class QueueService : IQueueService
 
         await _enqueuerContext.SaveChangesAsync(cancellationToken);
         return new EnqueueResponse(queue, position);
+    }
+
+    public async Task<Queue> DeleteQueueAsync(int queueId, long userId, bool checkIfCreator, CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var queue = await enqueuerContext.Queues.FindAsync(new object[] { queueId }, cancellationToken);
+        if (queue == null)
+        {
+            throw new QueueDoesNotExistException($"Queue with the \"{queueId}\" ID does not exist.");
+        }
+
+        if (checkIfCreator && queue.CreatorId != userId)
+        {
+            // Throw
+        }
+
+        enqueuerContext.Queues.Remove(queue);
+        await enqueuerContext.SaveChangesAsync(cancellationToken);
+        return queue;
     }
 
     public Task<Queue?> GetQueueAsync(int id, bool includeMembers, CancellationToken cancellationToken)

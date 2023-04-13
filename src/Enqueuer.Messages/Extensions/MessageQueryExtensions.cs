@@ -10,6 +10,11 @@ public static class MessageQueryExtensions
     /// <param name="startIndex">Start index where queue name starts.</param>
     public static string GetQueueName(this string[] query, int startIndex = 1)
     {
+        if (int.TryParse(query[^1], out var _))
+        {
+            return string.Join(separator: Whitespace, query[startIndex..^1]);
+        }
+
         return string.Join(separator: Whitespace, query[startIndex..]);
     }
 

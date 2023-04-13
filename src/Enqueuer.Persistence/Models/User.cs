@@ -41,4 +41,9 @@ public class User
     /// Queues in which user participates.
     /// </summary>
     public ICollection<QueueMember> ParticipatesIn { get; set; }
+
+    /// <summary>
+    /// List of blocked users.
+    /// </summary>
+    public ICollection<BlocklistRecord> BlockedUsers { get; set; }
 }

@@ -28,22 +28,23 @@ public class StartMessageHandler : IMessageHandler
         _dataSerializer = dataSerializer;
     }
 
-    public Task HandleAsync(Message message)
+    public Task HandleAsync(Message message, CancellationToken cancellationToken)
     {
         if (!message.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
                 _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PublicChat_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandlePrivateChatAsync(message);
+        return HandlePrivateChatAsync(message, cancellationToken);
     }
 
-    private async Task HandlePrivateChatAsync(Message message)
+    private async Task HandlePrivateChatAsync(Message message, CancellationToken cancellationToken)
     {
-        await _userService.GetOrStoreUserAsync(message.From!, CancellationToken.None);
+        await _userService.GetOrStoreUserAsync(message.From!, cancellationToken);
 
         var callbackButtonData = new CallbackData()
         {
@@ -61,6 +62,7 @@ public class StartMessageHandler : IMessageHandler
             message.Chat,
             _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_Message),
             ParseMode.Html,
-            replyMarkup: viewChatsButton);
+            replyMarkup: viewChatsButton,
+            cancellationToken: cancellationToken);
     }
 }

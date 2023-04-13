@@ -27,27 +27,28 @@ public class DequeueMessageHandler : IMessageHandler
         _queueService = queueService;
     }
 
-    public Task HandleAsync(Message message)
+    public Task HandleAsync(Message message, CancellationToken cancellationToken)
     {
         if (message.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
                 _messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandlePublicChatAsync(message);
+        return HandlePublicChatAsync(message, cancellationToken);
     }
 
-    private async Task HandlePublicChatAsync(Message message)
+    private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
     {
-        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, cancellationToken);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(message, messageWords, group, user);
+            await HandleMessageWithParameters(message, messageWords, group, user, cancellationToken);
             return;
         }
 
@@ -55,10 +56,11 @@ public class DequeueMessageHandler : IMessageHandler
             message.Chat.Id,
             _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueNameIsNotProvided_Message),
             ParseMode.Html,
-            replyToMessageId: message.MessageId);
+            replyToMessageId: message.MessageId,
+            cancellationToken: cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group, User user)
+    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group, User user, CancellationToken cancellationToken)
     {
         var queueName = messageWords.GetQueueName();
         var queue = group.GetQueueByName(queueName);
@@ -68,18 +70,20 @@ public class DequeueMessageHandler : IMessageHandler
                 group.Id,
                 _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
 
             return;
         }
 
-        if (await _queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None))
+        if (await _queueService.TryDequeueUserAsync(user, queue.Id, cancellationToken))
         {
             await _botClient.SendTextMessageAsync(
                  group.Id,
                  _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_SuccessfullyDequeued_Message, queueName),
                  ParseMode.Html,
-                 replyToMessageId: message.MessageId);
+                 replyToMessageId: message.MessageId,
+                 cancellationToken: cancellationToken);
 
             return;
         }
@@ -88,6 +92,7 @@ public class DequeueMessageHandler : IMessageHandler
                 group.Id,
                 _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_UserDoesNotParticipate_Message, queueName),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
     }
 }

@@ -49,21 +49,17 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
         var position = callback.CallbackData.QueueData.Position!.Value;
         try
         {
-            var response = callback.CallbackData.QueueData.Position.HasValue
+            (var queue, position) = callback.CallbackData.QueueData.Position.HasValue
                 ? await _queueService.EnqueueOnPositionAsync(callback.From.Id, queueId, position, cancellationToken)
                 : await _queueService.EnqueueOnFirstAvailablePositionAsync(callback.From.Id, queueId, cancellationToken);
 
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, response.Position, response.Queue.Name),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, position, queue.Name),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
-        }
-        catch (UserDoesNotExistException)
-        {
-            //
         }
         catch (QueueDoesNotExistException)
         {

@@ -8,7 +8,7 @@ internal class QueueMemberEntityConfiguration : IEntityTypeConfiguration<QueueMe
 {
     public void Configure(EntityTypeBuilder<QueueMember> builder)
     {
-        builder.HasKey(m => new { m.UserId, m.QueueId });
+        builder.HasKey(member => new { member.UserId, member.QueueId });
 
         builder.HasOne(queueMember => queueMember.User)
             .WithMany(u => u.ParticipatesIn)

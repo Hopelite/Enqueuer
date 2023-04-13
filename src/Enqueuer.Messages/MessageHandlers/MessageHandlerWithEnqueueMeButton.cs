@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Data;
 using Enqueuer.Data.Constants;
 using Enqueuer.Data.DataSerialization;
@@ -20,9 +21,9 @@ public abstract class MessageHandlerWithEnqueueMeButton : IMessageHandler
         DataSerializer = dataSerializer;
     }
 
-    public abstract Task HandleAsync(Message message);
+    public abstract Task HandleAsync(Message message, CancellationToken cancellationToken);
 
-    protected InlineKeyboardButton GetEnqueueMeButton(Group group, Queue queue)
+    protected InlineKeyboardButton GetEnqueueMeButton(Group group, int queueId)
     {
         var callbackButtonData = new CallbackData()
         {
@@ -30,7 +31,7 @@ public abstract class MessageHandlerWithEnqueueMeButton : IMessageHandler
             TargetChatId = group.Id,
             QueueData = new QueueData()
             {
-                QueueId = queue.Id,
+                QueueId = queueId,
             },
         };
 

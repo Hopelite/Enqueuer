@@ -9,9 +9,7 @@ using Enqueuer.Data.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -22,62 +20,62 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
     private const int PositionsToDisplay = 20;
     private const int PositionsInRow = 4;
     private readonly IQueueService _queueService;
-    private readonly ILogger<EnqueueCallbackHandler> _logger;
 
-    public EnqueueCallbackHandler(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider, IQueueService queueService, ILogger<EnqueueCallbackHandler> logger)
+    public EnqueueCallbackHandler(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider, IQueueService queueService)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
         _queueService = queueService;
-        _logger = logger;
     }
 
     protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData?.QueueData == null)
         {
-            _logger.LogWarning("Handled outdated callback.");
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
                 MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback);
+        return HandleAsyncInternal(callback, cancellationToken);
     }
 
-    private async Task HandleAsyncInternal(Callback callback)
+    private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
     {
-        var queue = await _queueService.GetQueueAsync(callback.CallbackData.QueueData.QueueId, includeMembers: true, CancellationToken.None);
+        var queueId = callback.CallbackData!.QueueData!.QueueId;
+        var queue = await _queueService.GetQueueAsync(queueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
                 MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_QueueHasBeenDeleted_Message),
-                replyMarkup: GetReturnToChatButton(callback.CallbackData));
+                replyMarkup: GetReturnToChatButton(callback.CallbackData),
+                cancellationToken: cancellationToken);
 
             return;
         }
 
-        await HandleCallbackWithExistingQueueAsync(queue, callback);
+        await HandleCallbackWithExistingQueueAsync(queue, callback, cancellationToken);
     }
 
-    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
+    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback, CancellationToken cancellationToken)
     {
         InlineKeyboardMarkup replyButtons;
         if (queue.IsDynamic)
         {
             replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[2][]
             {
-                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)) },
-                new InlineKeyboardButton[] {  GetReturnToQueueButton(callback.CallbackData) }
+                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData!, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)) },
+                new InlineKeyboardButton[] {  GetReturnToQueueButton(callback.CallbackData!) }
             });
         }
         else
         {
             var availablePositions = queue.GetAvailablePositions(PositionsToDisplay);
-            replyButtons = BuildKeyboardMarkup(availablePositions, callback.CallbackData);
+            replyButtons = BuildKeyboardMarkup(availablePositions, callback.CallbackData!);
         }
 
         await TelegramBotClient.EditMessageTextAsync(
@@ -85,7 +83,8 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
             callback.Message.MessageId,
             MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_SelectPosition_Message, queue.Name),
             ParseMode.Html,
-            replyMarkup: replyButtons);
+            replyMarkup: replyButtons,
+            cancellationToken: cancellationToken);
     }
 
     private InlineKeyboardMarkup BuildKeyboardMarkup(int[] availablePositions, CallbackData callbackData)
@@ -122,7 +121,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
             TargetChatId = callbackData.TargetChatId,
             QueueData = new QueueData()
             {
-                QueueId = callbackData.QueueData.QueueId,
+                QueueId = callbackData.QueueData!.QueueId,
                 Position = position,
             },
         };

@@ -7,18 +7,20 @@ using System.Threading.Tasks;
 using Enqueuer.Persistence;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services.Extensions;
+using Enqueuer.Services.Responses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Services;
 
 public class GroupService : IGroupService
 {
-    private readonly EnqueuerContext _enqueuerContext;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public GroupService(EnqueuerContext enqueuerContext)
+    public GroupService(IServiceScopeFactory scopeFactory)
     {
-        _enqueuerContext = enqueuerContext;
+        _scopeFactory = scopeFactory;
     }
 
     /// <inheritdoc/>
@@ -41,12 +43,15 @@ public class GroupService : IGroupService
 
     private async Task<Group> GetOrStoreGroupAsyncInternal(Telegram.Bot.Types.Chat telegramGroup, CancellationToken cancellationToken)
     {
-        var group = await _enqueuerContext.FindAsync<Group>(new object[] { telegramGroup.Id }, cancellationToken);
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var group = await enqueuerContext.FindAsync<Group>(new object[] { telegramGroup.Id }, cancellationToken);
         if (group == null)
         {
             group = telegramGroup.ConvertToGroup();
-            _enqueuerContext.Add(group);
-            await _enqueuerContext.SaveChangesAsync(cancellationToken);
+            enqueuerContext.Add(group);
+            await enqueuerContext.SaveChangesAsync(cancellationToken);
         }
 
         return group;
@@ -54,7 +59,7 @@ public class GroupService : IGroupService
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException"/>
-    public Task<(Group group, User user)> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken)
+    public Task<GetUserGroupResponse> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken)
     {
         if (telegramGroup == null)
         {
@@ -70,30 +75,33 @@ public class GroupService : IGroupService
     }
 
     [SuppressMessage("Blocker Code Smell", "S2178:Short-circuit logic should be used in boolean contexts", Justification = "Both sides are expected to be evaluated.")]
-    private async Task<(Group group, User user)> AddOrUpdateUserToGroupAsyncInternal(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken)
+    private async Task<GetUserGroupResponse> AddOrUpdateUserToGroupAsyncInternal(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken)
     {
-        var group = await IncludeProperties(_enqueuerContext, includeQueues).SingleOrDefaultAsync(g => g.Id == telegramGroup.Id, cancellationToken);
-        var user = await _enqueuerContext.FindAsync<User>(new object[] { telegramUser.Id }, cancellationToken);
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
-        var isGroupAdded = AddOrUpdateGroup(_enqueuerContext, ref group, telegramGroup);
-        var isSaveNeeded = AddOrUpdateUser(_enqueuerContext, ref user, telegramUser) | isGroupAdded;
+        var group = await IncludeProperties(enqueuerContext, includeQueues).SingleOrDefaultAsync(g => g.Id == telegramGroup.Id, cancellationToken);
+        var user = await enqueuerContext.FindAsync<User>(new object[] { telegramUser.Id }, cancellationToken);
+
+        var isGroupAdded = AddOrUpdateGroup(enqueuerContext, ref group, telegramGroup);
+        var isSaveNeeded = AddOrUpdateUser(enqueuerContext, ref user, telegramUser) | isGroupAdded;
 
         if (!group.Members.Any(m => m.Id == user.Id))
         {
             group.Members.Add(user);
             if (!isGroupAdded)
             {
-                _enqueuerContext.Update(group);
+                enqueuerContext.Update(group);
                 isSaveNeeded = true;
             }
         }
 
         if (isSaveNeeded)
         {
-            await _enqueuerContext.SaveChangesAsync(cancellationToken);
+            await enqueuerContext.SaveChangesAsync(cancellationToken);
         }
 
-        return (group, user);
+        return new GetUserGroupResponse(group, user);
 
         static IQueryable<Group> IncludeProperties(EnqueuerContext enqueuerContext, bool includeQueues)
         {
@@ -148,8 +156,11 @@ public class GroupService : IGroupService
 
     public async Task<IEnumerable<Group>> GetUserGroups(long userId, CancellationToken cancellationToken)
     {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
         // TODO: optimize with the direct JOIN table call
-        var user = await _enqueuerContext.Users.Include(u => u.Groups)
+        var user = await enqueuerContext.Users.Include(u => u.Groups)
             .SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
         return user?.Groups ?? Enumerable.Empty<Group>();
@@ -157,6 +168,9 @@ public class GroupService : IGroupService
 
     public Task<bool> DoesGroupExist(long groupId)
     {
-        return _enqueuerContext.Groups.AnyAsync(g => g.Id == groupId);
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        return enqueuerContext.Groups.AnyAsync(g => g.Id == groupId);
     }
 }

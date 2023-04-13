@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Messages.Factories;
 using Telegram.Bot.Types;
 
@@ -13,11 +14,11 @@ public class MessageDistributor : IMessageDistributor
         _messageHandlersFactory = messageHandlersFactory;
     }
 
-    public async Task DistributeAsync(Message message)
+    public async Task DistributeAsync(Message message, CancellationToken cancellationToken)
     {
         if (_messageHandlersFactory.TryCreateMessageHandler(message, out var handler))
         {
-            await handler.HandleAsync(message);
+            await handler.HandleAsync(message, cancellationToken);
         }
     }
 }

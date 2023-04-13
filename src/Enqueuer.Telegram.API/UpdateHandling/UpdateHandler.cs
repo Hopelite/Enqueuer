@@ -22,7 +22,7 @@ public class UpdateHandler : IUpdateHandler
     {
         if (update?.Type == UpdateType.Message)
         {
-            return _messageDistributor.DistributeAsync(update.Message);
+            return _messageDistributor.DistributeAsync(update.Message, CancellationToken.None);
         }
         else if (update?.Type == UpdateType.CallbackQuery)
         {

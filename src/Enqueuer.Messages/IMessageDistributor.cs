@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Messages.MessageHandlers;
 using Telegram.Bot.Types;
 
@@ -12,5 +13,5 @@ public interface IMessageDistributor
     /// <summary>
     /// Distributes the <paramref name="message"/> to an appropriate <see cref="IMessageHandler"/>, if exists.
     /// </summary>
-    Task DistributeAsync(Message message);
+    Task DistributeAsync(Message message, CancellationToken cancellationToken);
 }

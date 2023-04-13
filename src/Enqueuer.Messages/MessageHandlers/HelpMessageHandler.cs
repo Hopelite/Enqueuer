@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -17,11 +18,12 @@ public class HelpMessageHandler : IMessageHandler
         _messageProvider = messageProvider;
     }
 
-    public Task HandleAsync(Message message)
+    public Task HandleAsync(Message message, CancellationToken cancellationToken)
     {
         return _botClient.SendTextMessageAsync(
             message.Chat,
             _messageProvider.GetMessage(MessageKeys.HelpMessageHandler.HelpCommand_Message),
-            ParseMode.Html);
+            ParseMode.Html,
+            cancellationToken: cancellationToken);
     }
 }

@@ -4,10 +4,9 @@ using Enqueuer.Data.Configuration;
 using Enqueuer.Data.DataSerialization;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Messages.Extensions;
-using Enqueuer.Persistence.Constants;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Services.Extensions;
+using Enqueuer.Services.Exceptions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -32,27 +31,28 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         _botConfiguration = botConfiguration;
     }
 
-    public override Task HandleAsync(Message message)
+    public override Task HandleAsync(Message message, CancellationToken cancellationToken)
     {
         if (message.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
                 MessageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandlePublicChatAsync(message);
+        return HandlePublicChatAsync(message, cancellationToken);
     }
 
-    private async Task HandlePublicChatAsync(Message message)
+    private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
     {
-        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, CancellationToken.None);
+        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: false, cancellationToken);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(messageWords, message, group, user);
+            await HandleMessageWithParameters(messageWords, message, group, user, cancellationToken);
             return;
         }
 
@@ -60,10 +60,11 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
                 message.Chat.Id,
                 MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
     }
 
-    private Task HandleMessageWithParameters(string[] messageWords, Message message, Group group, User user)
+    private Task HandleMessageWithParameters(string[] messageWords, Message message, Group group, User user, CancellationToken cancellationToken)
     {
         if (group.Queues.Count >= _botConfiguration.QueuesPerChat)
         {
@@ -71,71 +72,72 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
                 group.Id,
                 MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
         }
 
-        if (QueueHasNumberAtTheEnd(messageWords))
-        {
-            return HandleMessageWithNumberAtTheEndInName(messageWords, message, group);
-        }
-
-        return HandleMessageWithQueueName(messageWords, message, user, group);
+        return HandleMessageWithQueueName(messageWords, message, user, group, cancellationToken);
     }
 
-    private Task HandleMessageWithNumberAtTheEndInName(string[] messageWords, Message message, Group chat)
-    {
-        var responseMessage = messageWords.Length > 2
-                            ? MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_NumberAtTheEndOfQueueName_Message
-                            : MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message;
-
-        return _botClient.SendTextMessageAsync(
-            chat.Id,
-            MessageProvider.GetMessage(responseMessage),
-            ParseMode.Html,
-            replyToMessageId: message.MessageId);
-    }
-
-    private async Task HandleMessageWithQueueName(string[] messageWords, Message message, User user, Group group)
+    private async Task HandleMessageWithQueueName(string[] messageWords, Message message, User user, Group group, CancellationToken cancellationToken)
     {
         var queueName = messageWords.GetQueueName();
-        if (queueName.Length > QueueConstants.MaxNameLength)
+        try
+        {
+            var response = await _queueService.CreateQueueAsync(user.Id, group.Id, queueName, GetSpecifiedPosition(messageWords), cancellationToken);
+
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message, response.QueueName),
+                ParseMode.Html,
+                replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, response.QueueId)),
+                cancellationToken: cancellationToken);
+        }
+        catch (QueueNameIsTooLongException)
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
                 MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueNameTooLong_Message),
-                replyToMessageId: message.MessageId);
-
-            return;
+                ParseMode.Html,
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
         }
-
-        if (group.HasQueue(queueName))
+        catch (InvalidQueueNameException)
+        {
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
+        }
+        catch (QueueAlreadyExistsException)
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
                 MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_QueueAlreadyExists_Message, queueName),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId);
-
-            return;
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
         }
-
-        var queue = new Queue
+        catch (InvalidMemberPositionException)
         {
-            Name = queueName,
-            GroupId = group.Id,
-            CreatorId = user.Id,
-        };
-
-        await _queueService.AddQueueAsync(queue, CancellationToken.None);
-        await _botClient.SendTextMessageAsync(
-            group.Id,
-            MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message, queue.Name),
-            ParseMode.Html,
-            replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue)));
+            await _botClient.SendTextMessageAsync(
+                group.Id,
+                MessageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
+        }
     }
 
-    private static bool QueueHasNumberAtTheEnd(string[] messageWords)
+    private static int? GetSpecifiedPosition(string[] messageWords)
     {
-        return int.TryParse(messageWords[^1], out int _);
+        if (int.TryParse(messageWords[^1], out var positionValue))
+        {
+            return positionValue;
+        }
+
+        return null;
     }
 }

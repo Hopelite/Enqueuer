@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Services;
+using Enqueuer.Services.Exceptions;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -17,7 +17,9 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
     private readonly IMessageProvider _messageProvider;
     private readonly ILogger<EnqueueMeCallbackHandler> _logger;
 
-    public EnqueueMeCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
+    public EnqueueMeCallbackHandler(
+        ITelegramBotClient telegramBotClient, IQueueService queueService,
+        IGroupService groupService, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
     {
         _telegramBotClient = telegramBotClient;
         _queueService = queueService;
@@ -35,38 +37,49 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
                 callback.Message.Chat,
                 callback.Message.MessageId,
                 _messageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback);
+        return HandleAsyncInternal(callback, cancellationToken);
     }
 
-    private async Task HandleAsyncInternal(Callback callback)
+    private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
     {
-        (var _, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(callback.Message!.Chat, callback.From, includeQueues: false, CancellationToken.None);
-        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData.QueueId, includeMembers: true, CancellationToken.None);
-        if (queue == null)
+        await _groupService.AddOrUpdateUserAndGroupAsync(callback.Message!.Chat, callback.From, includeQueues: false, CancellationToken.None);
+        var queueId = callback.CallbackData!.QueueData!.QueueId;
+        try
+        {
+            var response = await _queueService.EnqueueOnFirstAvailablePositionAsync(callback.From.Id, queueId, cancellationToken);
+            await _telegramBotClient.AnswerCallbackQueryAsync(
+                callback.Id,
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification, response.Queue.Name, response.Position),
+                cancellationToken: cancellationToken);
+        }
+        catch (QueueDoesNotExistException)
         {
             await _telegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
                 _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_QueueHasBeenDeleted_Message),
-                ParseMode.Html);
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
 
-            return;
+            await _telegramBotClient.AnswerCallbackQueryAsync(callback.Id, cancellationToken: cancellationToken);
         }
-
-        if (queue.Members.Any(m => m.UserId == user.Id))
+        catch (UserAlreadyParticipatesException ex)
         {
             await _telegramBotClient.AnswerCallbackQueryAsync(
                 callback.Id,
-                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification, queue.Name));
-            return;
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification, ex.QueueName),
+                cancellationToken: cancellationToken);
         }
-
-        var position = await _queueService.AddAtFirstAvailablePosition(user, queue.Id, CancellationToken.None);
-        await _telegramBotClient.AnswerCallbackQueryAsync(
-            callback.Id,
-            _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification, queue.Name, position));
+        catch (QueueIsFullException ex)
+        {
+            await _telegramBotClient.AnswerCallbackQueryAsync(
+                callback.Id,
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsFull_Message, ex.QueueName),
+                cancellationToken: cancellationToken);
+        }
     }
 }
