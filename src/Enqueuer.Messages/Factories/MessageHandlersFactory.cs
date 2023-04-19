@@ -20,12 +20,11 @@ namespace Enqueuer.Messages.Factories
         public bool TryCreateMessageHandler(Message message, [NotNullWhen(returnValue: true)] out IMessageHandler? messageHandler)
         {
             messageHandler = null;
-            if (message == null || string.IsNullOrWhiteSpace(message.Text))
+            if (message == null || string.IsNullOrWhiteSpace(message.Text) || !message.Text.TryGetCommand(out var command))
             {
                 return false;
             }
 
-            var command = message.Text.SplitToWords()[0];
             return TryCreateMessageHandler(command, out messageHandler);
         }
 

@@ -45,5 +45,5 @@ public class User
     /// <summary>
     /// List of blocked users.
     /// </summary>
-    public ICollection<BlocklistRecord> BlockedUsers { get; set; }
+    //public ICollection<BlocklistRecord> BlockedUsers { get; set; }
 }

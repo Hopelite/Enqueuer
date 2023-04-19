@@ -14,4 +14,21 @@ public static class StringExtensions
     {
         return messageText.Split(separator: Whitespace, StringSplitOptions.RemoveEmptyEntries);
     }
+
+    public static bool TryGetCommand(this string messageText, out string command)
+    {
+        command = messageText.SplitToWords()[0];
+        if (command[0] != '/')
+        {
+            return false;
+        }
+
+        var botNamePosition = messageText.IndexOf('@');
+        if (botNamePosition > 0)
+        {
+            command = command[..botNamePosition];
+        }
+
+        return true;
+    }
 }

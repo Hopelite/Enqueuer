@@ -8,20 +8,23 @@ public class PositionIsReservedException : Exception
 {
     public string QueueName { get; set; }
 
-    public PositionIsReservedException(string queueName)
-        : this(message: null, queueName)
+    public int Position { get; set; }
+
+    public PositionIsReservedException(string queueName, int position)
+        : this(message: null, queueName, position)
     {
     }
 
-    public PositionIsReservedException(string? message, string queueName)
-        : this(message, queueName, innerException: null)
+    public PositionIsReservedException(string? message, string queueName, int position)
+        : this(message, queueName, position, innerException: null)
     {
     }
 
-    public PositionIsReservedException(string? message, string queueName, Exception? innerException)
+    public PositionIsReservedException(string? message, string queueName, int position, Exception? innerException)
         : base(message, innerException)
     {
         QueueName = queueName;
+        Position = position;
     }
 
     protected PositionIsReservedException(SerializationInfo info, StreamingContext context)

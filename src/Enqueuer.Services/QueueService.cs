@@ -56,6 +56,11 @@ public class QueueService : IQueueService
             throw new InvalidQueueNameException("Queue name can't contain only digits.");
         }
 
+        if (enqueuerContext.Queues.Any(q => q.GroupId == groupId && q.Name.Equals(queueName)))
+        {
+            throw new QueueAlreadyExistsException();
+        }
+
         var queue = new Queue
         {
             Name = queueName,
@@ -139,7 +144,8 @@ public class QueueService : IQueueService
             Queue = queue,
         });
 
-        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        
+        await enqueuerContext.SaveChangesAsync(cancellationToken);
         return new EnqueueResponse(queue, firstAvailablePosition);
     }
 
@@ -185,7 +191,7 @@ public class QueueService : IQueueService
 
         if (queue.Members.Any(m => m.Position == position))
         {
-            throw new PositionIsReservedException($"Position \"{position}\" in the \"{queue.Name}\" queue is reserved.", queue.Name);
+            throw new PositionIsReservedException($"Position \"{position}\" in the \"{queue.Name}\" queue is reserved.", queue.Name, position);
         }
 
         queue.Members.Add(new QueueMember

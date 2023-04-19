@@ -46,11 +46,10 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
     private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
     {
         var queueId = callback.CallbackData!.QueueData!.QueueId;
-        var position = callback.CallbackData.QueueData.Position!.Value;
         try
         {
-            (var queue, position) = callback.CallbackData.QueueData.Position.HasValue
-                ? await _queueService.EnqueueOnPositionAsync(callback.From.Id, queueId, position, cancellationToken)
+            (var queue, var position) = callback.CallbackData.QueueData.Position.HasValue
+                ? await _queueService.EnqueueOnPositionAsync(callback.From.Id, queueId, callback.CallbackData.QueueData.Position.Value, cancellationToken)
                 : await _queueService.EnqueueOnFirstAvailablePositionAsync(callback.From.Id, queueId, cancellationToken);
 
             await TelegramBotClient.EditMessageTextAsync(
@@ -95,7 +94,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message, ex.QueueName, position),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message, ex.QueueName, ex.Position),
                 ParseMode.Html,
                 replyMarkup: GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_ChooseAnother_Button), CallbackConstants.EnqueueCommand, callback.CallbackData, queueId),
                 cancellationToken: cancellationToken);

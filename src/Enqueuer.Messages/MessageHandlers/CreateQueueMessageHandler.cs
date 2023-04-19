@@ -47,7 +47,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
 
     private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
     {
-        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: false, cancellationToken);
+        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, cancellationToken);
 
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())

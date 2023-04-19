@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Enqueuer.Data.TextProviders;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -15,24 +14,21 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
     private readonly IQueueService _queueService;
     private readonly IGroupService _groupService;
     private readonly IMessageProvider _messageProvider;
-    private readonly ILogger<EnqueueMeCallbackHandler> _logger;
 
     public EnqueueMeCallbackHandler(
         ITelegramBotClient telegramBotClient, IQueueService queueService,
-        IGroupService groupService, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
+        IGroupService groupService, IMessageProvider messageProvider)
     {
         _telegramBotClient = telegramBotClient;
         _queueService = queueService;
         _groupService = groupService;
         _messageProvider = messageProvider;
-        _logger = logger;
     }
 
     public Task HandleAsync(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData?.QueueData == null)
         {
-            _logger.LogWarning("Handled outdated callback.");
             return _telegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
@@ -46,7 +42,7 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
 
     private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
     {
-        await _groupService.AddOrUpdateUserAndGroupAsync(callback.Message!.Chat, callback.From, includeQueues: false, CancellationToken.None);
+        await _groupService.AddOrUpdateUserAndGroupAsync(callback.Message!.Chat, callback.From, includeQueues: false, cancellationToken);
         var queueId = callback.CallbackData!.QueueData!.QueueId;
         try
         {
