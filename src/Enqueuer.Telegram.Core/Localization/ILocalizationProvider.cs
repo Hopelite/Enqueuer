@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Core.Localization;
+﻿namespace Enqueuer.Telegram.Core.Localization;
 
 public interface ILocalizationProvider
 {

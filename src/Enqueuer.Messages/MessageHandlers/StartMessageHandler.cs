@@ -6,6 +6,7 @@ using Enqueuer.Core.Serialization;
 using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Core.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -16,14 +17,14 @@ namespace Enqueuer.Messages.MessageHandlers;
 public class StartMessageHandler : IMessageHandler
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly IMessageProvider _messageProvider;
+    private readonly ILocalizationProvider _localizationProvider;
     private readonly IUserService _userService;
     private readonly ICallbackDataSerializer _dataSerializer;
 
-    public StartMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IUserService userService, ICallbackDataSerializer dataSerializer)
+    public StartMessageHandler(ITelegramBotClient botClient, ILocalizationProvider localizationProvider, IUserService userService, ICallbackDataSerializer dataSerializer)
     {
         _botClient = botClient;
-        _messageProvider = messageProvider;
+        _localizationProvider = localizationProvider;
         _userService = userService;
         _dataSerializer = dataSerializer;
     }
@@ -34,7 +35,7 @@ public class StartMessageHandler : IMessageHandler
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                _messageProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PublicChat_Message),
+                _localizationProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PublicChat_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -55,12 +56,12 @@ public class StartMessageHandler : IMessageHandler
 
         var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
         {
-            InlineKeyboardButton.WithCallbackData(_messageProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PrivateChat_ListChats_Button), serializedCallbackData),
+            InlineKeyboardButton.WithCallbackData(_localizationProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PrivateChat_ListChats_Button, MessageParameters.None), serializedCallbackData),
         });
 
         await _botClient.SendTextMessageAsync(
             message.Chat,
-            _messageProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PrivateChat_Message),
+            _localizationProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PrivateChat_Message, MessageParameters.None),
             ParseMode.Html,
             replyMarkup: viewChatsButton,
             cancellationToken: cancellationToken);

@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-namespace Enqueuer.Core.Localization;
+namespace Enqueuer.Telegram.Core.Localization;
 
 /// <summary>
 /// Contains message parameters for <see cref="ILocalizationProvider"/>.

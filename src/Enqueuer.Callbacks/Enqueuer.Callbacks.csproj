@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enqueuer.Core\Enqueuer.Core.csproj" />
     <ProjectReference Include="..\Enqueuer.Services\Enqueuer.Services.csproj" />
+    <ProjectReference Include="..\Enqueuer.Telegram.Core\Enqueuer.Telegram.Core.csproj" />
   </ItemGroup>
 
 </Project>

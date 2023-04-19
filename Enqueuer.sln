@@ -28,7 +28,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Telegram.API", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Telegram.API.Tests", "tests\Enqueuer.Telegram.API.Tests\Enqueuer.Telegram.API.Tests.csproj", "{A8DDD934-B737-4C36-96E7-1735103D3430}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Core", "src\Enqueuer.Core\Enqueuer.Core.csproj", "{C8B4E38C-3DBD-47DC-8C1D-9D304BC08BB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Telegram.Core", "src\Enqueuer.Telegram.Core\Enqueuer.Telegram.Core.csproj", "{1676E349-7334-4790-B4D0-78C73B83220C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,10 +68,10 @@ Global
 		{A8DDD934-B737-4C36-96E7-1735103D3430}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8DDD934-B737-4C36-96E7-1735103D3430}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8DDD934-B737-4C36-96E7-1735103D3430}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8B4E38C-3DBD-47DC-8C1D-9D304BC08BB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8B4E38C-3DBD-47DC-8C1D-9D304BC08BB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8B4E38C-3DBD-47DC-8C1D-9D304BC08BB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8B4E38C-3DBD-47DC-8C1D-9D304BC08BB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1676E349-7334-4790-B4D0-78C73B83220C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1676E349-7334-4790-B4D0-78C73B83220C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1676E349-7334-4790-B4D0-78C73B83220C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1676E349-7334-4790-B4D0-78C73B83220C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,7 +85,7 @@ Global
 		{63BF682C-1A3A-4ECF-8EB6-352515BC779E} = {4318B105-138E-4DBC-A46F-9675C1E0448C}
 		{5300BFF3-84E5-4824-948D-A915FF41C4B7} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
 		{A8DDD934-B737-4C36-96E7-1735103D3430} = {4318B105-138E-4DBC-A46F-9675C1E0448C}
-		{C8B4E38C-3DBD-47DC-8C1D-9D304BC08BB8} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
+		{1676E349-7334-4790-B4D0-78C73B83220C} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {351A2A60-7B1A-4B59-89E1-62711E231147}
