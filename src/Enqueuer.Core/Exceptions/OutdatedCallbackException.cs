@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Enqueuer.Data.Exceptions;
+namespace Enqueuer.Core.Exceptions;
 
 public class OutdatedCallbackException : Exception
 {

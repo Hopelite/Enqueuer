@@ -1,7 +1,7 @@
-﻿using Enqueuer.Data;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+﻿using Enqueuer.Core;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -12,7 +12,7 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 /// </summary>
 public abstract class CallbackHandlerBaseWithReturnToChatButton : CallbackHandlerBase
 {
-    protected CallbackHandlerBaseWithReturnToChatButton(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider)
+    protected CallbackHandlerBaseWithReturnToChatButton(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
     }

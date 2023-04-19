@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
 using Telegram.Bot;

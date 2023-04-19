@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Data;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Telegram.Bot;
@@ -20,7 +20,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
     private const int MaxChatsPerRow = 2;
     private readonly IGroupService _groupService;
 
-    public ListChatsCallbackHandler(ITelegramBotClient telegramBotClient, IGroupService groupService, IDataSerializer dataSerializer, IMessageProvider messageProvider)
+    public ListChatsCallbackHandler(ITelegramBotClient telegramBotClient, IGroupService groupService, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
         _groupService = groupService;

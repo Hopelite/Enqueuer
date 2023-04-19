@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Callbacks.CallbackHandlers;
-using Enqueuer.Data.Constants;
+using Enqueuer.Core.Constants;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enqueuer.Callbacks.Factories;

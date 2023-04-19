@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
     private readonly ILogger<EnqueueAtCallbackHandler> _logger;
 
     public EnqueueAtCallbackHandler(
-        ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer,
+        ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer,
         IMessageProvider messageProvider, IQueueService queueService, ILogger<EnqueueAtCallbackHandler> logger)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {

@@ -1,4 +1,4 @@
-﻿using Enqueuer.Data;
+﻿using Enqueuer.Core;
 
 namespace Enqueuer.Core.Serialization;
 

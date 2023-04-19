@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Data.Constants;
+﻿namespace Enqueuer.Core.Constants;
 
 /// <summary>
 /// Contains callback constants.

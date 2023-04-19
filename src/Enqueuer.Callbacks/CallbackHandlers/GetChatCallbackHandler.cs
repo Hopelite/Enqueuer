@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Data;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Microsoft.Extensions.Logging;
@@ -21,7 +21,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
     private readonly IGroupService _groupService;
     private readonly ILogger<EnqueueMeCallbackHandler> _logger;
 
-    public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, IDataSerializer dataSerializer, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
+    public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
         _queueService = queueService;

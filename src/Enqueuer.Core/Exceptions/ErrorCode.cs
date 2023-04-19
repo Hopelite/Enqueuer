@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Data.Exceptions;
+﻿namespace Enqueuer.Core.Exceptions;
 
 internal enum ErrorCode
 {

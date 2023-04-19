@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Enqueuer.Callbacks;
 using Enqueuer.Callbacks.Factories;
-using Enqueuer.Data.Configuration;
-using Enqueuer.Data.Exceptions;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core.Configuration;
+using Enqueuer.Core.Exceptions;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Persistence;

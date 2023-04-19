@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Data.TextProviders;
+﻿namespace Enqueuer.Core.TextProviders;
 
 public interface IMessageProvider
 {

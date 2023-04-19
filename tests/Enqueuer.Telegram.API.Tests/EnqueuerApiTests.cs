@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Enqueuer.Data.Constants;
+using Enqueuer.Core.Constants;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Tests.Utilities;
 using Microsoft.EntityFrameworkCore;

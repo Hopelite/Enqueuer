@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Microsoft.Extensions.Logging;
@@ -17,7 +17,7 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
     private readonly IQueueService _queueService;
     private readonly ILogger<SwitchQueueCallbackHandler> _logger;
 
-    public SwitchQueueCallbackHandler(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider, IUserService userService, IQueueService queueService, ILogger<SwitchQueueCallbackHandler> logger)
+    public SwitchQueueCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, IUserService userService, IQueueService queueService, ILogger<SwitchQueueCallbackHandler> logger)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
         _userService = userService;

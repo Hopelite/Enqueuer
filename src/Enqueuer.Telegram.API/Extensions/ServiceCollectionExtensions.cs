@@ -1,6 +1,5 @@
 ﻿using Enqueuer.Callbacks.CallbackHandlers;
 using Enqueuer.Core.Serialization;
-using Enqueuer.Data.DataSerialization;
 using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +22,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection ConfigureSerialization(this IServiceCollection services)
     {
-        services.AddTransient<IDataSerializer, JsonDataSerializer>();
+        services.AddTransient<ICallbackDataSerializer, JsonCallbackDataSerializer>();
         services.AddTransient<ICallbackDataDeserializer, JsonCallbackDataDeserializer>();
 
         return services;

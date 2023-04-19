@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Enqueuer.Data;
+namespace Enqueuer.Core;
 
 /// <summary>
 /// Contains callback data.

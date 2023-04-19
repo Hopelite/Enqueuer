@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Data.Configuration;
+﻿namespace Enqueuer.Core.Configuration;
 
 public interface IBotConfiguration
 {

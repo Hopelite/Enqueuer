@@ -1,5 +1,4 @@
-﻿using Enqueuer.Data;
-using Enqueuer.Data.Exceptions;
+﻿using Enqueuer.Core.Exceptions;
 using Newtonsoft.Json;
 
 namespace Enqueuer.Core.Serialization;

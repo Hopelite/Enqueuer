@@ -1,6 +1,6 @@
 ﻿using Telegram.Bot.Exceptions;
 
-namespace Enqueuer.Data.Exceptions;
+namespace Enqueuer.Core.Exceptions;
 
 public class TelegramExceptionsParser : IExceptionParser
 {

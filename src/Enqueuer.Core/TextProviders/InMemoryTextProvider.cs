@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Enqueuer.Data.TextProviders;
+namespace Enqueuer.Core.TextProviders;
 
 public class InMemoryTextProvider : IMessageProvider
 {

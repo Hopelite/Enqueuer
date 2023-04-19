@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.Exceptions;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core;
+using Enqueuer.Core.Exceptions;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -15,10 +15,10 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 public abstract class CallbackHandlerBase : ICallbackHandler
 {
     protected readonly ITelegramBotClient TelegramBotClient;
-    protected readonly IDataSerializer DataSerializer;
+    protected readonly ICallbackDataSerializer DataSerializer;
     protected readonly IMessageProvider MessageProvider;
 
-    protected CallbackHandlerBase(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider)
+    protected CallbackHandlerBase(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider)
     {
         TelegramBotClient = telegramBotClient;
         DataSerializer = dataSerializer;

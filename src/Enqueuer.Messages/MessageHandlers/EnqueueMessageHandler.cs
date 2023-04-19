@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Constants;
 using Enqueuer.Persistence.Extensions;

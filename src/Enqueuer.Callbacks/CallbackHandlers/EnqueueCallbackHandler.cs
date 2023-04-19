@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Data;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
@@ -21,7 +21,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
     private const int PositionsInRow = 4;
     private readonly IQueueService _queueService;
 
-    public EnqueueCallbackHandler(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider, IQueueService queueService)
+    public EnqueueCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, IQueueService queueService)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
         _queueService = queueService;

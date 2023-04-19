@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data.Configuration;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core.Configuration;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
@@ -22,7 +22,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
     private readonly IQueueService _queueService;
     private readonly IBotConfiguration _botConfiguration;
 
-    public CreateQueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService, IBotConfiguration botConfiguration, IDataSerializer dataSerializer)
+    public CreateQueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService, IBotConfiguration botConfiguration, ICallbackDataSerializer dataSerializer)
         : base(messageProvider, dataSerializer)
     {
         _botClient = botClient;

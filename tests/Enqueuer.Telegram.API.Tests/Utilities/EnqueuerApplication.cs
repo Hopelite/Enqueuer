@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Enqueuer.Data.Configuration;
+using Enqueuer.Core.Configuration;
 using Enqueuer.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

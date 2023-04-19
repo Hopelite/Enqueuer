@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Services;
 using Telegram.Bot;
@@ -18,9 +18,9 @@ public class StartMessageHandler : IMessageHandler
     private readonly ITelegramBotClient _botClient;
     private readonly IMessageProvider _messageProvider;
     private readonly IUserService _userService;
-    private readonly IDataSerializer _dataSerializer;
+    private readonly ICallbackDataSerializer _dataSerializer;
 
-    public StartMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IUserService userService, IDataSerializer dataSerializer)
+    public StartMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IUserService userService, ICallbackDataSerializer dataSerializer)
     {
         _botClient = botClient;
         _messageProvider = messageProvider;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Telegram.Bot.Exceptions;
 
-namespace Enqueuer.Data.Exceptions;
+namespace Enqueuer.Core.Exceptions;
 
 public class MessageNotModifiedException : ApiRequestException
 {

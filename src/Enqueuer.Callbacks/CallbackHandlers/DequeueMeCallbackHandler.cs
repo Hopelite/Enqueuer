@@ -1,10 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Microsoft.Extensions.Logging;
@@ -20,7 +20,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
     private readonly IQueueService _queueService;
     private readonly ILogger<DequeueMeCallbackHandler> _logger;
 
-    public DequeueMeCallbackHandler(ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer, IMessageProvider messageProvider, IUserService userService, IQueueService queueService, ILogger<DequeueMeCallbackHandler> logger)
+    public DequeueMeCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, IUserService userService, IQueueService queueService, ILogger<DequeueMeCallbackHandler> logger)
         : base(telegramBotClient, dataSerializer, messageProvider)
     {
         _userService = userService;

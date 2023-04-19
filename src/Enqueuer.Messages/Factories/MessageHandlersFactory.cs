@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Data.Constants;
+using Enqueuer.Core.Constants;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Messages.MessageHandlers;
 using Microsoft.Extensions.DependencyInjection;

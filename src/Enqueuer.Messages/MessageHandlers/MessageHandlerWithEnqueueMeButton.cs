@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Data;
-using Enqueuer.Data.Constants;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core;
+using Enqueuer.Core.Constants;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -13,9 +13,9 @@ namespace Enqueuer.Messages.MessageHandlers;
 public abstract class MessageHandlerWithEnqueueMeButton : IMessageHandler
 {
     protected readonly IMessageProvider MessageProvider;
-    protected readonly IDataSerializer DataSerializer;
+    protected readonly ICallbackDataSerializer DataSerializer;
 
-    protected MessageHandlerWithEnqueueMeButton(IMessageProvider messageProvider, IDataSerializer dataSerializer)
+    protected MessageHandlerWithEnqueueMeButton(IMessageProvider messageProvider, ICallbackDataSerializer dataSerializer)
     {
         MessageProvider = messageProvider;
         DataSerializer = dataSerializer;

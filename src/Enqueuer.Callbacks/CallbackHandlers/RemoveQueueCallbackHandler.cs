@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Extensions;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Data.TextProviders;
+using Enqueuer.Core.Serialization;
+using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
@@ -22,7 +22,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
     private readonly ILogger<RemoveQueueCallbackHandler> _logger;
 
     public RemoveQueueCallbackHandler(
-        ITelegramBotClient telegramBotClient, IDataSerializer dataSerializer,
+        ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer,
         IMessageProvider messageProvider, IUserService userService,
         IQueueService queueService, ILogger<RemoveQueueCallbackHandler> logger)
         : base(telegramBotClient, dataSerializer, messageProvider)
