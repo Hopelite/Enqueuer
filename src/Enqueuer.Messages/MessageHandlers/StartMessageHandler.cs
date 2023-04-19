@@ -34,7 +34,7 @@ public class StartMessageHandler : IMessageHandler
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PublicChat_Message),
+                _messageProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PublicChat_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -55,12 +55,12 @@ public class StartMessageHandler : IMessageHandler
 
         var viewChatsButton = new InlineKeyboardMarkup(new InlineKeyboardButton[]
         {
-            InlineKeyboardButton.WithCallbackData(_messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_ListChatsButton), serializedCallbackData),
+            InlineKeyboardButton.WithCallbackData(_messageProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PrivateChat_ListChats_Button), serializedCallbackData),
         });
 
         await _botClient.SendTextMessageAsync(
             message.Chat,
-            _messageProvider.GetMessage(MessageKeys.StartMessageHandler.StartCommand_PrivateChat_Message),
+            _messageProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PrivateChat_Message),
             ParseMode.Html,
             replyMarkup: viewChatsButton,
             cancellationToken: cancellationToken);

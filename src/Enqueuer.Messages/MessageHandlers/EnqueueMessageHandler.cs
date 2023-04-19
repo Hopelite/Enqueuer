@@ -34,7 +34,7 @@ public class EnqueueMessageHandler : IMessageHandler
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                _messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
+                _messageProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -51,7 +51,7 @@ public class EnqueueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 message.Chat,
-                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_QueueNameIsNotProvided_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -69,7 +69,7 @@ public class EnqueueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
+                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -82,7 +82,7 @@ public class EnqueueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -98,7 +98,7 @@ public class EnqueueMessageHandler : IMessageHandler
 
         await _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_UserAlreadyParticipates_Message, queueName),
+                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_UserAlreadyParticipates_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -110,7 +110,7 @@ public class EnqueueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 chat.Id,
-                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message, queue.Name),
+                _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_PositionSpecified_DynamicQueue_Message, queue.Name),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -124,7 +124,7 @@ public class EnqueueMessageHandler : IMessageHandler
             {
                 await _botClient.SendTextMessageAsync(
                     chat.Id,
-                    _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, position.Value),
+                    _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, position.Value),
                     ParseMode.Html,
                     replyToMessageId: message.MessageId,
                     cancellationToken: cancellationToken);
@@ -134,7 +134,7 @@ public class EnqueueMessageHandler : IMessageHandler
 
             await _botClient.SendTextMessageAsync(
                     chat.Id,
-                    _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_PositionIsReserved_Message, position.Value, queue.Name),
+                    _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_PositionIsReserved_Message, position.Value, queue.Name),
                     ParseMode.Html,
                     replyToMessageId: message.MessageId,
                     cancellationToken: cancellationToken);
@@ -145,7 +145,7 @@ public class EnqueueMessageHandler : IMessageHandler
         var userPosition = await _queueService.AddAtFirstAvailablePosition(user, queue.Id, CancellationToken.None);
         await _botClient.SendTextMessageAsync(
             chat.Id,
-            _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, userPosition),
+            _messageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_SuccessfullyAddedOnPosition_Message, queue.Name, userPosition),
             ParseMode.Html,
             replyToMessageId: message.MessageId,
             cancellationToken: cancellationToken);

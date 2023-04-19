@@ -37,7 +37,7 @@ public abstract class MessageHandlerWithEnqueueMeButton : IMessageHandler
 
         var serializedButtonData = DataSerializer.Serialize(callbackButtonData);
         return InlineKeyboardButton.WithCallbackData(
-            MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.CreateQueueCommand_PublicChat_EnqueueMeButton),
+            MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_EnqueueMeButton),
             serializedButtonData);
     }
 }

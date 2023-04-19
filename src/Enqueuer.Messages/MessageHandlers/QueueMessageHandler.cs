@@ -35,7 +35,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                MessageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
+                MessageProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -65,7 +65,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -77,7 +77,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_QueueEmpty_Message, queueName),
+                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueEmpty_Message, queueName),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue.Id)),
                 cancellationToken: cancellationToken);
@@ -95,7 +95,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_NoQueues_Message),
+                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_NoQueues_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
 
@@ -108,25 +108,25 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
 
     private string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)
     {
-        var replyMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_Message));
+        var replyMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_Message));
         foreach (var queue in chatQueues)
         {
-            replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_DisplayQueue_Message, queue.Name));
+            replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueue_Message, queue.Name));
         }
 
-        replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueues_PostScriptum_Message));
+        replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_PostScriptum_Message));
         return replyMessage.ToString();
     }
 
     private string BuildResponseMessageWithQueueParticipants(Queue queue)
     {
-        var responseMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_ListQueueParticipants_Message, queue.Name));
+        var responseMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueueParticipants_Message, queue.Name));
         var queueParticipants = queue.Members.OrderBy(queueUser => queueUser.Position)
             .Select(queueUser => (queueUser.Position, queueUser.User));
 
         foreach ((var position, var user) in queueParticipants)
         {
-            responseMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.QueueCommand_PublicChat_DisplayQueueParticipant_Message, position, user.FullName));
+            responseMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueueParticipant_Message, position, user.FullName));
         }
 
         return responseMessage.ToString();

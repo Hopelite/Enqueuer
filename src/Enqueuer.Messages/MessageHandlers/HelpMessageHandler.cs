@@ -22,7 +22,7 @@ public class HelpMessageHandler : IMessageHandler
     {
         return _botClient.SendTextMessageAsync(
             message.Chat,
-            _messageProvider.GetMessage(MessageKeys.HelpMessageHandler.HelpCommand_Message),
+            _messageProvider.GetMessage(MessageKeys.HelpMessageHandler.Message_HelpCommand_Message),
             ParseMode.Html,
             cancellationToken: cancellationToken);
     }

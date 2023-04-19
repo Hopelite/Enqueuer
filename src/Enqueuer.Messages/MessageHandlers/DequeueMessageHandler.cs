@@ -33,7 +33,7 @@ public class DequeueMessageHandler : IMessageHandler
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                _messageProvider.GetMessage(MessageKeys.UnsupportedCommand_PrivateChat_Message),
+                _messageProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -54,7 +54,7 @@ public class DequeueMessageHandler : IMessageHandler
 
         await _botClient.SendTextMessageAsync(
             message.Chat.Id,
-            _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueNameIsNotProvided_Message),
+            _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_QueueNameIsNotProvided_Message),
             ParseMode.Html,
             replyToMessageId: message.MessageId,
             cancellationToken: cancellationToken);
@@ -68,7 +68,7 @@ public class DequeueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -80,7 +80,7 @@ public class DequeueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                  group.Id,
-                 _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_SuccessfullyDequeued_Message, queueName),
+                 _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_SuccessfullyDequeued_Message, queueName),
                  ParseMode.Html,
                  replyToMessageId: message.MessageId,
                  cancellationToken: cancellationToken);
@@ -90,7 +90,7 @@ public class DequeueMessageHandler : IMessageHandler
 
         await _botClient.SendTextMessageAsync(
                 group.Id,
-                _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.DequeueCommand_PublicChat_UserDoesNotParticipate_Message, queueName),
+                _messageProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_UserDoesNotParticipate_Message, queueName),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
