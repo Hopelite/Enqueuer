@@ -7,6 +7,7 @@ using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
+using Enqueuer.Telegram.Core.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -22,8 +23,8 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
     private readonly IQueueService _queueService;
     private readonly IBotConfiguration _botConfiguration;
 
-    public CreateQueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService, IBotConfiguration botConfiguration, ICallbackDataSerializer dataSerializer)
-        : base(messageProvider, dataSerializer)
+    public CreateQueueMessageHandler(ITelegramBotClient botClient, ILocalizationProvider localizationProvider, IGroupService groupService, IQueueService queueService, IBotConfiguration botConfiguration, ICallbackDataSerializer dataSerializer)
+        : base(localizationProvider, dataSerializer)
     {
         _botClient = botClient;
         _groupService = groupService;
@@ -37,7 +38,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                MessageProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message),
+                LocalizationProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -58,7 +59,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
 
         await _botClient.SendTextMessageAsync(
                 message.Chat.Id,
-                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message),
+                LocalizationProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message, MessageParameters.None),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -70,7 +71,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             return _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message),
+                LocalizationProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message, MessageParameters.None),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -88,7 +89,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
 
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message, response.QueueName),
+                LocalizationProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message, new MessageParameters(response.QueueName)),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, response.QueueId)),
                 cancellationToken: cancellationToken);
@@ -97,7 +98,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_QueueNameIsTooLong_Message),
+                LocalizationProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_QueueNameIsTooLong_Message, MessageParameters.None),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -106,7 +107,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message),
+                LocalizationProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message, MessageParameters.None),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -115,7 +116,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_QueueAlreadyExists_Message, queueName),
+                LocalizationProvider.GetMessage(MessageKeys.CreateQueueMessageHandler.Message_CreateQueueCommand_PublicChat_QueueAlreadyExists_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -124,7 +125,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_InvalidPositionSpecified_Message),
+                LocalizationProvider.GetMessage(MessageKeys.EnqueueMessageHandler.Message_EnqueueCommand_PublicChat_InvalidPositionSpecified_Message, MessageParameters.None),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);

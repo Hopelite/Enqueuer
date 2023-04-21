@@ -66,7 +66,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueDoesNotExist_Message, queueName),
+                LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueDoesNotExist_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -78,7 +78,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueEmpty_Message, queueName),
+                LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueEmpty_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue.Id)),
                 cancellationToken: cancellationToken);
@@ -96,7 +96,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_NoQueues_Message),
+                LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_NoQueues_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
 
@@ -109,25 +109,25 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
 
     private string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)
     {
-        var replyMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_Message));
+        var replyMessage = new StringBuilder(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_Message, MessageParameters.None));
         foreach (var queue in chatQueues)
         {
-            replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueue_Message, queue.Name));
+            replyMessage.AppendLine(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueue_Message, new MessageParameters(queue.Name)));
         }
 
-        replyMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_PostScriptum_Message));
+        replyMessage.AppendLine(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_PostScriptum_Message, MessageParameters.None));
         return replyMessage.ToString();
     }
 
     private string BuildResponseMessageWithQueueParticipants(Queue queue)
     {
-        var responseMessage = new StringBuilder(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueueParticipants_Message, queue.Name));
+        var responseMessage = new StringBuilder(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueueParticipants_Message, new MessageParameters(queue.Name)));
         var queueParticipants = queue.Members.OrderBy(queueUser => queueUser.Position)
             .Select(queueUser => (queueUser.Position, queueUser.User));
 
         foreach ((var position, var user) in queueParticipants)
         {
-            responseMessage.AppendLine(MessageProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueueParticipant_Message, position, user.FullName));
+            responseMessage.AppendLine(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueueParticipant_Message, new MessageParameters(position.ToString(), user.FullName)));
         }
 
         return responseMessage.ToString();
