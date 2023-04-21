@@ -61,6 +61,105 @@ namespace Enqueuer.Telegram.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enqueue me!.
+        /// </summary>
+        internal static string Message_CreateQueueCommand_PublicChat_EnqueueMe_Button {
+            get {
+                return ResourceManager.GetString("Message_CreateQueueCommand_PublicChat_EnqueueMe_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This chat has reached its maximum number of queues. Please remove one using the &apos;&lt;b&gt;/removequeue&lt;/b&gt;&apos; command before adding a new one..
+        /// </summary>
+        internal static string Message_CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message {
+            get {
+                return ResourceManager.GetString("Message_CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to create a queue with only a number in its name. Please add some nice words..
+        /// </summary>
+        internal static string Message_CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message {
+            get {
+                return ResourceManager.GetString("Message_CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This chat already has a queue named &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;. Please, use some other name for this queue or delete the existing one using &apos;&lt;b&gt;/removequeue&lt;/b&gt;&apos;..
+        /// </summary>
+        internal static string Message_CreateQueueCommand_PublicChat_QueueAlreadyExists_Message {
+            get {
+                return ResourceManager.GetString("Message_CreateQueueCommand_PublicChat_QueueAlreadyExists_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To create a new queue, please write the command this way: &apos;&lt;b&gt;/createqueue&lt;/b&gt; &lt;i&gt;[queue_name]&lt;/i&gt;&apos;..
+        /// </summary>
+        internal static string Message_CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message {
+            get {
+                return ResourceManager.GetString("Message_CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This queue name is too long. Please, provide it with a name shorter than 50 symbols..
+        /// </summary>
+        internal static string Message_CreateQueueCommand_PublicChat_QueueNameIsTooLong_Message {
+            get {
+                return ResourceManager.GetString("Message_CreateQueueCommand_PublicChat_QueueNameIsTooLong_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully created a new queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;!.
+        /// </summary>
+        internal static string Message_CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message {
+            get {
+                return ResourceManager.GetString("Message_CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no queue with name &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;. You can get list of chat queues using &apos;&lt;b&gt;/queue&lt;/b&gt;&apos; command..
+        /// </summary>
+        internal static string Message_DequeueCommand_PublicChat_QueueDoesNotExist_Message {
+            get {
+                return ResourceManager.GetString("Message_DequeueCommand_PublicChat_QueueDoesNotExist_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please write the command this way: &apos;/&lt;b&gt;dequeue&lt;/b&gt; &lt;i&gt;[queue_name]&lt;/i&gt;&apos;..
+        /// </summary>
+        internal static string Message_DequeueCommand_PublicChat_QueueNameIsNotProvided_Message {
+            get {
+                return ResourceManager.GetString("Message_DequeueCommand_PublicChat_QueueNameIsNotProvided_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully removed from queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;!.
+        /// </summary>
+        internal static string Message_DequeueCommand_PublicChat_SuccessfullyDequeued_Message {
+            get {
+                return ResourceManager.GetString("Message_DequeueCommand_PublicChat_SuccessfullyDequeued_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re not participating in queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;..
+        /// </summary>
+        internal static string Message_DequeueCommand_PublicChat_UserDoesNotParticipate_Message {
+            get {
+                return ResourceManager.GetString("Message_DequeueCommand_PublicChat_UserDoesNotParticipate_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please, use positive numbers for user position, but not greater than 500..
         /// </summary>
         internal static string Message_EnqueueCommand_PublicChat_InvalidPositionSpecified_Message {
@@ -213,6 +312,42 @@ namespace Enqueuer.Telegram.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is no queue with name &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;. You can get list of chat queues using &apos;&lt;b&gt;/queue&lt;/b&gt;&apos; command..
+        /// </summary>
+        internal static string Message_RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message {
+            get {
+                return ResourceManager.GetString("Message_RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To delete queue, please write command this way: &apos;&lt;b&gt;/removequeue&lt;/b&gt; &lt;i&gt;[queue_name]&lt;/i&gt;&apos;..
+        /// </summary>
+        internal static string Message_RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message {
+            get {
+                return ResourceManager.GetString("Message_RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully deleted queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;!.
+        /// </summary>
+        internal static string Message_RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message {
+            get {
+                return ResourceManager.GetString("Message_RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to delete queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;. It can be deleted only by it&apos;s creator or chat administrators..
+        /// </summary>
+        internal static string Message_RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message {
+            get {
+                return ResourceManager.GetString("Message_RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to View chats.
         /// </summary>
         internal static string Message_StartCommand_PrivateChat_ListChats_Button {
@@ -240,6 +375,24 @@ namespace Enqueuer.Telegram.Core.Resources {
         internal static string Message_StartCommand_PublicChat_Message {
             get {
                 return ResourceManager.GetString("Message_StartCommand_PublicChat_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bot does not support the &apos;{0}&apos; command..
+        /// </summary>
+        internal static string Message_UnsupportedCommand_Message {
+            get {
+                return ResourceManager.GetString("Message_UnsupportedCommand_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bot does not support commands in private chats except &apos;&lt;b&gt;/start&lt;/b&gt;&apos;. Please, use interface it provides..
+        /// </summary>
+        internal static string Message_UnsupportedCommand_PrivateChat_Message {
+            get {
+                return ResourceManager.GetString("Message_UnsupportedCommand_PrivateChat_Message", resourceCulture);
             }
         }
     }

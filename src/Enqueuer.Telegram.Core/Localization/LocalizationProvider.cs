@@ -72,7 +72,7 @@ public class LocalizationProvider : ILocalizationProvider
 
             unchecked
             {
-                int hash = firstPrimeNumber;
+                var hash = firstPrimeNumber;
                 hash = hash * secondPrimeNumber + _key.GetHashCode();
                 hash = hash * secondPrimeNumber + _cultureName.GetHashCode();
                 return hash;

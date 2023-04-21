@@ -117,6 +117,39 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Message_CreateQueueCommand_PublicChat_EnqueueMe_Button" xml:space="preserve">
+    <value>Enqueue me!</value>
+  </data>
+  <data name="Message_CreateQueueCommand_PublicChat_MaxNumberOfQueuesReached_Message" xml:space="preserve">
+    <value>This chat has reached its maximum number of queues. Please remove one using the '&lt;b&gt;/removequeue&lt;/b&gt;' command before adding a new one.</value>
+  </data>
+  <data name="Message_CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message" xml:space="preserve">
+    <value>Unable to create a queue with only a number in its name. Please add some nice words.</value>
+  </data>
+  <data name="Message_CreateQueueCommand_PublicChat_QueueAlreadyExists_Message" xml:space="preserve">
+    <value>This chat already has a queue named '&lt;b&gt;{0}&lt;/b&gt;'. Please, use some other name for this queue or delete the existing one using '&lt;b&gt;/removequeue&lt;/b&gt;'.</value>
+  </data>
+  <data name="Message_CreateQueueCommand_PublicChat_QueueNameIsNotProvided_Message" xml:space="preserve">
+    <value>To create a new queue, please write the command this way: '&lt;b&gt;/createqueue&lt;/b&gt; &lt;i&gt;[queue_name]&lt;/i&gt;'.</value>
+  </data>
+  <data name="Message_CreateQueueCommand_PublicChat_QueueNameIsTooLong_Message" xml:space="preserve">
+    <value>This queue name is too long. Please, provide it with a name shorter than 50 symbols.</value>
+  </data>
+  <data name="Message_CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message" xml:space="preserve">
+    <value>Successfully created a new queue '&lt;b&gt;{0}&lt;/b&gt;'!</value>
+  </data>
+  <data name="Message_DequeueCommand_PublicChat_QueueDoesNotExist_Message" xml:space="preserve">
+    <value>There is no queue with name '&lt;b&gt;{0}&lt;/b&gt;'. You can get list of chat queues using '&lt;b&gt;/queue&lt;/b&gt;' command.</value>
+  </data>
+  <data name="Message_DequeueCommand_PublicChat_QueueNameIsNotProvided_Message" xml:space="preserve">
+    <value>Please write the command this way: '/&lt;b&gt;dequeue&lt;/b&gt; &lt;i&gt;[queue_name]&lt;/i&gt;'.</value>
+  </data>
+  <data name="Message_DequeueCommand_PublicChat_SuccessfullyDequeued_Message" xml:space="preserve">
+    <value>Successfully removed from queue '&lt;b&gt;{0}&lt;/b&gt;'!</value>
+  </data>
+  <data name="Message_DequeueCommand_PublicChat_UserDoesNotParticipate_Message" xml:space="preserve">
+    <value>You're not participating in queue '&lt;b&gt;{0}&lt;/b&gt;'.</value>
+  </data>
   <data name="Message_EnqueueCommand_PublicChat_InvalidPositionSpecified_Message" xml:space="preserve">
     <value>Please, use positive numbers for user position, but not greater than 500.</value>
   </data>
@@ -173,6 +206,18 @@ To get slightly more detailed info about one of them, write the appropriate comm
   <data name="Message_QueueCommand_PublicChat_QueueIsEmpty_Message" xml:space="preserve">
     <value>Queue '&lt;b&gt;{0}&lt;/b&gt;' has no participants.</value>
   </data>
+  <data name="Message_RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message" xml:space="preserve">
+    <value>There is no queue with name '&lt;b&gt;{0}&lt;/b&gt;'. You can get list of chat queues using '&lt;b&gt;/queue&lt;/b&gt;' command.</value>
+  </data>
+  <data name="Message_RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message" xml:space="preserve">
+    <value>To delete queue, please write command this way: '&lt;b&gt;/removequeue&lt;/b&gt; &lt;i&gt;[queue_name]&lt;/i&gt;'.</value>
+  </data>
+  <data name="Message_RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message" xml:space="preserve">
+    <value>Successfully deleted queue '&lt;b&gt;{0}&lt;/b&gt;'!</value>
+  </data>
+  <data name="Message_RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message" xml:space="preserve">
+    <value>Unable to delete queue '&lt;b&gt;{0}&lt;/b&gt;'. It can be deleted only by it's creator or chat administrators.</value>
+  </data>
   <data name="Message_StartCommand_PrivateChat_ListChats_Button" xml:space="preserve">
     <value>View chats</value>
   </data>
@@ -185,5 +230,11 @@ Start by pressing the button below:</value>
     <value>Hello there! I'm &lt;b&gt;Enqueuer Bot&lt;/b&gt;, the master of creating and managing queues.
 To get the list of commands, write '&lt;b&gt;/help&lt;/b&gt;'.
 &lt;i&gt;Please, message this guy (@hopelite) to get help, give feedback or report a bug.&lt;/i&gt;</value>
+  </data>
+  <data name="Message_UnsupportedCommand_Message" xml:space="preserve">
+    <value>Bot does not support the '{0}' command.</value>
+  </data>
+  <data name="Message_UnsupportedCommand_PrivateChat_Message" xml:space="preserve">
+    <value>Bot does not support commands in private chats except '&lt;b&gt;/start&lt;/b&gt;'. Please, use interface it provides.</value>
   </data>
 </root>

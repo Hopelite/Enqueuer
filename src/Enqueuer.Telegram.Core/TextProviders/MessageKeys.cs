@@ -73,13 +73,13 @@ public static class MessageKeys
 
         public const string Message_CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message = nameof(Message_CreateQueueCommand_PublicChat_OnlyNumberInQueueName_Message);
 
-        public const string Message_CreateQueueCommand_PublicChat_QueueNameTooLong_Message = nameof(Message_CreateQueueCommand_PublicChat_QueueNameTooLong_Message);
+        public const string Message_CreateQueueCommand_PublicChat_QueueNameIsTooLong_Message = nameof(Message_CreateQueueCommand_PublicChat_QueueNameIsTooLong_Message);
 
         public const string Message_CreateQueueCommand_PublicChat_QueueAlreadyExists_Message = nameof(Message_CreateQueueCommand_PublicChat_QueueAlreadyExists_Message);
 
         public const string Message_CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message = nameof(Message_CreateQueueCommand_PublicChat_SuccessfullyCreatedQueue_Message);
 
-        public const string Message_CreateQueueCommand_PublicChat_EnqueueMeButton = nameof(Message_CreateQueueCommand_PublicChat_EnqueueMeButton);
+        public const string Message_CreateQueueCommand_PublicChat_EnqueueMe_Button = nameof(Message_CreateQueueCommand_PublicChat_EnqueueMe_Button);
     }
 
     public static class RemoveQueueMessageHandler

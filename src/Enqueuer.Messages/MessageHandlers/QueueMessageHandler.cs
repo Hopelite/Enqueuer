@@ -8,6 +8,7 @@ using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Core.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -21,8 +22,8 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
     private readonly IGroupService _groupService;
     private readonly IQueueService _queueService;
 
-    public QueueMessageHandler(ITelegramBotClient botClient, IMessageProvider messageProvider, IGroupService groupService, IQueueService queueService, ICallbackDataSerializer dataSerializer)
-        : base(messageProvider, dataSerializer)
+    public QueueMessageHandler(ITelegramBotClient botClient, ILocalizationProvider localizationProvider, IGroupService groupService, IQueueService queueService, ICallbackDataSerializer dataSerializer)
+        : base(localizationProvider, dataSerializer)
     {
         _botClient = botClient;
         _groupService = groupService;
@@ -35,7 +36,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             return _botClient.SendTextMessageAsync(
                 message.Chat,
-                MessageProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message),
+                LocalizationProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
