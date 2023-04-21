@@ -59,9 +59,9 @@ public class GetChatCallbackHandler : CallbackHandlerBase
 
         var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.TargetChatId.Value, CancellationToken.None);
         var responseMessage = (queues.Count == 0
-            ? MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ChatHasNoQueues_Message)
+            ? MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.Callback_GetChat_ChatHasNoQueues_Message)
             : MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_Message))
-                + MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_PostScriptum_Message);
+                + MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.Callback_GetChat_DisplayQueueList_PostScriptum_Message);
 
         var replyMarkup = BuildReplyMarkup(queues, callback.CallbackData, callback.CallbackData.TargetChatId.Value);
         await TelegramBotClient.EditMessageTextAsync(

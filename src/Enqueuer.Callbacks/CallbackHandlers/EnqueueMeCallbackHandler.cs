@@ -49,7 +49,7 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
             var response = await _queueService.EnqueueOnFirstAvailablePositionAsync(callback.From.Id, queueId, cancellationToken);
             await _telegramBotClient.AnswerCallbackQueryAsync(
                 callback.Id,
-                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification, response.Queue.Name, response.Position),
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_SuccessfullyEnqueued_Alert, response.Queue.Name, response.Position),
                 cancellationToken: cancellationToken);
         }
         catch (QueueDoesNotExistException)
@@ -57,7 +57,7 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
             await _telegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_QueueHasBeenDeleted_Message),
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_QueueHasBeenDeleted_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
 
@@ -67,14 +67,14 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
         {
             await _telegramBotClient.AnswerCallbackQueryAsync(
                 callback.Id,
-                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification, ex.QueueName),
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_UserAlreadyParticipates_Alert, ex.QueueName),
                 cancellationToken: cancellationToken);
         }
         catch (QueueIsFullException ex)
         {
             await _telegramBotClient.AnswerCallbackQueryAsync(
                 callback.Id,
-                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsFull_Message, ex.QueueName),
+                _messageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsFull_Message, ex.QueueName),
                 cancellationToken: cancellationToken);
         }
     }

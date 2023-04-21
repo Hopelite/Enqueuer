@@ -34,7 +34,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] { GetRefreshButton(callback.CallbackData) }));
 
@@ -45,7 +45,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_ListChats_Message),
+            MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_DisplayChatsList_Message),
             ParseMode.Html,
             replyMarkup: replyMarkup);
     }

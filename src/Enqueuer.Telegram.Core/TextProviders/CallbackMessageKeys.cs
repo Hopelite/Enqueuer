@@ -4,83 +4,83 @@ public static class CallbackMessageKeys
 {
     public static class EnqueueMeCallbackHandler
     {
-        public const string EnqueueMeCallback_QueueHasBeenDeleted_Message = "EnqueueMeCallback_QueueHasBeenDeleted_Message";
+        public const string Callback_EnqueueMe_QueueHasBeenDeleted_Message = nameof(Callback_EnqueueMe_QueueHasBeenDeleted_Message);
 
-        public const string EnqueueMeCallback_UserAlreadyParticipates_Notification = "EnqueueMeCallback_UserAlreadyParticipates_Notification";
+        public const string Callback_EnqueueMe_UserAlreadyParticipates_Alert = nameof(Callback_EnqueueMe_UserAlreadyParticipates_Alert);
 
-        public const string EnqueueMeCallback_SuccessfullyEnqueued_Notification = "EnqueueMeCallback_SuccessfullyEnqueued_Notification";
+        public const string Callback_EnqueueMe_SuccessfullyEnqueued_Alert = nameof(Callback_EnqueueMe_SuccessfullyEnqueued_Alert);
     }
 
     public static class ListChatsCallbackHandler
     {
-        public const string ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message = "ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message";
+        public const string Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message = nameof(Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message);
 
-        public const string ListChatsCallback_ListChats_Message = "ListChatsCallback_ListChats_Message";
+        public const string Callback_ListChats_DisplayChatsList_Message = nameof(Callback_ListChats_DisplayChatsList_Message);
     }
 
     public static class GetChatCallbackHandler
     {
-        public const string GetChatCallback_ChatHasNoQueues_Message = "GetChatCallback_ChatHasNoQueues_Message";
+        public const string Callback_GetChat_ChatHasNoQueues_Message = nameof(Callback_GetChat_ChatHasNoQueues_Message);
 
-        public const string GetChatCallback_ListQueues_Message = "GetChatCallback_ListQueues_Message";
+        public const string Callback_GetChat_DisplayQueuesList_Message = nameof(Callback_GetChat_DisplayQueuesList_Message);
 
-        public const string GetChatCallback_ListQueues_PostScriptum_Message = "GetChatCallback_ListQueues_PostScriptum_Message";
+        public const string Callback_GetChat_DisplayQueueList_PostScriptum_Message = nameof(Callback_GetChat_DisplayQueueList_PostScriptum_Message);
     }
 
     public static class GetQueueCallbackHandler
     {
-        public const string GetQueueCallback_EnqueueMe_Button = "GetQueueCallback_EnqueueMe_Button";
+        public const string Callback_GetQueue_EnqueueMe_Button = nameof(Callback_GetQueue_EnqueueMe_Button);
 
-        public const string GetQueueCallback_DequeueMe_Button = "GetQueueCallback_DequeueMe_Button";
+        public const string Callback_GetQueue_DequeueMe_Button = nameof(Callback_GetQueue_DequeueMe_Button);
 
-        public const string GetQueueCallback_RemoveQueue_Button = "GetQueueCallback_RemoveQueue_Button";
+        public const string Callback_GetQueue_RemoveQueue_Button = nameof(Callback_GetQueue_RemoveQueue_Button);
 
-        public const string GetQueueCallback_MakeQueueStatic_Button = "GetQueueCallback_MakeQueueStatic_Button";
+        public const string Callback_GetQueue_MakeQueueStatic_Button = nameof(Callback_GetQueue_MakeQueueStatic_Button);
 
-        public const string GetQueueCallback_MakeQueueDynamic_Button = "GetQueueCallback_MakeQueueDynamic_Button";
+        public const string Callback_GetQueue_MakeQueueDynamic_Button = nameof(Callback_GetQueue_MakeQueueDynamic_Button);
 
-        public const string GetQueueCallback_ListQueueMembers_QueueIsEmpty_Message = "GetQueueCallback_ListQueueMembers_QueueIsEmpty_Message";
+        public const string Callback_GetQueue_ListQueueMembers_QueueIsEmpty_Message = nameof(Callback_GetQueue_ListQueueMembers_QueueIsEmpty_Message);
 
-        public const string GetQueueCallback_ListQueueMembers_Message = "GetQueueCallback_ListQueueMembers_Message";
+        public const string Callback_GetQueue_ListQueueMembers_Message = nameof(Callback_GetQueue_ListQueueMembers_Message);
 
-        public const string GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message = "GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message";
+        public const string Callback_GetQueue_ListQueueMembers_QueueIsDynamic_PostScriptum_Message = nameof(Callback_GetQueue_ListQueueMembers_QueueIsDynamic_PostScriptum_Message);
 
-        public const string GetQueueCallback_SwapPositions_Button = "GetQueueCallback_SwapPositions_Button";
+        public const string Callback_GetQueue_SwapPositions_Button = nameof(Callback_GetQueue_SwapPositions_Button);
     }
 
     public static class EnqueueCallbackHandler
     {
-        public const string EnqueueCallback_QueueHasBeenDeleted_Message = "EnqueueCallback_QueueHasBeenDeleted_Message";
+        public const string Callback_Enqueue_QueueHasBeenDeleted_Message = nameof(Callback_Enqueue_QueueHasBeenDeleted_Message);
 
-        public const string EnqueueCallback_FirstAvailable_Button = "EnqueueCallback_FirstAvailable_Button";
+        public const string Callback_Enqueue_FirstAvailable_Button = nameof(Callback_Enqueue_FirstAvailable_Button);
 
-        public const string EnqueueCallback_SelectPosition_Message = "EnqueueCallback_SelectPosition_Message";
+        public const string Callback_Enqueue_SelectPosition_Message = nameof(Callback_Enqueue_SelectPosition_Message);
     }
 
     public static class EnqueueAtCallbackHandler
     {
-        public const string EnqueueAtCallback_UserAlreadyParticipates_Message = "EnqueueAtCallback_UserAlreadyParticipates_Message";
+        public const string Callback_EnqueueAt_UserAlreadyParticipates_Message = nameof(Callback_EnqueueAt_UserAlreadyParticipates_Message);
 
-        public const string EnqueueAtCallback_QueueIsFull_Message = "EnqueueAtCallback_QueueIsFull_Message";
+        public const string Callback_EnqueueAt_QueueIsFull_Message = nameof(Callback_EnqueueAt_QueueIsFull_Message);
 
-        public const string EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message = "EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message";
+        public const string Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message = nameof(Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message);
 
-        public const string EnqueueAtCallback_PositionIsReserved_Message = "EnqueueAtCallback_PositionIsReserved_Message";
+        public const string Callback_EnqueueAt_PositionIsReserved_Message = nameof(Callback_EnqueueAt_PositionIsReserved_Message);
 
-        public const string EnqueueAtCallback_PositionIsReserved_ChooseAnother_Button = "EnqueueAtCallback_PositionIsReserved_ChooseAnother_Button";
+        public const string Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button = nameof(Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button);
 
-        public const string EnqueueAtCallback_Success_Message = "EnqueueAtCallback_Success_Message";
+        public const string Callback_EnqueueAt_Success_Message = nameof(Callback_EnqueueAt_Success_Message);
     }
 
     public static class DequeueMeCallbackHandler
     {
-        public const string DequeueMeCallback_UserDoesNotParticipate_Message = "DequeueMeCallback_UserDoesNotParticipate_Message";
+        public const string Callback_DequeueMe_UserDoesNotParticipate_Message = nameof(Callback_DequeueMe_UserDoesNotParticipate_Message);
 
-        public const string DequeueMeCallback_AreYouSureToBeDequeued_Message = "DequeueMeCallback_AreYouSureToBeDequeued_Message";
+        public const string Callback_DequeueMe_AreYouSureToBeDequeued_Message = nameof(Callback_DequeueMe_AreYouSureToBeDequeued_Message);
 
-        public const string DequeueMeCallback_AgreeToDequeue_Button = "DequeueMeCallback_AgreeToDequeue_Button";
+        public const string Callback_DequeueMe_AgreeToDequeue_Button = nameof(Callback_DequeueMe_AgreeToDequeue_Button);
 
-        public const string DequeueMeCallback_Success_Message = "DequeueMeCallback_Success_Message";
+        public const string Callback_DequeueMe_Success_Message = nameof(Callback_DequeueMe_Success_Message);
     }
 
     public static class RemoveQueueCallbackHandler

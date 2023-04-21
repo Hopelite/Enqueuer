@@ -51,7 +51,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_QueueHasBeenDeleted_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
 
@@ -68,7 +68,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         {
             replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[2][]
             {
-                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData!, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)) },
+                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData!, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button)) },
                 new InlineKeyboardButton[] {  GetReturnToQueueButton(callback.CallbackData!) }
             });
         }
@@ -81,7 +81,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_SelectPosition_Message, queue.Name),
+            MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_SelectPosition_Message, queue.Name),
             ParseMode.Html,
             replyMarkup: replyButtons,
             cancellationToken: cancellationToken);
@@ -92,7 +92,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         var numberOfRows = availablePositions.Length / PositionsInRow;
         var positionButtons = new InlineKeyboardButton[numberOfRows + 3][];
 
-        positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button)) };
+        positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button)) };
         AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
         positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
         positionButtons[numberOfRows + 2] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };

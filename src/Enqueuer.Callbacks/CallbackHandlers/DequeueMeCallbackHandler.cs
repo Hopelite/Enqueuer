@@ -71,14 +71,14 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
 
         var replyMarkup = new InlineKeyboardButton[][]
         {
-            new InlineKeyboardButton[] { GetDequeueButton(MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AgreeToDequeue_Button), callback.CallbackData, true) },
+            new InlineKeyboardButton[] { GetDequeueButton(MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AgreeToDequeue_Button), callback.CallbackData, true) },
             new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
         };
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AreYouSureToBeDequeued_Message, queue.Name),
+            MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AreYouSureToBeDequeued_Message, queue.Name),
             ParseMode.Html,
             replyMarkup: replyMarkup);
     }
@@ -87,8 +87,8 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
     {
         var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
         var responseMessage = await _queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None)
-            ? MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_Success_Message, queue.Name)
-            : MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_UserDoesNotParticipate_Message, queue.Name);
+            ? MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_Success_Message, queue.Name)
+            : MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_UserDoesNotParticipate_Message, queue.Name);
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,

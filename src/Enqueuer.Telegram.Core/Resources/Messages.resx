@@ -117,6 +117,96 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Callback_DequeueMe_AgreeToDequeue_Button" xml:space="preserve">
+    <value>Yes, I want to leave</value>
+  </data>
+  <data name="Callback_DequeueMe_AreYouSureToBeDequeued_Message" xml:space="preserve">
+    <value>Do you really want to leave the &lt;b&gt;'{0}'&lt;/b&gt; queue?</value>
+  </data>
+  <data name="Callback_DequeueMe_Success_Message" xml:space="preserve">
+    <value>Successfully removed from the '&lt;b&gt;{0}&lt;/b&gt;' queue!</value>
+  </data>
+  <data name="Callback_DequeueMe_UserDoesNotParticipate_Message" xml:space="preserve">
+    <value>You've already dequeued from the '&lt;b&gt;{0}&lt;/b&gt;' queue.</value>
+  </data>
+  <data name="Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button" xml:space="preserve">
+    <value>Choose another</value>
+  </data>
+  <data name="Callback_EnqueueAt_PositionIsReserved_Message" xml:space="preserve">
+    <value>Position '&lt;b&gt;{0}&lt;/b&gt;' in queue '&lt;b&gt;{1}&lt;/b&gt;' is reserved. Please, reserve other position.</value>
+  </data>
+  <data name="Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message" xml:space="preserve">
+    <value>Queue '&lt;b&gt;{0}&lt;/b&gt;' is now dynamic. Please, return and press the 'First available' button.</value>
+  </data>
+  <data name="Callback_EnqueueAt_QueueIsFull_Message" xml:space="preserve">
+    <value>All possible positions in queue &lt;b&gt;'{0}' are reserved. Please, wait untill someone leaves to join.</value>
+  </data>
+  <data name="Callback_EnqueueAt_Success_Message" xml:space="preserve">
+    <value>Successfully added to the queue '&lt;b&gt;{0}&lt;/b&gt;' on position &lt;b&gt;{1}&lt;/b&gt;!</value>
+  </data>
+  <data name="Callback_EnqueueAt_UserAlreadyParticipates_Message" xml:space="preserve">
+    <value>You're already participating in queue '&lt;b&gt;{0}&lt;/b&gt;'. To change your position, please, dequeue yourself first.</value>
+  </data>
+  <data name="Callback_EnqueueMe_QueueHasBeenDeleted_Message" xml:space="preserve">
+    <value>This queue has been deleted. Please, create a new one to participate in.</value>
+  </data>
+  <data name="Callback_EnqueueMe_SuccessfullyEnqueued_Alert" xml:space="preserve">
+    <value>Successfully added to queue '{0}' at the '{1}' position!</value>
+  </data>
+  <data name="Callback_EnqueueMe_UserAlreadyParticipates_Alert" xml:space="preserve">
+    <value>You're already participating in queue '{0}'!</value>
+  </data>
+  <data name="Callback_Enqueue_FirstAvailable_Button" xml:space="preserve">
+    <value>First available</value>
+  </data>
+  <data name="Callback_Enqueue_QueueHasBeenDeleted_Message" xml:space="preserve">
+    <value>This queue has been deleted.</value>
+  </data>
+  <data name="Callback_Enqueue_SelectPosition_Message" xml:space="preserve">
+    <value>Select an available position in queue &lt;b&gt;'{0}'&lt;/b&gt;:</value>
+  </data>
+  <data name="Callback_GetChat_ChatHasNoQueues_Message" xml:space="preserve">
+    <value>This chat has no queues. Are you thinking of creating one?</value>
+  </data>
+  <data name="Callback_GetChat_DisplayQueueList_PostScriptum_Message" xml:space="preserve">
+    <value>\n&lt;i&gt;Currently, you can create queues only by writting the '&lt;b&gt;/createqueue&lt;/b&gt;' command in this chat, but I'll learn how to create them in direct messages soon!&lt;/i&gt;</value>
+  </data>
+  <data name="Callback_GetChat_DisplayQueuesList_Message" xml:space="preserve">
+    <value>This chat has these queues. You can manage any one of them by selecting it.</value>
+  </data>
+  <data name="Callback_GetQueue_DequeueMe_Button" xml:space="preserve">
+    <value>Dequeue me</value>
+  </data>
+  <data name="Callback_GetQueue_EnqueueMe_Button" xml:space="preserve">
+    <value>Enqueue me</value>
+  </data>
+  <data name="Callback_GetQueue_ListQueueMembers_Message" xml:space="preserve">
+    <value>Queue &lt;b&gt;'{0}'&lt;/b&gt; has these participants:\n</value>
+  </data>
+  <data name="Callback_GetQueue_ListQueueMembers_QueueIsDynamic_PostScriptum_Message" xml:space="preserve">
+    <value>Queue is &lt;i&gt;dynamic&lt;/i&gt;</value>
+  </data>
+  <data name="Callback_GetQueue_ListQueueMembers_QueueIsEmpty_Message" xml:space="preserve">
+    <value>Queue &lt;b&gt;'{0}'&lt;/b&gt; has no participants.</value>
+  </data>
+  <data name="Callback_GetQueue_MakeQueueDynamic_Button" xml:space="preserve">
+    <value>Make dynamic</value>
+  </data>
+  <data name="Callback_GetQueue_MakeQueueStatic_Button" xml:space="preserve">
+    <value>Make static</value>
+  </data>
+  <data name="Callback_GetQueue_RemoveQueue_Button" xml:space="preserve">
+    <value>Remove queue</value>
+  </data>
+  <data name="Callback_GetQueue_SwapPositions_Button" xml:space="preserve">
+    <value>Swap positions</value>
+  </data>
+  <data name="Callback_ListChats_DisplayChatsList_Message" xml:space="preserve">
+    <value>I know that you do participate in these chats. If one of the chats is not presented, please write any command in this chat, and I'll notice you there.</value>
+  </data>
+  <data name="Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message" xml:space="preserve">
+    <value>I haven't seen you before. Please, write any command in any chat with me, and I'll notice you there.</value>
+  </data>
   <data name="Message_CreateQueueCommand_PublicChat_EnqueueMe_Button" xml:space="preserve">
     <value>Enqueue me!</value>
   </data>

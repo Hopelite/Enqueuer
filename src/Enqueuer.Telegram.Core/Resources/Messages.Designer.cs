@@ -61,6 +61,276 @@ namespace Enqueuer.Telegram.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Yes, I want to leave.
+        /// </summary>
+        internal static string Callback_DequeueMe_AgreeToDequeue_Button {
+            get {
+                return ResourceManager.GetString("Callback_DequeueMe_AgreeToDequeue_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you really want to leave the &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; queue?.
+        /// </summary>
+        internal static string Callback_DequeueMe_AreYouSureToBeDequeued_Message {
+            get {
+                return ResourceManager.GetString("Callback_DequeueMe_AreYouSureToBeDequeued_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully removed from the &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; queue!.
+        /// </summary>
+        internal static string Callback_DequeueMe_Success_Message {
+            get {
+                return ResourceManager.GetString("Callback_DequeueMe_Success_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;ve already dequeued from the &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; queue..
+        /// </summary>
+        internal static string Callback_DequeueMe_UserDoesNotParticipate_Message {
+            get {
+                return ResourceManager.GetString("Callback_DequeueMe_UserDoesNotParticipate_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First available.
+        /// </summary>
+        internal static string Callback_Enqueue_FirstAvailable_Button {
+            get {
+                return ResourceManager.GetString("Callback_Enqueue_FirstAvailable_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This queue has been deleted..
+        /// </summary>
+        internal static string Callback_Enqueue_QueueHasBeenDeleted_Message {
+            get {
+                return ResourceManager.GetString("Callback_Enqueue_QueueHasBeenDeleted_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select an available position in queue &lt;b&gt;&apos;{0}&apos;&lt;/b&gt;:.
+        /// </summary>
+        internal static string Callback_Enqueue_SelectPosition_Message {
+            get {
+                return ResourceManager.GetString("Callback_Enqueue_SelectPosition_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose another.
+        /// </summary>
+        internal static string Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Position &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; in queue &apos;&lt;b&gt;{1}&lt;/b&gt;&apos; is reserved. Please, reserve other position..
+        /// </summary>
+        internal static string Callback_EnqueueAt_PositionIsReserved_Message {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueAt_PositionIsReserved_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; is now dynamic. Please, return and press the &apos;First available&apos; button..
+        /// </summary>
+        internal static string Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All possible positions in queue &lt;b&gt;&apos;{0}&apos; are reserved. Please, wait untill someone leaves to join..
+        /// </summary>
+        internal static string Callback_EnqueueAt_QueueIsFull_Message {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueAt_QueueIsFull_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully added to the queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; on position &lt;b&gt;{1}&lt;/b&gt;!.
+        /// </summary>
+        internal static string Callback_EnqueueAt_Success_Message {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueAt_Success_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re already participating in queue &apos;&lt;b&gt;{0}&lt;/b&gt;&apos;. To change your position, please, dequeue yourself first..
+        /// </summary>
+        internal static string Callback_EnqueueAt_UserAlreadyParticipates_Message {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueAt_UserAlreadyParticipates_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This queue has been deleted. Please, create a new one to participate in..
+        /// </summary>
+        internal static string Callback_EnqueueMe_QueueHasBeenDeleted_Message {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueMe_QueueHasBeenDeleted_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully added to queue &apos;{0}&apos; at the &apos;{1}&apos; position!.
+        /// </summary>
+        internal static string Callback_EnqueueMe_SuccessfullyEnqueued_Alert {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueMe_SuccessfullyEnqueued_Alert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re already participating in queue &apos;{0}&apos;!.
+        /// </summary>
+        internal static string Callback_EnqueueMe_UserAlreadyParticipates_Alert {
+            get {
+                return ResourceManager.GetString("Callback_EnqueueMe_UserAlreadyParticipates_Alert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This chat has no queues. Are you thinking of creating one?.
+        /// </summary>
+        internal static string Callback_GetChat_ChatHasNoQueues_Message {
+            get {
+                return ResourceManager.GetString("Callback_GetChat_ChatHasNoQueues_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to \n&lt;i&gt;Currently, you can create queues only by writting the &apos;&lt;b&gt;/createqueue&lt;/b&gt;&apos; command in this chat, but I&apos;ll learn how to create them in direct messages soon!&lt;/i&gt;.
+        /// </summary>
+        internal static string Callback_GetChat_DisplayQueueList_PostScriptum_Message {
+            get {
+                return ResourceManager.GetString("Callback_GetChat_DisplayQueueList_PostScriptum_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This chat has these queues. You can manage any one of them by selecting it..
+        /// </summary>
+        internal static string Callback_GetChat_DisplayQueuesList_Message {
+            get {
+                return ResourceManager.GetString("Callback_GetChat_DisplayQueuesList_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dequeue me.
+        /// </summary>
+        internal static string Callback_GetQueue_DequeueMe_Button {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_DequeueMe_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enqueue me.
+        /// </summary>
+        internal static string Callback_GetQueue_EnqueueMe_Button {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_EnqueueMe_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; has these participants:\n.
+        /// </summary>
+        internal static string Callback_GetQueue_ListQueueMembers_Message {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_ListQueueMembers_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue is &lt;i&gt;dynamic&lt;/i&gt;.
+        /// </summary>
+        internal static string Callback_GetQueue_ListQueueMembers_QueueIsDynamic_PostScriptum_Message {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_ListQueueMembers_QueueIsDynamic_PostScriptum_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; has no participants..
+        /// </summary>
+        internal static string Callback_GetQueue_ListQueueMembers_QueueIsEmpty_Message {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_ListQueueMembers_QueueIsEmpty_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Make dynamic.
+        /// </summary>
+        internal static string Callback_GetQueue_MakeQueueDynamic_Button {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_MakeQueueDynamic_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Make static.
+        /// </summary>
+        internal static string Callback_GetQueue_MakeQueueStatic_Button {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_MakeQueueStatic_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove queue.
+        /// </summary>
+        internal static string Callback_GetQueue_RemoveQueue_Button {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_RemoveQueue_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Swap positions.
+        /// </summary>
+        internal static string Callback_GetQueue_SwapPositions_Button {
+            get {
+                return ResourceManager.GetString("Callback_GetQueue_SwapPositions_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I know that you do participate in these chats. If one of the chats is not presented, please write any command in this chat, and I&apos;ll notice you there..
+        /// </summary>
+        internal static string Callback_ListChats_DisplayChatsList_Message {
+            get {
+                return ResourceManager.GetString("Callback_ListChats_DisplayChatsList_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I haven&apos;t seen you before. Please, write any command in any chat with me, and I&apos;ll notice you there..
+        /// </summary>
+        internal static string Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message {
+            get {
+                return ResourceManager.GetString("Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enqueue me!.
         /// </summary>
         internal static string Message_CreateQueueCommand_PublicChat_EnqueueMe_Button {

@@ -55,7 +55,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message, position, queue.Name),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_Success_Message, position, queue.Name),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
@@ -74,7 +74,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_UserAlreadyParticipates_Message, ex.QueueName),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_UserAlreadyParticipates_Message, ex.QueueName),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
@@ -84,7 +84,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsFull_Message, ex.QueueName),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsFull_Message, ex.QueueName),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
@@ -94,9 +94,9 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message, ex.QueueName, ex.Position),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_Message, ex.QueueName, ex.Position),
                 ParseMode.Html,
-                replyMarkup: GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_ChooseAnother_Button), CallbackConstants.EnqueueCommand, callback.CallbackData, queueId),
+                replyMarkup: GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button), CallbackConstants.EnqueueCommand, callback.CallbackData, queueId),
                 cancellationToken: cancellationToken);
         }
         catch (QueueIsDynamicException ex)
@@ -104,11 +104,11 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message, ex.QueueName),
+                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message, ex.QueueName),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] 
                 {
-                    GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button), CallbackConstants.EnqueueAtCommand, callback.CallbackData, queueId),
+                    GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button), CallbackConstants.EnqueueAtCommand, callback.CallbackData, queueId),
                     GetReturnToQueueButton(callback.CallbackData)
                 }),
                 cancellationToken: cancellationToken);

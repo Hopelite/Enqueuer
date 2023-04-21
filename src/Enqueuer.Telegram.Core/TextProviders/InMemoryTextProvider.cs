@@ -8,43 +8,6 @@ public class InMemoryTextProvider : IMessageProvider
     {
         var formatText = key switch
         {
-            CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_QueueHasBeenDeleted_Message => "This queue has been deleted. Please, create a new one to participate in.",
-            CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_UserAlreadyParticipates_Notification => "You're already participating in queue '{0}'!",
-            CallbackMessageKeys.EnqueueMeCallbackHandler.EnqueueMeCallback_SuccessfullyEnqueued_Notification => "Successfully added to queue '{0}' at the '{1}' position!",
-
-            CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_UserDoesNotParticipateInAnyGroup_Message => "I haven't seen you before. Please, write any command in any chat with me, and I'll notice you there.",
-            CallbackMessageKeys.ListChatsCallbackHandler.ListChatsCallback_ListChats_Message => "I know that you do participate in these chats. If one of the chats is not presented, please write any command in this chat, and I'll notice you there.",
-
-            CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ChatHasNoQueues_Message => "This chat has no queues. Are you thinking of creating one?",
-            CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_Message => "This chat has these queues. You can manage any one of them by selecting it.",
-            CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_PostScriptum_Message => "\n<i>Currently, you can create queues only by writting the '<b>/createqueue</b>' command in this chat, but I'll learn how to create them in direct messages soon!</i>",
-
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_EnqueueMe_Button => "Enqueue me",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_DequeueMe_Button => "Dequeue me",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_RemoveQueue_Button => "Remove queue",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_MakeQueueStatic_Button => "Make static",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_MakeQueueDynamic_Button => "Make dynamic",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_SwapPositions_Button => "Swap positions",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_QueueIsEmpty_Message => "Queue <b>'{0}'</b> has no participants.",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_Message => "Queue <b>'{0}'</b> has these participants:\n",
-            CallbackMessageKeys.GetQueueCallbackHandler.GetQueueCallback_ListQueueMembers_QueueIsDynamic_PostScriptum_Message => "Queue is <i>dynamic</i>",
-
-            CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_QueueHasBeenDeleted_Message => "This queue has been deleted.",
-            CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_FirstAvailable_Button => "First available",
-            CallbackMessageKeys.EnqueueCallbackHandler.EnqueueCallback_SelectPosition_Message => "Select an available position in queue <b>'{0}'</b>:",
-
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_UserAlreadyParticipates_Message => "You're already participating in queue '<b>{0}</b>'. To change your position, please, dequeue yourself first.",
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsFull_Message => "All possible positions in queue <b>'{0}' are reserved. Please, wait untill someone leaves to join.",
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_QueueIsDynamicButPositionIsSpecified_Message => "Queue '<b>{0}</b>' is now dynamic. Please, return and press the 'First available' button.",
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_Message => "Position '<b>{0}</b>' in queue '<b>{1}</b>' is reserved. Please, reserve other position.",
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_PositionIsReserved_ChooseAnother_Button => "Choose another",
-            CallbackMessageKeys.EnqueueAtCallbackHandler.EnqueueAtCallback_Success_Message => "Successfully added to the queue '<b>{0}</b>' on position <b>{1}</b>!",
-
-            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_UserDoesNotParticipate_Message => "You've already dequeued from the '<b>{0}</b>' queue.",
-            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_Success_Message => "Successfully removed from the '<b>{0}</b>' queue!",
-            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AreYouSureToBeDequeued_Message => "Do you really want to leave the <b>'{0}'</b> queue?",
-            CallbackMessageKeys.DequeueMeCallbackHandler.DequeueMeCallback_AgreeToDequeue_Button => "Yes, I want to leave",
-
             CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_QueueHasBeenDeleted_Message => "This queue has already been deleted.",
             CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AreYouSureToDeleteQueue_Message => "Do you really want to delete the <b>'{0}'</b> queue? This action cannot be undone.",
             CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AgreeToDelete_Button => "Yes, delete it",
