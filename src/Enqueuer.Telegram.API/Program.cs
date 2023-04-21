@@ -9,6 +9,7 @@ using Enqueuer.Messages.Factories;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
 using Enqueuer.Telegram.Configuration;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Extensions;
 using Enqueuer.Telegram.Middleware;
 using Enqueuer.Telegram.UpdateHandling;
@@ -76,6 +77,7 @@ public class Program
         builder.Services.ConfigureCallbackHandlers();
 
         builder.Services.AddTransient<IMessageProvider, InMemoryTextProvider>();
+        builder.Services.AddSingleton<ILocalizationProvider, LocalizationProvider>();
 
         builder.Services.ConfigureSerialization()
             .ConfigureServices();

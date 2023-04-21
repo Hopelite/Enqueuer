@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Resources\Messages.resx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
