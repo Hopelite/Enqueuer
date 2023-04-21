@@ -1,4 +1,4 @@
-﻿using Enqueuer.Core.Configuration;
+﻿using Enqueuer.Telegram.Core.Configuration;
 
 namespace Enqueuer.Telegram.Configuration;
 

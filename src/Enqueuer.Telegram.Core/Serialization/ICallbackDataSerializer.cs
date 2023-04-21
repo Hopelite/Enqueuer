@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Core.Serialization;
+﻿namespace Enqueuer.Telegram.Core.Serialization;
 
 public interface ICallbackDataSerializer
 {

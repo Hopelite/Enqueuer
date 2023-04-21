@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Core;
 using Enqueuer.Core.Exceptions;
-using Enqueuer.Core.Serialization;
 using Enqueuer.Core.TextProviders;
+using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 

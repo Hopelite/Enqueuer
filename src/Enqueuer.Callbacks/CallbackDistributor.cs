@@ -1,10 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.Factories;
-using Enqueuer.Core.Serialization;
-using Enqueuer.Core;
 using Enqueuer.Core.Exceptions;
 using Enqueuer.Core.TextProviders;
+using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;

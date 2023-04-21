@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Core;
 using Enqueuer.Core.Constants;
-using Enqueuer.Core.Serialization;
 using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
+using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Localization;
+using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 

@@ -1,7 +1,7 @@
 ﻿using Enqueuer.Callbacks.CallbackHandlers;
-using Enqueuer.Core.Serialization;
 using Enqueuer.Messages.MessageHandlers;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Core.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enqueuer.Telegram.Extensions;

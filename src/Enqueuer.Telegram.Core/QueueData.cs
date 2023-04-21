@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Enqueuer.Core;
+namespace Enqueuer.Telegram.Core;
 
 /// <summary>
 /// Contains queue-related callback data.

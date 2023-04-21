@@ -13,23 +13,22 @@ public class LocalizationProvider : ILocalizationProvider
     public string GetMessage(string key, MessageParameters messageParameters)
     {
         var formatKey = new FormatMessageKey(key, messageParameters.Culture);
-        if (_formatMessages.TryGetValue(formatKey, out var format))
+        if (!_formatMessages.TryGetValue(formatKey, out var format))
         {
-            if (messageParameters.Parameters.Length == 0)
+            format = Messages.ResourceManager.GetString(key, messageParameters.Culture);
+            if (format == null)
             {
-                return format;
+                throw new ArgumentException($"There is no message \"{key}\" specified in the \"{messageParameters.Culture.Name}\" resource file.", nameof(key));
             }
 
-            return string.Format(format, messageParameters.Parameters);
+            _formatMessages.TryAdd(formatKey, format);
         }
 
-        format = Messages.ResourceManager.GetString(key, messageParameters.Culture);
-        if (format == null)
+        if (messageParameters.Parameters.Length == 0)
         {
-            throw new ArgumentException($"There is no message \"{key}\" specified in the \"{messageParameters.Culture.Name}\" resource file.", nameof(key));
+            return format;
         }
 
-        _formatMessages.TryAdd(formatKey, format);
         return string.Format(format, messageParameters.Parameters);
     }
 

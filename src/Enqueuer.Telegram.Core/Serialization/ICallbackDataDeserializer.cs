@@ -1,6 +1,4 @@
-﻿using Enqueuer.Core;
-
-namespace Enqueuer.Core.Serialization;
+﻿namespace Enqueuer.Telegram.Core.Serialization;
 
 public interface ICallbackDataDeserializer
 {

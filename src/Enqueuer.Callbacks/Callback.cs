@@ -1,4 +1,4 @@
-﻿using Enqueuer.Core;
+﻿using Enqueuer.Telegram.Core;
 using Telegram.Bot.Types;
 
 namespace Enqueuer.Callbacks;

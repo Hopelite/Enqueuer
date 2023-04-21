@@ -1,7 +1,7 @@
-﻿using Enqueuer.Core;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.Serialization;
+﻿using Enqueuer.Core.Constants;
 using Enqueuer.Core.TextProviders;
+using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 

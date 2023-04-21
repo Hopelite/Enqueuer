@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Enqueuer.Core.Serialization;
+namespace Enqueuer.Telegram.Core.Serialization;
 
 public class JsonCallbackDataSerializer : ICallbackDataSerializer
 {

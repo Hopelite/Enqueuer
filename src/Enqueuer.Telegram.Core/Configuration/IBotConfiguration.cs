@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Core.Configuration;
+﻿namespace Enqueuer.Telegram.Core.Configuration;
 
 public interface IBotConfiguration
 {

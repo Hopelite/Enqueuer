@@ -1,7 +1,7 @@
 ﻿using Enqueuer.Core.Exceptions;
 using Newtonsoft.Json;
 
-namespace Enqueuer.Core.Serialization;
+namespace Enqueuer.Telegram.Core.Serialization;
 
 public class JsonCallbackDataDeserializer : ICallbackDataDeserializer
 {
