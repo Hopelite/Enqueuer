@@ -76,7 +76,6 @@ public class Program
         builder.Services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();
         builder.Services.ConfigureCallbackHandlers();
 
-        builder.Services.AddTransient<IMessageProvider, InMemoryTextProvider>();
         builder.Services.AddSingleton<ILocalizationProvider, LocalizationProvider>();
 
         builder.Services.ConfigureSerialization()

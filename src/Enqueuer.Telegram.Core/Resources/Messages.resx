@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Callback_ChatHasBeenDeleted_Message" xml:space="preserve">
+    <value>This chat has been deleted.</value>
+  </data>
   <data name="Callback_DequeueMe_AgreeToDequeue_Button" xml:space="preserve">
     <value>Yes, I want to leave</value>
   </data>
@@ -165,6 +168,9 @@
   <data name="Callback_Enqueue_SelectPosition_Message" xml:space="preserve">
     <value>Select an available position in queue &lt;b&gt;'{0}'&lt;/b&gt;:</value>
   </data>
+  <data name="Callback_EverythingIsUpToDate_Message" xml:space="preserve">
+    <value>Everything is up to date.</value>
+  </data>
   <data name="Callback_GetChat_ChatHasNoQueues_Message" xml:space="preserve">
     <value>This chat has no queues. Are you thinking of creating one?</value>
   </data>
@@ -206,6 +212,87 @@
   </data>
   <data name="Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message" xml:space="preserve">
     <value>I haven't seen you before. Please, write any command in any chat with me, and I'll notice you there.</value>
+  </data>
+  <data name="Callback_OutdatedCallback_Message" xml:space="preserve">
+    <value>This message is outdated. Please use newer messages.</value>
+  </data>
+  <data name="Callback_QueueHasBeenDeleted_Message" xml:space="preserve">
+    <value>This queue has been deleted.</value>
+  </data>
+  <data name="Callback_RefreshMessage_Button" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Callback_RemoveQueue_AgreeToDelete_Button" xml:space="preserve">
+    <value>Yes, delete it</value>
+  </data>
+  <data name="Callback_RemoveQueue_AreYouSureToDeleteQueue_Message" xml:space="preserve">
+    <value>Do you really want to delete the &lt;b&gt;'{0}'&lt;/b&gt; queue? This action cannot be undone.</value>
+  </data>
+  <data name="Callback_RemoveQueue_QueueHasBeenDeleted_Message" xml:space="preserve">
+    <value>This queue has already been deleted.</value>
+  </data>
+  <data name="Callback_RemoveQueue_Success_Message" xml:space="preserve">
+    <value>Successfully deleted the &lt;b&gt;'{0}'&lt;/b&gt; queue.</value>
+  </data>
+  <data name="Callback_RemoveQueue_Success_PublicChat_Message" xml:space="preserve">
+    <value>{0} deleted &lt;b&gt;'{1}'&lt;/b&gt; queue. I shall miss it.</value>
+  </data>
+  <data name="Callback_RemoveQueue_UserHasNoRightsToDelete_Message" xml:space="preserve">
+    <value>Unable to delete &lt;b&gt;'{0}'&lt;/b&gt; queue: you are not queue creator or the chat admin.</value>
+  </data>
+  <data name="Callback_Return_Button" xml:space="preserve">
+    <value>Return</value>
+  </data>
+  <data name="Callback_SwapPositions_AgreeToSwap_Button" xml:space="preserve">
+    <value>Lets swap!</value>
+  </data>
+  <data name="Callback_SwapPositions_ListOfMembers_OnlyNextPageAvailable_Button" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Callback_SwapPositions_ListOfMembers_OnlyPreviousPageAvailable_Button" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Callback_SwapPositions_QueueHasBeenDeleted_Message" xml:space="preserve">
+    <value>This queue has been deleted.</value>
+  </data>
+  <data name="Callback_SwapPositions_RefuseToSwap_Button" xml:space="preserve">
+    <value>Refuse</value>
+  </data>
+  <data name="Callback_SwapPositions_RequestersPositionHasChanged_Message" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; position has changed. Another position swap request is needed.</value>
+  </data>
+  <data name="Callback_SwapPositions_SelectUserToSwapWith_Message" xml:space="preserve">
+    <value>Select the user with whom you want to request a position swap.</value>
+  </data>
+  <data name="Callback_SwapPositions_SuccessfullySwappedPositions_Message" xml:space="preserve">
+    <value>Successfully swapped positions with &lt;b&gt;{0}&lt;/b&gt;!</value>
+  </data>
+  <data name="Callback_SwapPositions_SwapRequestHasBeenSent_Message" xml:space="preserve">
+    <value>The position swap request has been sent. Waiting response from {0}!</value>
+  </data>
+  <data name="Callback_SwapPositions_SwapRequestWasRefusedByUser_Message" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; was refused to swap positions.</value>
+  </data>
+  <data name="Callback_SwapPositions_SwapWasSuccessfulyRefused_Message" xml:space="preserve">
+    <value>Positions switch with &lt;b&gt;{0}&lt;/b&gt; was rejected.</value>
+  </data>
+  <data name="Callback_SwapPositions_UserDoesNotParticipate_Message" xml:space="preserve">
+    <value>You're not participating in the '&lt;b&gt;{0}&lt;/b&gt;' queue.</value>
+  </data>
+  <data name="Callback_SwapPositions_UserHasLeftTheQueue_Message" xml:space="preserve">
+    <value>User has left the '&lt;b&gt;{0}&lt;/b&gt;' queue. Swap was not executed.</value>
+  </data>
+  <data name="Callback_SwapPositions_UserWantsToSwapWithYou_Message" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; wants to swap their '{1}' position with your in the '&lt;b&gt;{2}&lt;/b&gt;' queue.</value>
+  </data>
+  <data name="Callback_SwitchQueue_QueueIsDynamicNow_Message" xml:space="preserve">
+    <value>Queue &lt;b&gt;'{0}'&lt;/b&gt; is dynamic now.</value>
+  </data>
+  <data name="Callback_SwitchQueue_QueueIsDynamicNow_PublicChat_Message" xml:space="preserve">
+    <value>{0} made &lt;b&gt;'{1}'&lt;/b&gt; queue dynamic. Keep up!</value>
+  </data>
+  <data name="Callback_SwitchQueue_QueueIsNotDynamicNow_Message" xml:space="preserve">
+    <value>Queue &lt;b&gt;'{0}'&lt;/b&gt; is not dynamic now.</value>
   </data>
   <data name="Message_CreateQueueCommand_PublicChat_EnqueueMe_Button" xml:space="preserve">
     <value>Enqueue me!</value>

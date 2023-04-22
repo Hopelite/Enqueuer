@@ -34,7 +34,7 @@ public abstract class CallbackHandlerBase : ICallbackHandler
         }
         catch (MessageNotModifiedException)
         {
-            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, MessageProvider.GetMessage(CallbackMessageKeys.EverythingIsUpToDate_Message));
+            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, MessageProvider.GetMessage(CallbackMessageKeys.Callback_EverythingIsUpToDate_Message));
         }
     }
 
@@ -49,7 +49,7 @@ public abstract class CallbackHandlerBase : ICallbackHandler
     protected InlineKeyboardButton GetRefreshButton(CallbackData callbackData)
     {
         var serializedCallbackData = DataSerializer.Serialize(callbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.RefreshMessage_Button), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Callback_RefreshMessage_Button), serializedCallbackData);
     }
 
     /// <summary>

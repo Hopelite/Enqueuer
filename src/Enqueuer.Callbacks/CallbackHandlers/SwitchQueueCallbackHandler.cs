@@ -33,7 +33,7 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
                 ParseMode.Html);
         }
 
@@ -48,7 +48,7 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.QueueHasBeenDeleted_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
 
             return;
@@ -68,7 +68,7 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsNotDynamicNow_Message, queue.Name),
+                MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.Callback_SwitchQueue_QueueIsNotDynamicNow_Message, queue.Name),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData));
 
@@ -77,13 +77,13 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
 
         await TelegramBotClient.SendTextMessageAsync(
             queue.GroupId,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsDynamicNow_PublicChat_Message, user.FullName, queue.Name),
+            MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.Callback_SwitchQueue_QueueIsDynamicNow_PublicChat_Message, user.FullName, queue.Name),
             ParseMode.Html);
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.SwitchQueueCallback_QueueIsDynamicNow_Message, queue.Name),
+            MessageProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.Callback_SwitchQueue_QueueIsDynamicNow_Message, queue.Name),
             ParseMode.Html,
             replyMarkup: GetReturnToQueueButton(callback.CallbackData));
     }

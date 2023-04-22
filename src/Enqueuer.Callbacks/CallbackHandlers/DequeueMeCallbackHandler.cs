@@ -36,7 +36,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -52,7 +52,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.QueueHasBeenDeleted_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
 
             return;

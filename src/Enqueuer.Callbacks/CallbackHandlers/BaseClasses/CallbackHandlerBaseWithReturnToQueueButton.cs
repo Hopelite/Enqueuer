@@ -30,7 +30,7 @@ public abstract class CallbackHandlerBaseWithReturnToQueueButton : CallbackHandl
         };
 
         var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Return_Button), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button), serializedCallbackData);
     }
 
     protected InlineKeyboardButton GetQueueRelatedButton(string buttonText, string command, CallbackData callbackData, int queueId)

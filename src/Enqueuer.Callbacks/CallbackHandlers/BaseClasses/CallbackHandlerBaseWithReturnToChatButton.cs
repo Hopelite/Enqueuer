@@ -29,6 +29,6 @@ public abstract class CallbackHandlerBaseWithReturnToChatButton : CallbackHandle
         };
 
         var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Return_Button), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button), serializedCallbackData);
     }
 }

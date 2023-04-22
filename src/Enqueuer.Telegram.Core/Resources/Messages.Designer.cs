@@ -61,6 +61,15 @@ namespace Enqueuer.Telegram.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This chat has been deleted..
+        /// </summary>
+        internal static string Callback_ChatHasBeenDeleted_Message {
+            get {
+                return ResourceManager.GetString("Callback_ChatHasBeenDeleted_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Yes, I want to leave.
         /// </summary>
         internal static string Callback_DequeueMe_AgreeToDequeue_Button {
@@ -205,6 +214,15 @@ namespace Enqueuer.Telegram.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Everything is up to date..
+        /// </summary>
+        internal static string Callback_EverythingIsUpToDate_Message {
+            get {
+                return ResourceManager.GetString("Callback_EverythingIsUpToDate_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This chat has no queues. Are you thinking of creating one?.
         /// </summary>
         internal static string Callback_GetChat_ChatHasNoQueues_Message {
@@ -327,6 +345,249 @@ namespace Enqueuer.Telegram.Core.Resources {
         internal static string Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message {
             get {
                 return ResourceManager.GetString("Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This message is outdated. Please use newer messages..
+        /// </summary>
+        internal static string Callback_OutdatedCallback_Message {
+            get {
+                return ResourceManager.GetString("Callback_OutdatedCallback_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This queue has been deleted..
+        /// </summary>
+        internal static string Callback_QueueHasBeenDeleted_Message {
+            get {
+                return ResourceManager.GetString("Callback_QueueHasBeenDeleted_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        internal static string Callback_RefreshMessage_Button {
+            get {
+                return ResourceManager.GetString("Callback_RefreshMessage_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes, delete it.
+        /// </summary>
+        internal static string Callback_RemoveQueue_AgreeToDelete_Button {
+            get {
+                return ResourceManager.GetString("Callback_RemoveQueue_AgreeToDelete_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you really want to delete the &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; queue? This action cannot be undone..
+        /// </summary>
+        internal static string Callback_RemoveQueue_AreYouSureToDeleteQueue_Message {
+            get {
+                return ResourceManager.GetString("Callback_RemoveQueue_AreYouSureToDeleteQueue_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This queue has already been deleted..
+        /// </summary>
+        internal static string Callback_RemoveQueue_QueueHasBeenDeleted_Message {
+            get {
+                return ResourceManager.GetString("Callback_RemoveQueue_QueueHasBeenDeleted_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully deleted the &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; queue..
+        /// </summary>
+        internal static string Callback_RemoveQueue_Success_Message {
+            get {
+                return ResourceManager.GetString("Callback_RemoveQueue_Success_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} deleted &lt;b&gt;&apos;{1}&apos;&lt;/b&gt; queue. I shall miss it..
+        /// </summary>
+        internal static string Callback_RemoveQueue_Success_PublicChat_Message {
+            get {
+                return ResourceManager.GetString("Callback_RemoveQueue_Success_PublicChat_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to delete &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; queue: you are not queue creator or the chat admin..
+        /// </summary>
+        internal static string Callback_RemoveQueue_UserHasNoRightsToDelete_Message {
+            get {
+                return ResourceManager.GetString("Callback_RemoveQueue_UserHasNoRightsToDelete_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Return.
+        /// </summary>
+        internal static string Callback_Return_Button {
+            get {
+                return ResourceManager.GetString("Callback_Return_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lets swap!.
+        /// </summary>
+        internal static string Callback_SwapPositions_AgreeToSwap_Button {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_AgreeToSwap_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        internal static string Callback_SwapPositions_ListOfMembers_OnlyNextPageAvailable_Button {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_ListOfMembers_OnlyNextPageAvailable_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Previous.
+        /// </summary>
+        internal static string Callback_SwapPositions_ListOfMembers_OnlyPreviousPageAvailable_Button {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_ListOfMembers_OnlyPreviousPageAvailable_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This queue has been deleted..
+        /// </summary>
+        internal static string Callback_SwapPositions_QueueHasBeenDeleted_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_QueueHasBeenDeleted_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refuse.
+        /// </summary>
+        internal static string Callback_SwapPositions_RefuseToSwap_Button {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_RefuseToSwap_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; position has changed. Another position swap request is needed..
+        /// </summary>
+        internal static string Callback_SwapPositions_RequestersPositionHasChanged_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_RequestersPositionHasChanged_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select the user with whom you want to request a position swap..
+        /// </summary>
+        internal static string Callback_SwapPositions_SelectUserToSwapWith_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_SelectUserToSwapWith_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully swapped positions with &lt;b&gt;{0}&lt;/b&gt;!.
+        /// </summary>
+        internal static string Callback_SwapPositions_SuccessfullySwappedPositions_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_SuccessfullySwappedPositions_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The position swap request has been sent. Waiting response from {0}!.
+        /// </summary>
+        internal static string Callback_SwapPositions_SwapRequestHasBeenSent_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_SwapRequestHasBeenSent_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; was refused to swap positions..
+        /// </summary>
+        internal static string Callback_SwapPositions_SwapRequestWasRefusedByUser_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_SwapRequestWasRefusedByUser_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Positions switch with &lt;b&gt;{0}&lt;/b&gt; was rejected..
+        /// </summary>
+        internal static string Callback_SwapPositions_SwapWasSuccessfulyRefused_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_SwapWasSuccessfulyRefused_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re not participating in the &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; queue..
+        /// </summary>
+        internal static string Callback_SwapPositions_UserDoesNotParticipate_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_UserDoesNotParticipate_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User has left the &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; queue. Swap was not executed..
+        /// </summary>
+        internal static string Callback_SwapPositions_UserHasLeftTheQueue_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_UserHasLeftTheQueue_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; wants to swap their &apos;{1}&apos; position with your in the &apos;&lt;b&gt;{2}&lt;/b&gt;&apos; queue..
+        /// </summary>
+        internal static string Callback_SwapPositions_UserWantsToSwapWithYou_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwapPositions_UserWantsToSwapWithYou_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; is dynamic now..
+        /// </summary>
+        internal static string Callback_SwitchQueue_QueueIsDynamicNow_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwitchQueue_QueueIsDynamicNow_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} made &lt;b&gt;&apos;{1}&apos;&lt;/b&gt; queue dynamic. Keep up!.
+        /// </summary>
+        internal static string Callback_SwitchQueue_QueueIsDynamicNow_PublicChat_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwitchQueue_QueueIsDynamicNow_PublicChat_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; is not dynamic now..
+        /// </summary>
+        internal static string Callback_SwitchQueue_QueueIsNotDynamicNow_Message {
+            get {
+                return ResourceManager.GetString("Callback_SwitchQueue_QueueIsNotDynamicNow_Message", resourceCulture);
             }
         }
         

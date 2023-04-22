@@ -37,7 +37,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
                 ParseMode.Html);
         }
 
@@ -51,7 +51,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.ChatHasBeenDeleted_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.Callback_ChatHasBeenDeleted_Message),
                 replyMarkup: GetReturnButton());
 
             return;
@@ -104,6 +104,6 @@ public class GetChatCallbackHandler : CallbackHandlerBase
         };
 
         var serializedCallbackData = DataSerializer.Serialize(callbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Return_Button), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button), serializedCallbackData);
     }
 }

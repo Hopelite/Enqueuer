@@ -32,7 +32,7 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
             return _telegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                _messageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                _messageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }

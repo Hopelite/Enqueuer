@@ -43,7 +43,7 @@ public class CallbackDistributor : ICallbackDistributor
             await _telegramBotClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                _messageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                _messageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
 

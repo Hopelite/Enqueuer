@@ -40,7 +40,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.OutdatedCallback_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
                 ParseMode.Html);
         }
 
@@ -55,7 +55,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_QueueHasBeenDeleted_Message),
+                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_QueueHasBeenDeleted_Message),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
 
@@ -75,14 +75,14 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
 
         var replyMarkup = new InlineKeyboardButton[][]
         {
-            new InlineKeyboardButton[] { GetRemoveQueueButton(MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AgreeToDelete_Button), callback.CallbackData, true) },
+            new InlineKeyboardButton[] { GetRemoveQueueButton(MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_AgreeToDelete_Button), callback.CallbackData, true) },
             new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
         };
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_AreYouSureToDeleteQueue_Message, queue.Name),
+            MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_AreYouSureToDeleteQueue_Message, queue.Name),
             ParseMode.Html,
             replyMarkup: replyMarkup);
     }
@@ -98,7 +98,7 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
                 await TelegramBotClient.EditMessageTextAsync(
                     callback.Message.Chat,
                     callback.Message.MessageId,
-                    MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_UserHasNoRightsToDelete_Message, queue.Name),
+                    MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_UserHasNoRightsToDelete_Message, queue.Name),
                     ParseMode.Html,
                     replyMarkup: GetReturnToQueueButton(callback.CallbackData));
                 return;
@@ -108,13 +108,13 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
 
             await TelegramBotClient.SendTextMessageAsync(
                 queue.GroupId,
-                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_Success_PublicChat_Message, user.FullName, queue.Name),
+                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_Success_PublicChat_Message, user.FullName, queue.Name),
                 ParseMode.Html);
 
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.RemoveQueueCallback_Success_Message, queue.Name),
+                MessageProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_Success_Message, queue.Name),
                 ParseMode.Html,
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
 

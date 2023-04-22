@@ -85,68 +85,68 @@ public static class CallbackMessageKeys
 
     public static class RemoveQueueCallbackHandler
     {
-        public const string RemoveQueueCallback_QueueHasBeenDeleted_Message = "RemoveQueueCallback_QueueHasBeenDeleted_Message";
+        public const string Callback_RemoveQueue_QueueHasBeenDeleted_Message = nameof(Callback_RemoveQueue_QueueHasBeenDeleted_Message);
 
-        public const string RemoveQueueCallback_AreYouSureToDeleteQueue_Message = "RemoveQueueCallback_AreYouSureToDeleteQueue_Message";
+        public const string Callback_RemoveQueue_AreYouSureToDeleteQueue_Message = nameof(Callback_RemoveQueue_AreYouSureToDeleteQueue_Message);
 
-        public const string RemoveQueueCallback_AgreeToDelete_Button = "RemoveQueueCallback_AgreeToDelete_Button";
+        public const string Callback_RemoveQueue_AgreeToDelete_Button = nameof(Callback_RemoveQueue_AgreeToDelete_Button);
 
-        public const string RemoveQueueCallback_UserHasNoRightsToDelete_Message = "RemoveQueueCallback_UserHasNoRightsToDelete_Message";
+        public const string Callback_RemoveQueue_UserHasNoRightsToDelete_Message = nameof(Callback_RemoveQueue_UserHasNoRightsToDelete_Message);
 
-        public const string RemoveQueueCallback_Success_PublicChat_Message = "RemoveQueueCallback_Success_PublicChat_Message";
+        public const string Callback_RemoveQueue_Success_PublicChat_Message = nameof(Callback_RemoveQueue_Success_PublicChat_Message);
 
-        public const string RemoveQueueCallback_Success_Message = "RemoveQueueCallback_Success_Message";
+        public const string Callback_RemoveQueue_Success_Message = nameof(Callback_RemoveQueue_Success_Message);
     }
 
     public static class SwitchQueueCallbackHandler
     {
-        public const string SwitchQueueCallback_QueueIsNotDynamicNow_Message = "SwitchQueueCallback_QueueIsNotDynamicNow_Message";
+        public const string Callback_SwitchQueue_QueueIsNotDynamicNow_Message = nameof(Callback_SwitchQueue_QueueIsNotDynamicNow_Message);
 
-        public const string SwitchQueueCallback_QueueIsDynamicNow_PublicChat_Message = "SwitchQueueCallback_QueueIsDynamicNow_PublicChat_Message";
+        public const string Callback_SwitchQueue_QueueIsDynamicNow_PublicChat_Message = nameof(Callback_SwitchQueue_QueueIsDynamicNow_PublicChat_Message);
 
-        public const string SwitchQueueCallback_QueueIsDynamicNow_Message = "SwitchQueueCallback_QueueIsDynamicNow_Message";
+        public const string Callback_SwitchQueue_QueueIsDynamicNow_Message = nameof(Callback_SwitchQueue_QueueIsDynamicNow_Message);
     }
 
     public static class SwapPositionsCallbackHandler
     {
-        public const string SwapPositionsCallback_QueueHasBeenDeleted_Message = "SwapPositionsCallback_QueueHasBeenDeleted_Message";
+        public const string Callback_SwapPositions_QueueHasBeenDeleted_Message = nameof(Callback_SwapPositions_QueueHasBeenDeleted_Message);
 
-        public const string SwapPositionsCallback_UserDoesNotParticipate_Message = "SwapPositionsCallback_UserDoesNotParticipate_Message";
+        public const string Callback_SwapPositions_UserDoesNotParticipate_Message = nameof(Callback_SwapPositions_UserDoesNotParticipate_Message);
 
-        public const string SwapPositionsCallback_SelectUserToSwapWith_Message = "SwapPositionsCallback_SelectUserToSwapWith_Message";
+        public const string Callback_SwapPositions_SelectUserToSwapWith_Message = nameof(Callback_SwapPositions_SelectUserToSwapWith_Message);
 
-        public const string SwapPositionsCallback_UserHasLeftTheQueue_Message = "SwapPositionsCallback_UserHasLeftTheQueue_Message";
+        public const string Callback_SwapPositions_UserHasLeftTheQueue_Message = nameof(Callback_SwapPositions_UserHasLeftTheQueue_Message);
 
-        public const string SwapPositionsCallback_UserWantsToSwapWithYou_Message = "SwapPositionsCallback_UserWantsToSwapWithYou_Message";
+        public const string Callback_SwapPositions_UserWantsToSwapWithYou_Message = nameof(Callback_SwapPositions_UserWantsToSwapWithYou_Message);
 
-        public const string SwapPositionsCallback_SwapRequestHasBeenSent_Message = "SwapPositionsCallback_SwapRequestHasBeenSent_Message";
+        public const string Callback_SwapPositions_SwapRequestHasBeenSent_Message = nameof(Callback_SwapPositions_SwapRequestHasBeenSent_Message);
 
-        public const string SwapPositionsCallback_RequestersPositionHasChanged_Message = "SwapPositionsCallback_RequestersPositionHasChanged_Message";
+        public const string Callback_SwapPositions_RequestersPositionHasChanged_Message = nameof(Callback_SwapPositions_RequestersPositionHasChanged_Message);
 
-        public const string SwapPositionsCallback_SuccessfullySwappedPositions_Message = "SwapPositionsCallback_SuccessfullySwappedPositions_Message";
+        public const string Callback_SwapPositions_SuccessfullySwappedPositions_Message = nameof(Callback_SwapPositions_SuccessfullySwappedPositions_Message);
 
-        public const string SwapPositionsCallback_SwapWasSuccessfulyRefused_Message = "SwapPositionsCallback_SwapWasSuccessfulyDenied_Message";
+        public const string Callback_SwapPositions_SwapWasSuccessfulyRefused_Message = nameof(Callback_SwapPositions_SwapWasSuccessfulyRefused_Message);
 
-        public const string SwapPositionsCallback_SwapRequestWasRefusedByUser_Message = "SwapPositionsCallback_SwapWasDeniedByUser_Message";
+        public const string Callback_SwapPositions_SwapRequestWasRefusedByUser_Message = nameof(Callback_SwapPositions_SwapRequestWasRefusedByUser_Message);
 
-        public const string SwapPositionsCallback_AgreeToSwap_Button = "SwapPositionsCallback_AgreeToSwap_Button";
+        public const string Callback_SwapPositions_AgreeToSwap_Button = nameof(Callback_SwapPositions_AgreeToSwap_Button);
 
-        public const string SwapPositionsCallback_RefuseToSwap_Button = "SwapPositionsCallback_RefuseToSwap_Button";
+        public const string Callback_SwapPositions_RefuseToSwap_Button = nameof(Callback_SwapPositions_RefuseToSwap_Button);
 
-        public const string SwapPositionsCallback_ListOfMembers_OnlyPreviousPageAvailable_Button = "SwapPositionsCallback_ListOfMembers_OnlyPreviousPageAvailable_Button";
+        public const string Callback_SwapPositions_ListOfMembers_OnlyPreviousPageAvailable_Button = nameof(Callback_SwapPositions_ListOfMembers_OnlyPreviousPageAvailable_Button);
 
-        public const string SwapPositionsCallback_ListOfMembers_OnlyNextPageAvailable_Button = "SwapPositionsCallback_ListOfMembers_OnlyNextPageAvailable_Button";
+        public const string Callback_SwapPositions_ListOfMembers_OnlyNextPageAvailable_Button = nameof(Callback_SwapPositions_ListOfMembers_OnlyNextPageAvailable_Button);
     }
 
-    public const string OutdatedCallback_Message = "CallbackMessageKeys_OutdatedCallback_Message";
+    public const string Callback_OutdatedCallback_Message = nameof(Callback_OutdatedCallback_Message);
 
-    public const string EverythingIsUpToDate_Message = "CallbackMessageKeys_EverythingIsUpToDate_Message";
+    public const string Callback_EverythingIsUpToDate_Message = nameof(Callback_EverythingIsUpToDate_Message);
 
-    public const string RefreshMessage_Button = "CallbackMessageKeys_RefreshMessage_Button";
+    public const string Callback_RefreshMessage_Button = nameof(Callback_RefreshMessage_Button);
 
-    public const string ChatHasBeenDeleted_Message = "CallbackMessageKeys_ChatHasBeenDeleted_Message";
+    public const string Callback_ChatHasBeenDeleted_Message = nameof(Callback_ChatHasBeenDeleted_Message);
 
-    public const string QueueHasBeenDeleted_Message = "QueueHasBeenDeleted_Message";
+    public const string Callback_QueueHasBeenDeleted_Message = nameof(Callback_QueueHasBeenDeleted_Message);
 
-    public const string Return_Button = "CallbackMessageKeys_Return_Button";
+    public const string Callback_Return_Button = nameof(Callback_Return_Button);
 }
