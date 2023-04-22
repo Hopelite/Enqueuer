@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Core.TextProviders;
+﻿namespace Enqueuer.Telegram.Core.Localization;
 
 public static class MessageKeys
 {

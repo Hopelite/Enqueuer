@@ -8,7 +8,7 @@ public interface IBotConfiguration
     public string AccessToken { get; }
 
     /// <summary>
-    /// The maximum number of queues per group.
+    /// Maximum number of queues per group.
     /// </summary>
     public int QueuesPerChat { get; }
 }

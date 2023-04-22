@@ -1,8 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Core.Exceptions;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Exceptions;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
@@ -35,7 +34,10 @@ public abstract class CallbackHandlerBase : ICallbackHandler
         }
         catch (MessageNotModifiedException)
         {
-            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_EverythingIsUpToDate_Message, MessageParameters.None));
+            await TelegramBotClient.AnswerCallbackQueryAsync(
+                callback.Id,
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_EverythingIsUpToDate_Message, MessageParameters.None),
+                cancellationToken: cancellationToken);
         }
     }
 
@@ -54,7 +56,7 @@ public abstract class CallbackHandlerBase : ICallbackHandler
     }
 
     /// <summary>
-    /// 
+    /// Creates a button for pagination.
     /// </summary>
     protected InlineKeyboardButton GetAnotherPageButton(CallbackData previousCallbackData, int page, string buttonText)
     {

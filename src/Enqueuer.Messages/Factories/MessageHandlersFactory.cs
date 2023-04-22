@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Core.Constants;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Messages.MessageHandlers;
+using Enqueuer.Telegram.Core.Constants;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types;
 
@@ -32,13 +32,13 @@ namespace Enqueuer.Messages.Factories
         {
             messageHandler = command switch
             {
-                MessageConstants.StartCommand => _serviceProvider.GetRequiredService<StartMessageHandler>(),
-                MessageConstants.HelpCommand => _serviceProvider.GetRequiredService<HelpMessageHandler>(),
-                MessageConstants.QueueCommand => _serviceProvider.GetRequiredService<QueueMessageHandler>(),
-                MessageConstants.EnqueueCommand => _serviceProvider.GetRequiredService<EnqueueMessageHandler>(),
-                MessageConstants.DequeueCommand => _serviceProvider.GetRequiredService<DequeueMessageHandler>(),
-                MessageConstants.CreateQueueCommand => _serviceProvider.GetRequiredService<CreateQueueMessageHandler>(),
-                MessageConstants.RemoveQueueCommand => _serviceProvider.GetRequiredService<RemoveQueueMessageHandler>(),
+                MessageCommands.StartCommand => _serviceProvider.GetRequiredService<StartMessageHandler>(),
+                MessageCommands.HelpCommand => _serviceProvider.GetRequiredService<HelpMessageHandler>(),
+                MessageCommands.QueueCommand => _serviceProvider.GetRequiredService<QueueMessageHandler>(),
+                MessageCommands.EnqueueCommand => _serviceProvider.GetRequiredService<EnqueueMessageHandler>(),
+                MessageCommands.DequeueCommand => _serviceProvider.GetRequiredService<DequeueMessageHandler>(),
+                MessageCommands.CreateQueueCommand => _serviceProvider.GetRequiredService<CreateQueueMessageHandler>(),
+                MessageCommands.RemoveQueueCommand => _serviceProvider.GetRequiredService<RemoveQueueMessageHandler>(),
                 _ => null
             };
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Enqueuer.Core.Exceptions;
+namespace Enqueuer.Telegram.Core.Exceptions;
 
 public class OutdatedCallbackException : Exception
 {

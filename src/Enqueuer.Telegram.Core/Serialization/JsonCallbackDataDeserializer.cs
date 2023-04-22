@@ -1,4 +1,4 @@
-﻿using Enqueuer.Core.Exceptions;
+﻿using Enqueuer.Telegram.Core.Exceptions;
 using Newtonsoft.Json;
 
 namespace Enqueuer.Telegram.Core.Serialization;

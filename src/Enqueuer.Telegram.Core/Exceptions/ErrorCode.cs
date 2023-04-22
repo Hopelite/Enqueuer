@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Core.Exceptions;
+﻿namespace Enqueuer.Telegram.Core.Exceptions;
 
 internal enum ErrorCode
 {

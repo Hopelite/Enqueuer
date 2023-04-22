@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages.Extensions;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
@@ -49,7 +48,7 @@ public class StartMessageHandler : IMessageHandler
 
         var callbackButtonData = new CallbackData()
         {
-            Command = CallbackConstants.ListChatsCommand,
+            Command = CallbackCommands.ListChatsCommand,
         };
 
         var serializedCallbackData = _dataSerializer.Serialize(callbackButtonData);

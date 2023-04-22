@@ -5,11 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Callbacks.Extensions;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
@@ -88,8 +87,8 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
         var replyMarkupButtons = new List<InlineKeyboardButton[]>()
         {
             doesUserParticipate
-            ? new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_DequeueMe_Button, MessageParameters.None), CallbackConstants.DequeueMeCommand, callbackData, queue.Id) }
-            : new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_EnqueueMe_Button, MessageParameters.None), CallbackConstants.EnqueueCommand, callbackData, queue.Id) }
+            ? new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_DequeueMe_Button, MessageParameters.None), CallbackCommands.DequeueMeCommand, callbackData, queue.Id) }
+            : new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_EnqueueMe_Button, MessageParameters.None), CallbackCommands.EnqueueCommand, callbackData, queue.Id) }
         };
 
         if (queue.IsQueueCreator(user) || await TelegramBotClient.IsChatAdmin(user.Id, queue.GroupId))
@@ -97,13 +96,13 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
             replyMarkupButtons.Add(new InlineKeyboardButton[] 
             {
                 GetRemoveQueueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_RemoveQueue_Button, MessageParameters.None), callbackData),
-                GetDynamicQueueButton(CallbackConstants.SwitchQueueDynamicCommand, callbackData, queue)
+                GetDynamicQueueButton(CallbackCommands.SwitchQueueDynamicCommand, callbackData, queue)
             });
         }
 
         if (doesUserParticipate)
         {
-            replyMarkupButtons.Add(new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_SwapPositions_Button, MessageParameters.None), CallbackConstants.ExchangePositionsCommand, callbackData, queue.Id) });
+            replyMarkupButtons.Add(new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_SwapPositions_Button, MessageParameters.None), CallbackCommands.ExchangePositionsCommand, callbackData, queue.Id) });
         }
 
         replyMarkupButtons.Add(new InlineKeyboardButton[] { GetRefreshButton(callbackData) });

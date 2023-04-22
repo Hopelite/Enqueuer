@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Callbacks.CallbackHandlers;
-using Enqueuer.Core.Constants;
+using Enqueuer.Telegram.Core.Constants;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enqueuer.Callbacks.Factories;
@@ -30,16 +30,16 @@ public class CallbackHandlersFactory : ICallbackHandlersFactory
     {
         callbackHandler = command switch
         {
-            CallbackConstants.EnqueueMeCommand => _serviceProvider.GetRequiredService<EnqueueMeCallbackHandler>(),
-            CallbackConstants.GetChatCommand => _serviceProvider.GetRequiredService<GetChatCallbackHandler>(),
-            CallbackConstants.GetQueueCommand => _serviceProvider.GetRequiredService<GetQueueCallbackHandler>(),
-            CallbackConstants.ListChatsCommand => _serviceProvider.GetRequiredService<ListChatsCallbackHandler>(),
-            CallbackConstants.EnqueueCommand => _serviceProvider.GetRequiredService<EnqueueCallbackHandler>(),
-            CallbackConstants.EnqueueAtCommand => _serviceProvider.GetRequiredService<EnqueueAtCallbackHandler>(),
-            CallbackConstants.DequeueMeCommand => _serviceProvider.GetRequiredService<DequeueMeCallbackHandler>(),
-            CallbackConstants.RemoveQueueCommand => _serviceProvider.GetRequiredService<RemoveQueueCallbackHandler>(),
-            CallbackConstants.SwitchQueueDynamicCommand => _serviceProvider.GetRequiredService<SwitchQueueCallbackHandler>(),
-            CallbackConstants.ExchangePositionsCommand => _serviceProvider.GetRequiredService<SwapPositionsCallbackHandler>(),
+            CallbackCommands.EnqueueMeCommand => _serviceProvider.GetRequiredService<EnqueueMeCallbackHandler>(),
+            CallbackCommands.GetChatCommand => _serviceProvider.GetRequiredService<GetChatCallbackHandler>(),
+            CallbackCommands.GetQueueCommand => _serviceProvider.GetRequiredService<GetQueueCallbackHandler>(),
+            CallbackCommands.ListChatsCommand => _serviceProvider.GetRequiredService<ListChatsCallbackHandler>(),
+            CallbackCommands.EnqueueCommand => _serviceProvider.GetRequiredService<EnqueueCallbackHandler>(),
+            CallbackCommands.EnqueueAtCommand => _serviceProvider.GetRequiredService<EnqueueAtCallbackHandler>(),
+            CallbackCommands.DequeueMeCommand => _serviceProvider.GetRequiredService<DequeueMeCallbackHandler>(),
+            CallbackCommands.RemoveQueueCommand => _serviceProvider.GetRequiredService<RemoveQueueCallbackHandler>(),
+            CallbackCommands.SwitchQueueDynamicCommand => _serviceProvider.GetRequiredService<SwitchQueueCallbackHandler>(),
+            CallbackCommands.ExchangePositionsCommand => _serviceProvider.GetRequiredService<SwapPositionsCallbackHandler>(),
             _ => null
         };
 

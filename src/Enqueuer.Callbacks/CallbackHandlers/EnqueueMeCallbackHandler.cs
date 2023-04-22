@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
 using Enqueuer.Telegram.Core.Localization;

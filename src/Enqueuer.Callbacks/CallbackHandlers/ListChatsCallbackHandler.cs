@@ -3,11 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
@@ -85,7 +84,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
         {
             var callbackData = new CallbackData()
             {
-                Command = CallbackConstants.GetChatCommand,
+                Command = CallbackCommands.GetChatCommand,
                 TargetChatId = chats[chatIndex].Id,
             };
 

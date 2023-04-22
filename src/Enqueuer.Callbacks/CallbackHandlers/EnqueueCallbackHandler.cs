@@ -2,12 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
@@ -118,7 +117,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
     {
         var buttonCallbackData = new CallbackData()
         {
-            Command = CallbackConstants.EnqueueAtCommand,
+            Command = CallbackCommands.EnqueueAtCommand,
             TargetChatId = callbackData.TargetChatId,
             QueueData = new QueueData()
             {

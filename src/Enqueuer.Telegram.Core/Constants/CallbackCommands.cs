@@ -1,9 +1,9 @@
-﻿namespace Enqueuer.Core.Constants;
+﻿namespace Enqueuer.Telegram.Core.Constants;
 
 /// <summary>
-/// Contains callback constants.
+/// Contains callback commands.
 /// </summary>
-public static class CallbackConstants
+public static class CallbackCommands
 {
     /// <summary>
     /// Gets the list chats command.
@@ -29,6 +29,7 @@ public static class CallbackConstants
     /// Gets the enqueue command.
     /// </summary>
     public const string EnqueueCommand = "eq";
+
     /// <summary>
     /// Gets the remove queue command.
     /// </summary>

@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Telegram.Core.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Types;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Enqueuer.Core.Constants;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Tests.Utilities;
+using Enqueuer.Telegram.Core.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types;
@@ -47,7 +47,7 @@ public class CreateQueueMessageHandlerTests
                     Type = ChatType.Group,
                     Title = groupTitle,
                 },
-                Text = $"{MessageConstants.CreateQueueCommand} {queueName}",
+                Text = $"{MessageCommands.CreateQueueCommand} {queueName}",
             }
         };
 

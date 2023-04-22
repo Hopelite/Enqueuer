@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
@@ -91,7 +90,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
                 callback.Message.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_Message, new MessageParameters(ex.QueueName, ex.Position.ToString())),
                 ParseMode.Html,
-                replyMarkup: GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button, MessageParameters.None), CallbackConstants.EnqueueCommand, callback.CallbackData, queueId),
+                replyMarkup: GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button, MessageParameters.None), CallbackCommands.EnqueueCommand, callback.CallbackData, queueId),
                 cancellationToken: cancellationToken);
         }
         catch (QueueIsDynamicException ex)
@@ -103,7 +102,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] 
                 {
-                    GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None), CallbackConstants.EnqueueAtCommand, callback.CallbackData, queueId),
+                    GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None), CallbackCommands.EnqueueAtCommand, callback.CallbackData, queueId),
                     GetReturnToQueueButton(callback.CallbackData)
                 }),
                 cancellationToken: cancellationToken);

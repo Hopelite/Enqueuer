@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Microsoft.Extensions.Logging;
@@ -103,7 +102,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
     {
         var buttonCallbackData = new CallbackData()
         {
-            Command = CallbackConstants.DequeueMeCommand,
+            Command = CallbackCommands.DequeueMeCommand,
             TargetChatId = callbackData.TargetChatId,
             UserAgreement = isAgreed,
             QueueData = new QueueData()

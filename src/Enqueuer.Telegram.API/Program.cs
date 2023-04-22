@@ -1,14 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Enqueuer.Callbacks;
 using Enqueuer.Callbacks.Factories;
-using Enqueuer.Core.Exceptions;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Messages;
 using Enqueuer.Messages.Factories;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
 using Enqueuer.Telegram.Configuration;
 using Enqueuer.Telegram.Core.Configuration;
+using Enqueuer.Telegram.Core.Exceptions;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Extensions;
 using Enqueuer.Telegram.Middleware;

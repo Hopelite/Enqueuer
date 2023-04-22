@@ -1,5 +1,5 @@
-﻿using Enqueuer.Core.Constants;
-using Enqueuer.Telegram.Core;
+﻿using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
@@ -22,7 +22,7 @@ public abstract class CallbackHandlerBaseWithRemoveQueueButton : CallbackHandler
     {
         var buttonCallbackData = new CallbackData()
         {
-            Command = CallbackConstants.RemoveQueueCommand,
+            Command = CallbackCommands.RemoveQueueCommand,
             TargetChatId = callbackData.TargetChatId,
             UserAgreement = isAgreed,
             QueueData = new QueueData()

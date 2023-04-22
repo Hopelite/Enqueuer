@@ -1,6 +1,6 @@
-﻿namespace Enqueuer.Core.Constants
+﻿namespace Enqueuer.Telegram.Core.Constants
 {
-    public static class MessageConstants
+    public static class MessageCommands
     {
         /// <summary>
         /// Gets create queue command.

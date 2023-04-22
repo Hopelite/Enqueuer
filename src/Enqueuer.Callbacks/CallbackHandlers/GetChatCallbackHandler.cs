@@ -2,11 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Microsoft.Extensions.Logging;
@@ -83,7 +82,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
         {
             var newCallbackData = new CallbackData()
             {
-                Command = CallbackConstants.GetQueueCommand,
+                Command = CallbackCommands.GetQueueCommand,
                 TargetChatId = chatId,
                 QueueData = new QueueData()
                 {
@@ -104,7 +103,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
     {
         var callbackData = new CallbackData()
         {
-            Command = CallbackConstants.ListChatsCommand,
+            Command = CallbackCommands.ListChatsCommand,
         };
 
         var serializedCallbackData = DataSerializer.Serialize(callbackData);
