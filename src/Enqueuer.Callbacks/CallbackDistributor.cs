@@ -4,6 +4,7 @@ using Enqueuer.Callbacks.Factories;
 using Enqueuer.Core.Exceptions;
 using Enqueuer.Core.TextProviders;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -16,14 +17,14 @@ public class CallbackDistributor : ICallbackDistributor
     private readonly ICallbackHandlersFactory _callbackHandlersFactory;
     private readonly ICallbackDataDeserializer _callbackDataDeserializer;
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly IMessageProvider _messageProvider;
+    private readonly ILocalizationProvider _localizationProvider;
 
-    public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory, ICallbackDataDeserializer callbackDataDeserializer, ITelegramBotClient telegramBotClient, IMessageProvider messageProvider)
+    public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory, ICallbackDataDeserializer callbackDataDeserializer, ITelegramBotClient telegramBotClient, ILocalizationProvider localizationProvider)
     {
         _callbackHandlersFactory = callbackHandlersFactory;
         _callbackDataDeserializer = callbackDataDeserializer;
         _telegramBotClient = telegramBotClient;
-        _messageProvider = messageProvider;
+        _localizationProvider = localizationProvider;
     }
 
     public async Task DistributeAsync(CallbackQuery callbackQuery, CancellationToken cancellationToken)
@@ -43,7 +44,7 @@ public class CallbackDistributor : ICallbackDistributor
             await _telegramBotClient.EditMessageTextAsync(
                 callbackQuery.Message.Chat,
                 callbackQuery.Message.MessageId,
-                _messageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
+                _localizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
 

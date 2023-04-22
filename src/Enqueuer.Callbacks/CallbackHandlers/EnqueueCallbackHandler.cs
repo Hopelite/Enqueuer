@@ -8,6 +8,7 @@ using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -21,8 +22,8 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
     private const int PositionsInRow = 4;
     private readonly IQueueService _queueService;
 
-    public EnqueueCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, IQueueService queueService)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    public EnqueueCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, IQueueService queueService)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
         _queueService = queueService;
     }
@@ -34,7 +35,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -51,7 +52,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_QueueHasBeenDeleted_Message),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_QueueHasBeenDeleted_Message, MessageParameters.None),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
 
@@ -68,7 +69,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         {
             replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[2][]
             {
-                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData!, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button)) },
+                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData!, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None)) },
                 new InlineKeyboardButton[] {  GetReturnToQueueButton(callback.CallbackData!) }
             });
         }
@@ -81,7 +82,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_SelectPosition_Message, queue.Name),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_SelectPosition_Message, new MessageParameters(queue.Name)),
             ParseMode.Html,
             replyMarkup: replyButtons,
             cancellationToken: cancellationToken);
@@ -92,7 +93,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         var numberOfRows = availablePositions.Length / PositionsInRow;
         var positionButtons = new InlineKeyboardButton[numberOfRows + 3][];
 
-        positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button)) };
+        positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None)) };
         AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
         positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
         positionButtons[numberOfRows + 2] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };

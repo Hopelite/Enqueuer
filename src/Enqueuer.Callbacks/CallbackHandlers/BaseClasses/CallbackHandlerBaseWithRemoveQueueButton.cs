@@ -1,6 +1,6 @@
 ﻿using Enqueuer.Core.Constants;
-using Enqueuer.Core.TextProviders;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -9,8 +9,8 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 
 public abstract class CallbackHandlerBaseWithRemoveQueueButton : CallbackHandlerBaseWithReturnToQueueButton
 {
-    protected CallbackHandlerBaseWithRemoveQueueButton(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    protected CallbackHandlerBaseWithRemoveQueueButton(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
     }
 

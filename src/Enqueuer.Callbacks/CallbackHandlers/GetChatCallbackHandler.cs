@@ -7,6 +7,7 @@ using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -21,8 +22,8 @@ public class GetChatCallbackHandler : CallbackHandlerBase
     private readonly IGroupService _groupService;
     private readonly ILogger<EnqueueMeCallbackHandler> _logger;
 
-    public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, ILogger<EnqueueMeCallbackHandler> logger)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, ILogger<EnqueueMeCallbackHandler> logger)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
         _queueService = queueService;
         _groupService = groupService;
@@ -37,31 +38,33 @@ public class GetChatCallbackHandler : CallbackHandlerBase
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
-                ParseMode.Html);
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback);
+        return HandleAsyncInternal(callback, cancellationToken);
     }
 
-    private async Task HandleAsyncInternal(Callback callback)
+    private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
     {
         if (!await _groupService.DoesGroupExist(callback.CallbackData!.TargetChatId.Value))
         {
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_ChatHasBeenDeleted_Message),
-                replyMarkup: GetReturnButton());
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_ChatHasBeenDeleted_Message, MessageParameters.None),
+                replyMarkup: GetReturnButton(),
+                cancellationToken: cancellationToken);
 
             return;
         }
 
-        var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.TargetChatId.Value, CancellationToken.None);
+        var queues = await _queueService.GetGroupQueuesAsync(callback.CallbackData!.TargetChatId.Value, cancellationToken);
         var responseMessage = (queues.Count == 0
-            ? MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.Callback_GetChat_ChatHasNoQueues_Message)
-            : MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.GetChatCallback_ListQueues_Message))
-                + MessageProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.Callback_GetChat_DisplayQueueList_PostScriptum_Message);
+            ? LocalizationProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.Callback_GetChat_ChatHasNoQueues_Message, MessageParameters.None)
+            : LocalizationProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.Callback_GetChat_DisplayQueuesList_Message, MessageParameters.None))
+                + LocalizationProvider.GetMessage(CallbackMessageKeys.GetChatCallbackHandler.Callback_GetChat_DisplayQueueList_PostScriptum_Message, MessageParameters.None);
 
         var replyMarkup = BuildReplyMarkup(queues, callback.CallbackData, callback.CallbackData.TargetChatId.Value);
         await TelegramBotClient.EditMessageTextAsync(
@@ -69,7 +72,8 @@ public class GetChatCallbackHandler : CallbackHandlerBase
             callback.Message.MessageId,
             responseMessage,
             ParseMode.Html,
-            replyMarkup: replyMarkup);
+            replyMarkup: replyMarkup,
+            cancellationToken: cancellationToken);
     }
 
     private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, long chatId)
@@ -104,6 +108,6 @@ public class GetChatCallbackHandler : CallbackHandlerBase
         };
 
         var serializedCallbackData = DataSerializer.Serialize(callbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None), serializedCallbackData);
     }
 }

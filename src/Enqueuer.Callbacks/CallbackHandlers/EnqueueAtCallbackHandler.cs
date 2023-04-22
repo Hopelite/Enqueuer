@@ -5,8 +5,8 @@ using Enqueuer.Core.Constants;
 using Enqueuer.Core.TextProviders;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -16,26 +16,21 @@ namespace Enqueuer.Callbacks.CallbackHandlers;
 public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {
     private readonly IQueueService _queueService;
-    private readonly ILogger<EnqueueAtCallbackHandler> _logger;
 
-    public EnqueueAtCallbackHandler(
-        ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer,
-        IMessageProvider messageProvider, IQueueService queueService, ILogger<EnqueueAtCallbackHandler> logger)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    public EnqueueAtCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, IQueueService queueService)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
         _queueService = queueService;
-        _logger = logger;
     }
 
     protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData?.QueueData == null)
         {
-            _logger.LogWarning("Handled outdated callback.");
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -55,7 +50,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_Success_Message, position, queue.Name),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_Success_Message, new MessageParameters(position.ToString(), queue.Name)),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
@@ -65,7 +60,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message, MessageParameters.None),
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
         }
@@ -74,7 +69,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_UserAlreadyParticipates_Message, ex.QueueName),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_UserAlreadyParticipates_Message, new MessageParameters(ex.QueueName)),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
@@ -84,7 +79,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsFull_Message, ex.QueueName),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsFull_Message, new MessageParameters(ex.QueueName)),
                 ParseMode.Html,
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
@@ -94,9 +89,9 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_Message, ex.QueueName, ex.Position),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_Message, new MessageParameters(ex.QueueName, ex.Position.ToString())),
                 ParseMode.Html,
-                replyMarkup: GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button), CallbackConstants.EnqueueCommand, callback.CallbackData, queueId),
+                replyMarkup: GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_PositionIsReserved_ChooseAnother_Button, MessageParameters.None), CallbackConstants.EnqueueCommand, callback.CallbackData, queueId),
                 cancellationToken: cancellationToken);
         }
         catch (QueueIsDynamicException ex)
@@ -104,11 +99,11 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message, ex.QueueName),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message, new MessageParameters(ex.QueueName)),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] 
                 {
-                    GetQueueRelatedButton(MessageProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button), CallbackConstants.EnqueueAtCommand, callback.CallbackData, queueId),
+                    GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None), CallbackConstants.EnqueueAtCommand, callback.CallbackData, queueId),
                     GetReturnToQueueButton(callback.CallbackData)
                 }),
                 cancellationToken: cancellationToken);

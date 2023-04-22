@@ -8,6 +8,7 @@ using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -20,8 +21,8 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
     private const int MaxChatsPerRow = 2;
     private readonly IGroupService _groupService;
 
-    public ListChatsCallbackHandler(ITelegramBotClient telegramBotClient, IGroupService groupService, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    public ListChatsCallbackHandler(ITelegramBotClient telegramBotClient, IGroupService groupService, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
         _groupService = groupService;
     }
@@ -34,9 +35,10 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message, MessageParameters.None),
                 ParseMode.Html,
-                replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] { GetRefreshButton(callback.CallbackData) }));
+                replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] { GetRefreshButton(callback.CallbackData) }),
+                cancellationToken: cancellationToken);
 
             return;
         }
@@ -45,9 +47,10 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_DisplayChatsList_Message),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_DisplayChatsList_Message, MessageParameters.None),
             ParseMode.Html,
-            replyMarkup: replyMarkup);
+            replyMarkup: replyMarkup,
+            cancellationToken: cancellationToken);
     }
 
     private InlineKeyboardMarkup BuildReplyMarkup(List<Group> chats)

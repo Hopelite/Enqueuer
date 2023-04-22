@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Enqueuer.Core.Exceptions;
 using Enqueuer.Core.TextProviders;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -16,13 +17,13 @@ public abstract class CallbackHandlerBase : ICallbackHandler
 {
     protected readonly ITelegramBotClient TelegramBotClient;
     protected readonly ICallbackDataSerializer DataSerializer;
-    protected readonly IMessageProvider MessageProvider;
+    protected readonly ILocalizationProvider LocalizationProvider;
 
-    protected CallbackHandlerBase(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider)
+    protected CallbackHandlerBase(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider)
     {
         TelegramBotClient = telegramBotClient;
         DataSerializer = dataSerializer;
-        MessageProvider = messageProvider;
+        LocalizationProvider = localizationProvider;
     }
 
     public async Task HandleAsync(Callback callback, CancellationToken cancellationToken)
@@ -34,7 +35,7 @@ public abstract class CallbackHandlerBase : ICallbackHandler
         }
         catch (MessageNotModifiedException)
         {
-            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, MessageProvider.GetMessage(CallbackMessageKeys.Callback_EverythingIsUpToDate_Message));
+            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_EverythingIsUpToDate_Message, MessageParameters.None));
         }
     }
 
@@ -49,7 +50,7 @@ public abstract class CallbackHandlerBase : ICallbackHandler
     protected InlineKeyboardButton GetRefreshButton(CallbackData callbackData)
     {
         var serializedCallbackData = DataSerializer.Serialize(callbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Callback_RefreshMessage_Button), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_RefreshMessage_Button, MessageParameters.None), serializedCallbackData);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿using Enqueuer.Core.Constants;
 using Enqueuer.Core.TextProviders;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -12,8 +13,8 @@ namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 /// </summary>
 public abstract class CallbackHandlerBaseWithReturnToQueueButton : CallbackHandlerBaseWithReturnToChatButton
 {
-    protected CallbackHandlerBaseWithReturnToQueueButton(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    protected CallbackHandlerBaseWithReturnToQueueButton(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
     }
 
@@ -30,7 +31,7 @@ public abstract class CallbackHandlerBaseWithReturnToQueueButton : CallbackHandl
         };
 
         var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData(MessageProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button), serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData(LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None), serializedCallbackData);
     }
 
     protected InlineKeyboardButton GetQueueRelatedButton(string buttonText, string command, CallbackData callbackData, int queueId)

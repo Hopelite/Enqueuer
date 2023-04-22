@@ -6,6 +6,7 @@ using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -20,8 +21,8 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
     private readonly IQueueService _queueService;
     private readonly ILogger<DequeueMeCallbackHandler> _logger;
 
-    public DequeueMeCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, IUserService userService, IQueueService queueService, ILogger<DequeueMeCallbackHandler> logger)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    public DequeueMeCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, IUserService userService, IQueueService queueService, ILogger<DequeueMeCallbackHandler> logger)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
         _userService = userService;
         _queueService = queueService;
@@ -36,7 +37,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -52,7 +53,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message, MessageParameters.None),
                 replyMarkup: GetReturnToChatButton(callback.CallbackData));
 
             return;
@@ -71,14 +72,14 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
 
         var replyMarkup = new InlineKeyboardButton[][]
         {
-            new InlineKeyboardButton[] { GetDequeueButton(MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AgreeToDequeue_Button), callback.CallbackData, true) },
+            new InlineKeyboardButton[] { GetDequeueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AgreeToDequeue_Button, MessageParameters.None), callback.CallbackData, true) },
             new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
         };
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AreYouSureToBeDequeued_Message, queue.Name),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AreYouSureToBeDequeued_Message, new MessageParameters(queue.Name)),
             ParseMode.Html,
             replyMarkup: replyMarkup);
     }
@@ -87,8 +88,8 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
     {
         var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
         var responseMessage = await _queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None)
-            ? MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_Success_Message, queue.Name)
-            : MessageProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_UserDoesNotParticipate_Message, queue.Name);
+            ? LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_Success_Message, new MessageParameters(queue.Name))
+            : LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_UserDoesNotParticipate_Message, new MessageParameters(queue.Name));
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,

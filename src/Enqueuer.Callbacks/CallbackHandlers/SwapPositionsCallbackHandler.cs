@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,8 +9,8 @@ using Enqueuer.Core.TextProviders;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -19,42 +20,40 @@ namespace Enqueuer.Callbacks.CallbackHandlers;
 public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {
     private const int MembersPerPage = 10;
-
     private readonly IQueueService _queueService;
-    private readonly ILogger<EnqueueCallbackHandler> _logger;
 
-    public SwapPositionsCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, IMessageProvider messageProvider, IQueueService queueService, ILogger<EnqueueCallbackHandler> logger)
-        : base(telegramBotClient, dataSerializer, messageProvider)
+    public SwapPositionsCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, IQueueService queueService)
+        : base(telegramBotClient, dataSerializer, localizationProvider)
     {
         _queueService = queueService;
-        _logger = logger;
     }
 
     protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
         if (callback.CallbackData?.QueueData == null)
         {
-            _logger.LogWarning("Handled outdated callback.");
             return TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message),
-                ParseMode.Html);
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback);
+        return HandleAsyncInternal(callback, cancellationToken);
     }
 
-    private async Task HandleAsyncInternal(Callback callback)
+    private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
     {
-        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData!.QueueId, includeMembers: true, CancellationToken.None);
+        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData!.QueueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_QueueHasBeenDeleted_Message),
-                replyMarkup: GetReturnToChatButton(callback.CallbackData));
+                LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_QueueHasBeenDeleted_Message, MessageParameters.None),
+                replyMarkup: GetReturnToChatButton(callback.CallbackData),
+                cancellationToken: cancellationToken);
 
             return;
         }
@@ -67,16 +66,17 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_UserDoesNotParticipate_Message, queue.Name),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_UserDoesNotParticipate_Message, new MessageParameters(queue.Name)),
                 ParseMode.Html,
-                replyMarkup: GetReturnToQueueButton(callback.CallbackData));
+                replyMarkup: GetReturnToQueueButton(callback.CallbackData),
+                cancellationToken: cancellationToken);
 
             return;
         }
 
         if (callback.CallbackData.TargetUserId.HasValue)
         {
-            await HandleCallbackWithTargetUserAsync(queue, callback, userInQueue);
+            await HandleCallbackWithTargetUserAsync(queue, callback, userInQueue, cancellationToken);
             return;
         }
 
@@ -84,12 +84,13 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SelectUserToSwapWith_Message),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SelectUserToSwapWith_Message, MessageParameters.None),
             ParseMode.Html,
-            replyMarkup: replyButtons);
+            replyMarkup: replyButtons,
+            cancellationToken: cancellationToken);
     }
 
-    private async Task HandleCallbackWithTargetUserAsync(Queue queue, Callback callback, QueueMember receiver)
+    private async Task HandleCallbackWithTargetUserAsync(Queue queue, Callback callback, QueueMember receiver, CancellationToken cancellationToken)
     {
         var targetUser = queue.Members.FirstOrDefault(m => m.UserId == callback.CallbackData!.TargetUserId!.Value);
         if (targetUser == null)
@@ -97,45 +98,47 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_UserHasLeftTheQueue_Message, queue.Name),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_UserHasLeftTheQueue_Message, new MessageParameters(queue.Name)),
                 ParseMode.Html,
-                replyMarkup: GetReturnToQueueButton(callback.CallbackData!));
+                replyMarkup: GetReturnToQueueButton(callback.CallbackData!),
+                cancellationToken: cancellationToken);
 
             return;
         }
 
         if (callback.CallbackData!.UserAgreement.HasValue)
         {
-            await HandleCallbackWithAgreementAsync(queue, callback, targetUser, receiver);
+            await HandleCallbackWithAgreementAsync(queue, callback, targetUser, receiver, cancellationToken);
             return;
         }
 
         var replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[2][]
         {
-            new InlineKeyboardButton[] { GetExchangeRequestResponseButton(receiver, MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_AgreeToSwap_Button), userAgreement: true) },
-            new InlineKeyboardButton[] { GetExchangeRequestResponseButton(receiver, MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_RefuseToSwap_Button), userAgreement: false) },
+            new InlineKeyboardButton[] { GetExchangeRequestResponseButton(receiver, LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_AgreeToSwap_Button, MessageParameters.None), userAgreement: true) },
+            new InlineKeyboardButton[] { GetExchangeRequestResponseButton(receiver, LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_RefuseToSwap_Button, MessageParameters.None), userAgreement: false) },
         });
 
         await TelegramBotClient.SendTextMessageAsync(
             callback.CallbackData.TargetUserId!,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_UserWantsToSwapWithYou_Message, receiver.User.FullName, receiver.Position, queue.Name),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_UserWantsToSwapWithYou_Message, new MessageParameters(receiver.User.FullName, receiver.Position.ToString(), queue.Name)),
             ParseMode.Html,
-            replyMarkup: replyButtons);
+            replyMarkup: replyButtons,
+            cancellationToken: cancellationToken);
 
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SwapRequestHasBeenSent_Message, targetUser.User.FullName),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SwapRequestHasBeenSent_Message, new MessageParameters(targetUser.User.FullName)),
             ParseMode.Html,
-            replyMarkup: GetReturnToQueueButton(callback.CallbackData));
+            replyMarkup: GetReturnToQueueButton(callback.CallbackData),
+            cancellationToken: cancellationToken);
     }
 
-    private async Task HandleCallbackWithAgreementAsync(Queue queue, Callback callback, QueueMember sender, QueueMember responder)
+    private async Task HandleCallbackWithAgreementAsync(Queue queue, Callback callback, QueueMember sender, QueueMember responder, CancellationToken cancellationToken)
     {
         if (!callback.CallbackData!.QueueData!.Position.HasValue)
         {
-            _logger.LogError("Position in {Sender}'s request to swap with {Responder} in queue {Queue} was null.", sender.User.FullName, responder.User.FullName, queue.Name);
-            return;
+            throw new Exception($"Position in {sender.User.FullName}'s request to swap with {responder.User.FullName} in queue {queue.Name} was null.");
         }
 
         if (sender.Position != callback.CallbackData.QueueData.Position)
@@ -143,28 +146,31 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_RequestersPositionHasChanged_Message, sender.User.FullName),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_RequestersPositionHasChanged_Message, new MessageParameters(sender.User.FullName)),
                 ParseMode.Html,
-                replyMarkup: GetReturnToQueueButton(callback.CallbackData));
+                replyMarkup: GetReturnToQueueButton(callback.CallbackData),
+                cancellationToken: cancellationToken);
 
             return;
         }
 
         if (callback.CallbackData.HasUserAgreement)
         {
-            await _queueService.SwapMembersPositionsAsync(queue.Id, sender.UserId, responder.UserId, CancellationToken.None);
+            await _queueService.SwapMembersPositionsAsync(queue.Id, sender.UserId, responder.UserId, cancellationToken);
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
                 callback.Message.MessageId,
-                MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SuccessfullySwappedPositions_Message, sender.User.FullName),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SuccessfullySwappedPositions_Message, new MessageParameters(sender.User.FullName)),
                 ParseMode.Html,
-                replyMarkup: GetReturnToQueueButton(callback.CallbackData));
+                replyMarkup: GetReturnToQueueButton(callback.CallbackData),
+                cancellationToken: cancellationToken);
 
             await TelegramBotClient.SendTextMessageAsync(
                 callback.CallbackData.TargetUserId!,
-                MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SuccessfullySwappedPositions_Message, responder.User.FullName),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SuccessfullySwappedPositions_Message, new MessageParameters(responder.User.FullName)),
                 ParseMode.Html,
-                replyMarkup: new InlineKeyboardMarkup(GetReturnToQueueButton(callback.CallbackData)));
+                replyMarkup: new InlineKeyboardMarkup(GetReturnToQueueButton(callback.CallbackData)),
+                cancellationToken: cancellationToken);
 
             return;
         }
@@ -172,15 +178,17 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
         await TelegramBotClient.EditMessageTextAsync(
             callback.Message.Chat,
             callback.Message.MessageId,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SwapWasSuccessfulyRefused_Message, sender.User.FullName),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SwapWasSuccessfulyRefused_Message, new MessageParameters(sender.User.FullName)),
             ParseMode.Html,
-            replyMarkup: GetReturnToQueueButton(callback.CallbackData));
+            replyMarkup: GetReturnToQueueButton(callback.CallbackData),
+            cancellationToken: cancellationToken);
 
         await TelegramBotClient.SendTextMessageAsync(
             callback.CallbackData.TargetUserId!,
-            MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SwapRequestWasRefusedByUser_Message, responder.User.FullName),
+            LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_SwapRequestWasRefusedByUser_Message, new MessageParameters(responder.User.FullName)),
             ParseMode.Html,
-            replyMarkup: new InlineKeyboardMarkup(GetReturnToQueueButton(callback.CallbackData)));
+            replyMarkup: new InlineKeyboardMarkup(GetReturnToQueueButton(callback.CallbackData)),
+            cancellationToken: cancellationToken);
     }
 
     private InlineKeyboardMarkup BuildKeyboardMarkup(Queue queue, Callback callback, QueueMember exchangeRequester)
@@ -213,14 +221,14 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
         {
             replyButtons.Add(new InlineKeyboardButton[]
             {
-                GetAnotherPageButton(callback.CallbackData, currentPage - 1, MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_ListOfMembers_OnlyPreviousPageAvailable_Button))
+                GetAnotherPageButton(callback.CallbackData, currentPage - 1, LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_ListOfMembers_OnlyPreviousPageAvailable_Button, MessageParameters.None))
             });
         }
         else if (membersLeft > 0)
         {
             replyButtons.Add(new InlineKeyboardButton[]
             {
-                GetAnotherPageButton(callback.CallbackData, currentPage + 1, MessageProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_ListOfMembers_OnlyNextPageAvailable_Button))
+                GetAnotherPageButton(callback.CallbackData, currentPage + 1, LocalizationProvider.GetMessage(CallbackMessageKeys.SwapPositionsCallbackHandler.Callback_SwapPositions_ListOfMembers_OnlyNextPageAvailable_Button, MessageParameters.None))
             });
         }
 
