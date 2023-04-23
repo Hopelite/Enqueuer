@@ -3,6 +3,8 @@ using Enqueuer.Telegram.Sessions.Exceptions;
 
 namespace Enqueuer.Telegram.Sessions.Types;
 
+#pragma warning disable CS8618
+
 /// <summary>
 /// Represents a command parameter.
 /// </summary>
@@ -47,15 +49,15 @@ public class CommandParameter
         init => _longValue = value;
     }
     
-    public CommandParameter(string name, string value)
+    public CommandParameter(string name, string textValue)
     {
         Name = name;
-        TextValue = value;
+        TextValue = textValue;
     }
 
-    public CommandParameter(string name, long value)
+    public CommandParameter(string name, long longValue)
     {
         Name = name;
-        LongValue = value;
+        LongValue = longValue;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Enqueuer.Telegram.Sessions.Types;
 
@@ -16,4 +17,11 @@ public class CommandContext
     /// Command parameters that were either specified after the command text or added to the context later. 
     /// </summary>
     public IDictionary<string, CommandParameter> Parameters { get; init; } = new Dictionary<string, CommandParameter>();
+
+    public CommandContext(string command)
+    {
+        Command = string.IsNullOrWhiteSpace(command)
+            ? throw new ArgumentNullException(nameof(command), "Command can't be null, empty or a whitespace.")
+            : command;
+    }
 }

@@ -18,10 +18,7 @@ public class InMemorySessionStorage : ISessionStorage
     {
         if (!_sessions.TryGetValue(chatId, out var session))
         {
-            session = new Session
-            {
-                ChatId = chatId,
-            };
+            session = new Session(chatId);
         }
 
         return Task.FromResult(session);
