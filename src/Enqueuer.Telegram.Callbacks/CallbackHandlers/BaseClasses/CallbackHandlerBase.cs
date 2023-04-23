@@ -7,7 +7,7 @@ using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 
 /// <summary>
 /// Contains basic implementation for callback handlers.

@@ -1,7 +1,7 @@
 ﻿using Enqueuer.Telegram.Core;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Callbacks;
+namespace Enqueuer.Telegram.Callbacks;
 
 /// <summary>
 /// Represents an incoming Telegram callback.

@@ -6,7 +6,7 @@ using Enqueuer.Telegram.Core.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class EnqueueMeCallbackHandler : ICallbackHandler
 {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
@@ -13,7 +13,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {
@@ -105,7 +105,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         for (int i = 1, positionIndex = 0; i < numberOfRows + 1; i++)
         {
             positionButtons[i] = new InlineKeyboardButton[PositionsInRow];
-            for (int j = 0; j < PositionsInRow; j++, positionIndex++)
+            for (var j = 0; j < PositionsInRow; j++, positionIndex++)
             {
                 var position = availablePositions[positionIndex];
                 positionButtons[i][j] = GetEnqueueAtButton(callbackData, position: position);
@@ -127,6 +127,6 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         };
 
         var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData($"{buttonText ?? position?.ToString() ?? throw new ArgumentNullException(nameof(buttonText)) }", serializedCallbackData);
+        return InlineKeyboardButton.WithCallbackData($"{buttonText ?? position?.ToString() ?? throw new ArgumentNullException(nameof(buttonText))}", serializedCallbackData);
     }
 }

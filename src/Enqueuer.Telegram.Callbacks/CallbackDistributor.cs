@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.Factories;
+using Enqueuer.Telegram.Callbacks.Factories;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Exceptions;
 using Enqueuer.Telegram.Core.Localization;
@@ -9,7 +9,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace Enqueuer.Callbacks;
+namespace Enqueuer.Telegram.Callbacks;
 
 public class CallbackDistributor : ICallbackDistributor
 {

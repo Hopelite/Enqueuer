@@ -3,10 +3,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Callbacks.Extensions;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
+using Enqueuer.Telegram.Callbacks.Extensions;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
@@ -17,7 +17,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Queue = Enqueuer.Persistence.Models.Queue;
 using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
 {
@@ -93,7 +93,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
 
         if (queue.IsQueueCreator(user) || await TelegramBotClient.IsChatAdmin(user.Id, queue.GroupId))
         {
-            replyMarkupButtons.Add(new InlineKeyboardButton[] 
+            replyMarkupButtons.Add(new InlineKeyboardButton[]
             {
                 GetRemoveQueueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_RemoveQueue_Button, MessageParameters.None), callbackData),
                 GetDynamicQueueButton(CallbackCommands.SwitchQueueDynamicCommand, callbackData, queue)
@@ -117,7 +117,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
             Command = command,
             TargetChatId = callbackData.TargetChatId,
             QueueData = new QueueData()
-            { 
+            {
                 QueueId = queueId,
             }
         };
@@ -138,7 +138,7 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
             }
         };
 
-        var buttonText = queue.IsDynamic 
+        var buttonText = queue.IsDynamic
             ? LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_MakeQueueStatic_Button, MessageParameters.None)
             : LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_MakeQueueDynamic_Button, MessageParameters.None);
 

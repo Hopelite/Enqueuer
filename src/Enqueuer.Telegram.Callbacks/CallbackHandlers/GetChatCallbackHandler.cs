@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
@@ -13,7 +13,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class GetChatCallbackHandler : CallbackHandlerBase
 {
@@ -78,7 +78,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
     private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, long chatId)
     {
         var replyButtons = new InlineKeyboardButton[chatQueues.Count + 2][];
-        for (int i = 0; i < chatQueues.Count; i++)
+        for (var i = 0; i < chatQueues.Count; i++)
         {
             var newCallbackData = new CallbackData()
             {

@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
@@ -12,7 +12,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {

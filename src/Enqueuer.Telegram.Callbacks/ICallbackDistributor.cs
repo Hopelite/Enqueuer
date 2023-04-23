@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Callbacks;
+namespace Enqueuer.Telegram.Callbacks;
 
 /// <summary>
 /// Distributes callbacks to callback handlers.

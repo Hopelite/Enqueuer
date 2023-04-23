@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Callbacks.CallbackHandlers;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers;
 using Enqueuer.Telegram.Core.Constants;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Enqueuer.Callbacks.Factories;
+namespace Enqueuer.Telegram.Callbacks.Factories;
 
 public class CallbackHandlersFactory : ICallbackHandlersFactory
 {

@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Enqueuer.Callbacks;
-using Enqueuer.Callbacks.Factories;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
+using Enqueuer.Telegram.Callbacks;
+using Enqueuer.Telegram.Callbacks.Factories;
 using Enqueuer.Telegram.Configuration;
 using Enqueuer.Telegram.Core.Configuration;
 using Enqueuer.Telegram.Core.Exceptions;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
@@ -14,7 +14,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {
@@ -60,7 +60,7 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
         callback.CallbackData.TargetChatId = queue.GroupId; // Temporary workaround
 
         var userInQueue = queue.Members.FirstOrDefault(m => m.UserId == callback.From.Id);
-        if (userInQueue == null) 
+        if (userInQueue == null)
         {
             await TelegramBotClient.EditMessageTextAsync(
                 callback.Message.Chat,
@@ -208,7 +208,7 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBaseWithReturnToQueue
         }
 
         var membersLeft = queue.Members.Count - numberOfMembersToSkip - replyButtons.Count - 1;
-        if (numberOfMembersToSkip > 0 &&  membersLeft > 0)
+        if (numberOfMembersToSkip > 0 && membersLeft > 0)
         {
             replyButtons.Add(new InlineKeyboardButton[]
             {

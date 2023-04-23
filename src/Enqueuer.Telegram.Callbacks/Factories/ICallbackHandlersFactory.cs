@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Callbacks.CallbackHandlers;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
-namespace Enqueuer.Callbacks.Factories;
+namespace Enqueuer.Telegram.Callbacks.Factories;
 
 /// <summary>
 /// Creates callback handlers to handle incoming callbacks.

@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Core;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
@@ -13,7 +13,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class ListChatsCallbackHandler : CallbackHandlerBase
 {
@@ -59,7 +59,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
         var chatsIndex = 0;
 
         var replyButtons = new InlineKeyboardButton[rowsTotal][];
-        for (int i = 0; i < rowsTotal - 1; i++)
+        for (var i = 0; i < rowsTotal - 1; i++)
         {
             replyButtons[i] = new InlineKeyboardButton[MaxChatsPerRow];
             AddButtonsRow(replyButtons, i, MaxChatsPerRow, chats, ref chatsIndex);
@@ -80,7 +80,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
 
     private void AddButtonsRow(InlineKeyboardButton[][] replyButtons, int row, int rowLength, List<Group> chats, ref int chatIndex)
     {
-        for (int i = 0; i < rowLength; i++, chatIndex++)
+        for (var i = 0; i < rowLength; i++, chatIndex++)
         {
             var callbackData = new CallbackData()
             {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Telegram.Bot;
 
-namespace Enqueuer.Callbacks.Extensions;
+namespace Enqueuer.Telegram.Callbacks.Extensions;
 
 public static class TelegramBotClientExtensions
 {

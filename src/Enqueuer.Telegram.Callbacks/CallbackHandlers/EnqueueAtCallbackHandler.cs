@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
@@ -10,7 +10,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Callbacks.CallbackHandlers;
+namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
 public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 {
@@ -100,7 +100,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
                 callback.Message.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsDynamicButPositionIsSpecified_Message, new MessageParameters(ex.QueueName)),
                 ParseMode.Html,
-                replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] 
+                replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[]
                 {
                     GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None), CallbackCommands.EnqueueAtCommand, callback.CallbackData, queueId),
                     GetReturnToQueueButton(callback.CallbackData)
