@@ -1,7 +1,7 @@
 ﻿using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace Enqueuer.Messages.Extensions;
+namespace Enqueuer.Telegram.Messages.Extensions;
 
 /// <summary>
 /// Contains extension methods for <see cref="Message"/>.

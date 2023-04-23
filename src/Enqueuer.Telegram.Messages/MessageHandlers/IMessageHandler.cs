@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Messages.MessageHandlers;
+namespace Enqueuer.Telegram.Messages.MessageHandlers;
 
 /// <summary>
 /// Handles the incoming <see cref="Message"/>.

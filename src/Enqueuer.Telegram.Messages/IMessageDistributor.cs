@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messages.MessageHandlers;
+using Enqueuer.Telegram.Messages.MessageHandlers;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Messages;
+namespace Enqueuer.Telegram.Messages;
 
 /// <summary>
 /// Distributes messages to message handlers.

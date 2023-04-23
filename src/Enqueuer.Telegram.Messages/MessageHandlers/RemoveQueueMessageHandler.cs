@@ -1,25 +1,26 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
 using Enqueuer.Telegram.Core.Localization;
+using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Messages.MessageHandlers;
+namespace Enqueuer.Telegram.Messages.MessageHandlers;
 
-public class DequeueMessageHandler : IMessageHandler
+public class RemoveQueueMessageHandler : IMessageHandler
 {
     private readonly ITelegramBotClient _botClient;
     private readonly ILocalizationProvider _localizationProvider;
     private readonly IGroupService _groupService;
     private readonly IQueueService _queueService;
 
-    public DequeueMessageHandler(ITelegramBotClient botClient, ILocalizationProvider localizationProvider, IGroupService groupService, IQueueService queueService)
+    public RemoveQueueMessageHandler(ITelegramBotClient botClient, ILocalizationProvider localizationProvider, IGroupService groupService, IQueueService queueService)
     {
         _botClient = botClient;
         _localizationProvider = localizationProvider;
@@ -48,19 +49,18 @@ public class DequeueMessageHandler : IMessageHandler
         var messageWords = message.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(message, messageWords, group, user, cancellationToken);
+            await HandleMessageWithParameters(messageWords, message, group, user, cancellationToken);
             return;
         }
 
         await _botClient.SendTextMessageAsync(
-            message.Chat.Id,
-            _localizationProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_QueueNameIsNotProvided_Message, MessageParameters.None),
-            ParseMode.Html,
-            replyToMessageId: message.MessageId,
-            cancellationToken: cancellationToken);
+                message.Chat.Id,
+                _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message, MessageParameters.None),
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group, User user, CancellationToken cancellationToken)
+    private async Task HandleMessageWithParameters(string[] messageWords, Message message, Group group, User user, CancellationToken cancellationToken)
     {
         var queueName = messageWords.GetQueueName();
         var queue = group.GetQueueByName(queueName);
@@ -68,7 +68,7 @@ public class DequeueMessageHandler : IMessageHandler
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                _localizationProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_QueueDoesNotExist_Message, new MessageParameters(queueName)),
+                _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
@@ -76,23 +76,30 @@ public class DequeueMessageHandler : IMessageHandler
             return;
         }
 
-        if (await _queueService.TryDequeueUserAsync(user, queue.Id, cancellationToken))
+        if (queue.Creator.Id != user.Id && !await IsUserAdmin(group, user, cancellationToken))
         {
             await _botClient.SendTextMessageAsync(
-                 group.Id,
-                 _localizationProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_SuccessfullyDequeued_Message, new MessageParameters(queueName)),
-                 ParseMode.Html,
-                 replyToMessageId: message.MessageId,
-                 cancellationToken: cancellationToken);
+                group.Id,
+                _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message, new MessageParameters(queueName)),
+                ParseMode.Html,
+                replyToMessageId: message.MessageId,
+                cancellationToken: cancellationToken);
 
             return;
         }
 
+        await _queueService.DeleteQueueAsync(queue, cancellationToken);
         await _botClient.SendTextMessageAsync(
                 group.Id,
-                _localizationProvider.GetMessage(MessageKeys.DequeueMessageHandler.Message_DequeueCommand_PublicChat_UserDoesNotParticipate_Message, new MessageParameters(queueName)),
+                _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
                 replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
+    }
+
+    private async Task<bool> IsUserAdmin(Group group, User user, CancellationToken cancellationToken)
+    {
+        var admins = await _botClient.GetChatAdministratorsAsync(group.Id, cancellationToken);
+        return admins.Any(admin => admin.User.Id == user.Id);
     }
 }

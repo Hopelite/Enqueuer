@@ -8,7 +8,7 @@ using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Messages.MessageHandlers;
+namespace Enqueuer.Telegram.Messages.MessageHandlers;
 
 public abstract class MessageHandlerWithEnqueueMeButton : IMessageHandler
 {

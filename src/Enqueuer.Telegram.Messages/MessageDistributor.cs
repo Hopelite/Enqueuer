@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messages.Factories;
+using Enqueuer.Telegram.Messages.Factories;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Messages;
+namespace Enqueuer.Telegram.Messages;
 
 public class MessageDistributor : IMessageDistributor
 {

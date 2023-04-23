@@ -3,17 +3,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
+using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Messages.MessageHandlers;
+namespace Enqueuer.Telegram.Messages.MessageHandlers;
 
 public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
 {

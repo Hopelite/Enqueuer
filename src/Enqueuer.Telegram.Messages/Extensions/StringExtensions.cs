@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Enqueuer.Messages.Extensions;
+namespace Enqueuer.Telegram.Messages.Extensions;
 
 public static class StringExtensions
 {

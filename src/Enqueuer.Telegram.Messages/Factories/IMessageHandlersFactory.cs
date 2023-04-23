@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Messages.MessageHandlers;
+using Enqueuer.Telegram.Messages.MessageHandlers;
 using Telegram.Bot.Types;
 
-namespace Enqueuer.Messages.Factories;
+namespace Enqueuer.Telegram.Messages.Factories;
 
 /// <summary>
 /// Creates message handlers to handle incoming messages.

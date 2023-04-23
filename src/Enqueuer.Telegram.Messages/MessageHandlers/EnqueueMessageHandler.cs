@@ -1,17 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messages.Extensions;
 using Enqueuer.Persistence.Constants;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Core.Localization;
+using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using User = Enqueuer.Persistence.Models.User;
 
-namespace Enqueuer.Messages.MessageHandlers;
+namespace Enqueuer.Telegram.Messages.MessageHandlers;
 
 public class EnqueueMessageHandler : IMessageHandler
 {
@@ -153,7 +153,7 @@ public class EnqueueMessageHandler : IMessageHandler
 
     private static (string QueueName, int? UserPosition) GetQueueNameAndPosition(string[] messageWords)
     {
-        if (int.TryParse(messageWords[^1], out int position))
+        if (int.TryParse(messageWords[^1], out var position))
         {
             return (messageWords.GetQueueNameWithoutUserPosition(), position);
         }
