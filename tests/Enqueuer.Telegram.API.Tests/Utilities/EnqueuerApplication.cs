@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Enqueuer.Data.Configuration;
 using Enqueuer.Persistence;
+using Enqueuer.Telegram.Core.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;

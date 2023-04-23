@@ -1,7 +1,7 @@
-﻿using Enqueuer.Callbacks.CallbackHandlers;
-using Enqueuer.Data.DataSerialization;
-using Enqueuer.Messages.MessageHandlers;
-using Enqueuer.Services;
+﻿using Enqueuer.Services;
+using Enqueuer.Telegram.Callbacks.CallbackHandlers;
+using Enqueuer.Telegram.Core.Serialization;
+using Enqueuer.Telegram.Messages.MessageHandlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enqueuer.Telegram.Extensions;
@@ -22,8 +22,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection ConfigureSerialization(this IServiceCollection services)
     {
-        services.AddTransient<IDataSerializer, JsonDataSerializer>();
-        services.AddTransient<IDataDeserializer, JsonDataDeserializer>();
+        services.AddTransient<ICallbackDataSerializer, JsonCallbackDataSerializer>();
+        services.AddTransient<ICallbackDataDeserializer, JsonCallbackDataDeserializer>();
 
         return services;
     }

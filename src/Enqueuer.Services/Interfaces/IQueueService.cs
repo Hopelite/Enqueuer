@@ -2,11 +2,34 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
+using Enqueuer.Services.Responses;
 
 namespace Enqueuer.Services;
 
 public interface IQueueService
 {
+    /// <summary>
+    /// Creates a queue with the specified <paramref name="queueName"/> in a chat with the specified <paramref name="groupId"/>
+    /// on behalf of user with the <paramref name="creatorId"/> ID. If <paramref name="position"/> is specified, enqueues creator on it.
+    /// </summary>
+    Task<CreateQueueResponse> CreateQueueAsync(long creatorId, long groupId, string queueName, int? position = null, CancellationToken cancellationToken = default);
+        
+    /// <summary>
+    /// Adds user with the specified <paramref name="userId"/> on the first available position in a queue with the <paramref name="queueId"/>.
+    /// </summary>
+    Task<EnqueueResponse> EnqueueOnFirstAvailablePositionAsync(long userId, int queueId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Adds user with the specified <paramref name="userId"/> on the specified <paramref name="position"/> in a queue with the <paramref name="queueId"/>.
+    /// </summary>
+    Task<EnqueueResponse> EnqueueOnPositionAsync(long userId, int queueId, int position, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes <see cref="Queue"/> with the specified <paramref name="queueId"/> 
+    /// checking whether user with <paramref name="userId"/> has rights to delete it if <paramref name="checkIfCreator"/> is checked.
+    /// </summary>
+    Task<Queue> DeleteQueueAsync(int queueId, long userId, bool checkIfCreator, CancellationToken cancellationToken);
+
     /// <summary>
     /// Gets <see cref="Queue"/> with the specified <paramref name="id"/>.
     /// </summary>

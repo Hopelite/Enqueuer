@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Enqueuer.Data.Constants;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Tests.Utilities;
+using Enqueuer.Telegram.Core.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types;
@@ -27,11 +27,11 @@ public sealed class EnqueuerApiTests : IDisposable
     }
 
     [Theory]
-    [InlineData(MessageConstants.CreateQueueCommand)]
-    [InlineData(MessageConstants.DequeueCommand)]
-    [InlineData(MessageConstants.EnqueueCommand)]
-    [InlineData(MessageConstants.QueueCommand)]
-    [InlineData(MessageConstants.RemoveQueueCommand)]
+    [InlineData(MessageCommands.CreateQueueCommand)]
+    [InlineData(MessageCommands.DequeueCommand)]
+    [InlineData(MessageCommands.EnqueueCommand)]
+    [InlineData(MessageCommands.QueueCommand)]
+    [InlineData(MessageCommands.RemoveQueueCommand)]
     public async Task PostMessage_NewUserAndGroup_SavesUserAndGroup(string command)
     {
         const string groupTitle = "Test";

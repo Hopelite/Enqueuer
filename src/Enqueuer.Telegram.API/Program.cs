@@ -1,14 +1,15 @@
-﻿using Enqueuer.Callbacks;
-using Enqueuer.Callbacks.Factories;
-using Enqueuer.Data.Configuration;
-using Enqueuer.Data.Exceptions;
-using Enqueuer.Data.TextProviders;
-using Enqueuer.Messages;
-using Enqueuer.Messages.Factories;
+﻿using System.Threading.Tasks;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
+using Enqueuer.Telegram.Callbacks;
+using Enqueuer.Telegram.Callbacks.Factories;
 using Enqueuer.Telegram.Configuration;
+using Enqueuer.Telegram.Core.Configuration;
+using Enqueuer.Telegram.Core.Exceptions;
+using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Extensions;
+using Enqueuer.Telegram.Messages;
+using Enqueuer.Telegram.Messages.Factories;
 using Enqueuer.Telegram.Middleware;
 using Enqueuer.Telegram.UpdateHandling;
 using Microsoft.AspNetCore.Builder;
@@ -31,18 +32,27 @@ public class Program
 
         var app = builder.Build();
 
+        app.UseMiddleware<LogExceptionsMiddleware>();
+
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
-        app.MapPost($"/bot{botConfiguration.AccessToken}", async (HttpContext context) =>
+        app.MapPost($"/bot{botConfiguration.AccessToken}", async Task<IResult> (HttpContext context) =>
         {
-            if (context.Request.HasJsonContentType())
+            if (!context.Request.HasJsonContentType())
             {
-                var update = await context.DeserializeBodyAsync<Update>();
-                var handler = context.RequestServices.GetRequiredService<IUpdateHandler>();
-                await handler.HandleAsync(update);
+                return Results.StatusCode(StatusCodes.Status415UnsupportedMediaType);
             }
+
+            var update = await context.DeserializeBodyAsync<Update>();
+            if (update == null)
+            {
+                return Results.BadRequest();
+            }
+
+            var handler = context.RequestServices.GetRequiredService<IUpdateHandler>();
+            await handler.HandleAsync(update);
+            return Results.Ok();
         });
 
-        app.UseMiddleware<LogExceptionsMiddleware>();
         app.Run();
     }
 
@@ -65,7 +75,7 @@ public class Program
         builder.Services.AddTransient<ICallbackHandlersFactory, CallbackHandlersFactory>();
         builder.Services.ConfigureCallbackHandlers();
 
-        builder.Services.AddTransient<IMessageProvider, InMemoryTextProvider>();
+        builder.Services.AddSingleton<ILocalizationProvider, LocalizationProvider>();
 
         builder.Services.ConfigureSerialization()
             .ConfigureServices();

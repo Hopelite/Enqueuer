@@ -18,8 +18,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Enqueuer.Messages\Enqueuer.Messages.csproj" />
-  </ItemGroup>
-
 </Project>

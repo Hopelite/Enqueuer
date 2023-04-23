@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 namespace Enqueuer.Telegram.Middleware;
 
 /// <summary>
-/// Catches all exceptions occurred during the request handling and logs them by sending to a telegram chat.
+/// Logs all thrown exceptions.
 /// </summary>
-public class LogExceptionsMiddleware // TODO: replace with LogProvider
+public class LogExceptionsMiddleware
 {
     private readonly RequestDelegate _next;
 
@@ -18,10 +18,6 @@ public class LogExceptionsMiddleware // TODO: replace with LogProvider
         _next = next;
     }
 
-    /// <summary>
-    /// Invokes <see cref="LogExceptionsMiddleware"/> and starts catching exceptions.
-    /// </summary>
-    /// <param name="context"><see cref="HttpContext"/> to pass down by pipeline.</param>
     public async Task InvokeAsync(HttpContext context)
     {
         var logger = context.RequestServices.GetRequiredService<ILogger<LogExceptionsMiddleware>>();
@@ -31,7 +27,7 @@ public class LogExceptionsMiddleware // TODO: replace with LogProvider
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, ex.Message);
+            logger.LogError(ex, "Exception was thrown during the application work.");
         }
     }
 }

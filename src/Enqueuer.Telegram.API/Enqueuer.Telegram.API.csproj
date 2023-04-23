@@ -15,8 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enqueuer.Callbacks\Enqueuer.Callbacks.csproj" />
-    <ProjectReference Include="..\Enqueuer.Messages\Enqueuer.Messages.csproj" />
+    <ProjectReference Include="..\Enqueuer.Callbacks\Enqueuer.Telegram.Callbacks.csproj" />
+    <ProjectReference Include="..\Enqueuer.Telegram.Callbacks\Enqueuer.Telegram.Callbacks.csproj" />
+    <ProjectReference Include="..\Enqueuer.Telegram.Messages\Enqueuer.Telegram.Messages.csproj" />
   </ItemGroup>
   
   <ItemGroup>

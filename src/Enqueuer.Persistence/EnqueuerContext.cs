@@ -30,6 +30,11 @@ public class EnqueuerContext : DbContext
     public DbSet<QueueMember> QueueMembers { get; set; }
 
     /// <summary>
+    /// Blocklist with records about blocked users.
+    /// </summary>
+    //public DbSet<BlocklistRecord> Blocklist { get; set; }
+
+    /// <summary>
     /// Readonly. All possible positions in queue.
     /// </summary>
     public DbSet<Position> Positions { get; set; }

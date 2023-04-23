@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
-using Enqueuer.Callbacks;
-using Enqueuer.Messages;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Enqueuer.Telegram.Callbacks;
+using Enqueuer.Telegram.Messages;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -21,11 +22,11 @@ public class UpdateHandler : IUpdateHandler
     {
         if (update?.Type == UpdateType.Message)
         {
-            return _messageDistributor.DistributeAsync(update.Message);
+            return _messageDistributor.DistributeAsync(update.Message, CancellationToken.None);
         }
         else if (update?.Type == UpdateType.CallbackQuery)
         {
-            return _callbackDistributor.DistributeAsync(update.CallbackQuery);
+            return _callbackDistributor.DistributeAsync(update.CallbackQuery, CancellationToken.None);
         }
 
         return Task.CompletedTask;
