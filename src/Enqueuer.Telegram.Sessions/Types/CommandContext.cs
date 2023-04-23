@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Enqueuer.Sessions.Types;
+namespace Enqueuer.Telegram.Sessions.Types;
 
 /// <summary>
 /// Contains necessary data related to the command.

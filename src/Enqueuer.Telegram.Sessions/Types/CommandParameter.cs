@@ -1,7 +1,7 @@
 ﻿using System;
-using Enqueuer.Sessions.Exceptions;
+using Enqueuer.Telegram.Sessions.Exceptions;
 
-namespace Enqueuer.Sessions.Types;
+namespace Enqueuer.Telegram.Sessions.Types;
 
 /// <summary>
 /// Represents a command parameter.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Enqueuer.Sessions.Exceptions;
+namespace Enqueuer.Telegram.Sessions.Exceptions;
 
 /// <summary>
 /// Thrown when the parameter has a type other than expected.

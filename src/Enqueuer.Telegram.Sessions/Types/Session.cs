@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Sessions.Types;
+﻿namespace Enqueuer.Telegram.Sessions.Types;
 
 /// <summary>
 /// Represents an active Telegram chat session.

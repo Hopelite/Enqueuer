@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Sessions.Types;
+using Enqueuer.Telegram.Sessions.Types;
 
-namespace Enqueuer.Sessions;
+namespace Enqueuer.Telegram.Sessions;
 
 /// <summary>
 /// Stores Telegram sessions in memory.
