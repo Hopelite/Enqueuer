@@ -28,7 +28,7 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
 
     protected override async Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
     {
-        var groups = (await _groupService.GetUserGroups(callback.From.Id, CancellationToken.None)).ToList();
+        var groups = (await _groupService.GetUserGroupsAsync(callback.From.Id, CancellationToken.None)).ToList();
         if (groups.Count == 0)
         {
             await TelegramBotClient.EditMessageTextAsync(
