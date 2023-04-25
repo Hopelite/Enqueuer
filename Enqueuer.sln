@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Telegram.Messages"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enqueuer.Telegram.Callbacks", "src\Enqueuer.Telegram.Callbacks\Enqueuer.Telegram.Callbacks.csproj", "{9B8C0187-2ECA-4B5D-B54D-249970DF5F87}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enqueuer.Service.API", "src\Enqueuer.Service.API\Enqueuer.Service.API.csproj", "{CFBD2C9B-ECD0-4EBE-B7F2-37036A8132A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{9B8C0187-2ECA-4B5D-B54D-249970DF5F87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B8C0187-2ECA-4B5D-B54D-249970DF5F87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B8C0187-2ECA-4B5D-B54D-249970DF5F87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFBD2C9B-ECD0-4EBE-B7F2-37036A8132A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFBD2C9B-ECD0-4EBE-B7F2-37036A8132A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFBD2C9B-ECD0-4EBE-B7F2-37036A8132A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFBD2C9B-ECD0-4EBE-B7F2-37036A8132A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +92,7 @@ Global
 		{1676E349-7334-4790-B4D0-78C73B83220C} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
 		{6FCBD449-B602-4856-8750-68055E6F4A83} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
 		{9B8C0187-2ECA-4B5D-B54D-249970DF5F87} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
+		{CFBD2C9B-ECD0-4EBE-B7F2-37036A8132A4} = {A5EEB613-B9D0-4CC5-B03B-A77A502520DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {351A2A60-7B1A-4B59-89E1-62711E231147}
