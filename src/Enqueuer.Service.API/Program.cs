@@ -1,4 +1,7 @@
-﻿using Enqueuer.Service.API.Mapping;
+﻿using System.IO;
+using System.Reflection;
+using System;
+using Enqueuer.Service.API.Mapping;
 using Enqueuer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +19,11 @@ public class Program
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+        });
 
         builder.Services.AddTransient<IGroupService, GroupService>();
         builder.Services.AddAutoMapper(configAction => configAction.AddProfile(new MessagesMappingProfile()));

@@ -9,6 +9,12 @@ namespace Enqueuer.Services;
 public interface IGroupService
 {
     /// <summary>
+    /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
+    /// </summary>
+    /// <exception cref="Exceptions.UserDoesNotExistException"></exception>
+    Task<IEnumerable<Group>> GetUserGroupsAsync(long userId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Gets an already existing <see cref="Group"/> or stores a new <paramref name="telegramGroup"/>.
     /// </summary>
     Task<Group> GetOrStoreGroupAsync(Telegram.Bot.Types.Chat telegramGroup, CancellationToken cancellationToken);
@@ -17,11 +23,6 @@ public interface IGroupService
     /// Adds to or updates <paramref name="telegramUser"/> in a new or existing <paramref name="telegramGroup"/>.
     /// </summary>
     Task<GetUserGroupResponse> AddOrUpdateUserAndGroupAsync(Telegram.Bot.Types.Chat telegramGroup, Telegram.Bot.Types.User telegramUser, bool includeQueues, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
-    /// </summary>
-    Task<IEnumerable<Group>> GetUserGroupsAsync(long userId, CancellationToken cancellationToken);
 
     /// <summary>
     /// 

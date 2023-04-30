@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence;
 using Enqueuer.Persistence.Models;
+using Enqueuer.Services.Exceptions;
 using Enqueuer.Services.Extensions;
 using Enqueuer.Services.Responses;
 using Microsoft.EntityFrameworkCore;
@@ -163,7 +164,12 @@ public class GroupService : IGroupService
         var user = await enqueuerContext.Users.Include(u => u.Groups)
             .SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
-        return user?.Groups ?? Enumerable.Empty<Group>();
+        if (user == null)
+        {
+            throw new UserDoesNotExistException($"User with the \"{userId}\" ID does not exist.");
+        }
+
+        return user.Groups ?? Enumerable.Empty<Group>();
     }
 
     public Task<bool> DoesGroupExist(long groupId)
