@@ -2,10 +2,13 @@
 using System.Reflection;
 using System;
 using Enqueuer.Service.API.Mapping;
-using Enqueuer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Enqueuer.Service.API.Services;
+using Enqueuer.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Enqueuer.Service.API;
 
@@ -25,7 +28,11 @@ public class Program
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });
 
+        builder.Services.AddDbContext<EnqueuerContext>(options =>
+            options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+
         builder.Services.AddTransient<IGroupService, GroupService>();
+        builder.Services.AddTransient<IQueueService, QueueService>();
         builder.Services.AddAutoMapper(configAction => configAction.AddProfile(new MessagesMappingProfile()));
 
         var app = builder.Build();

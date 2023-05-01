@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Enqueuer.Persistence\Enqueuer.Persistence.csproj" />
     <ProjectReference Include="..\Enqueuer.Service.Messages\Enqueuer.Service.Messages.csproj" />
-    <ProjectReference Include="..\Enqueuer.Services\Enqueuer.Services.csproj" />
   </ItemGroup>
 
 </Project>

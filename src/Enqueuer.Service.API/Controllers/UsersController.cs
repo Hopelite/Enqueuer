@@ -1,9 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
+using Enqueuer.Service.API.Services;
+using Enqueuer.Service.API.Services.Exceptions;
 using Enqueuer.Service.Messages.Models;
-using Enqueuer.Services;
-using Enqueuer.Services.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,16 +13,14 @@ namespace Enqueuer.Service.API.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IGroupService _groupService;
-    private readonly IMapper _mapper;
 
-    public UsersController(IGroupService groupService, IMapper mapper)
+    public UsersController(IGroupService groupService)
     {
         _groupService = groupService;
-        _mapper = mapper;
     }
 
     /// <summary>
-    /// Gets all groups in which user with the specified <paramref name="id"/> participates.
+    /// Get all groups in which user with the specified <paramref name="id"/> participates.
     /// </summary>
     [HttpGet("{id}/groups")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -32,8 +29,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var groups = await _groupService.GetUserGroupsAsync(id, cancellationToken);
-            return _mapper.Map<Group[]>(groups);
+            return await _groupService.GetUserGroupsAsync(id, cancellationToken);
         }
         catch (UserDoesNotExistException)
         {

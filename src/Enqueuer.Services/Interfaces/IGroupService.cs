@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
+using Enqueuer.Services.Exceptions;
 using Enqueuer.Services.Responses;
 
 namespace Enqueuer.Services;
@@ -11,7 +12,7 @@ public interface IGroupService
     /// <summary>
     /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
     /// </summary>
-    /// <exception cref="Exceptions.UserDoesNotExistException"></exception>
+    /// <exception cref="UserDoesNotExistException" />
     Task<IEnumerable<Group>> GetUserGroupsAsync(long userId, CancellationToken cancellationToken);
 
     /// <summary>
