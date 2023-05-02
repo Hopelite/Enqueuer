@@ -1,8 +1,8 @@
 ﻿namespace Enqueuer.Service.API.Services.Types;
 
-public enum PutActionStatus
+public enum PutAction
 {
-    None = 0,
+    NoAction = 0,
     Created,
     Updated,
 }

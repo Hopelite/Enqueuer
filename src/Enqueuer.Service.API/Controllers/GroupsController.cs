@@ -38,10 +38,11 @@ public class GroupsController : ControllerBase
     }
 
     /// <summary>
-    /// Add a new or update an existing Telegram group with the specified <paramref name="id"/>.
+    /// Add a new or update an existing Telegram <paramref name="group"/> with the specified <paramref name="id"/>.
     /// </summary>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<GroupInfo>> AddOrUpdateGroup(long id, Group group, CancellationToken cancellationToken)
     {
@@ -56,8 +57,13 @@ public class GroupsController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        var atualGroup = await _groupService.AddOrUpdateAsync(id, group, cancellationToken);
-        return CreatedAtAction(nameof(GetGroup), new { id }, atualGroup);
+        var result = await _groupService.AddOrUpdateGroupAsync(id, group, cancellationToken);
+        if (result == PutAction.Created)
+        {
+            return CreatedAtAction(nameof(GetGroup), new { id }, null);
+        }
+
+        return NoContent();
     }
 
     /// <summary>
@@ -88,8 +94,8 @@ public class GroupsController : ControllerBase
     /// Add a <paramref name="user"/> to a group with the specified <paramref name="id"/>.
     /// </summary>
     [HttpPut("{id}/members/{userId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult> AddOrUpdateGroupMember(long id, long userId, User user, CancellationToken cancellationToken)
@@ -108,12 +114,12 @@ public class GroupsController : ControllerBase
         try
         {
             var result = await _groupService.AddOrUpdateGroupMemberAsync(id, userId, user, cancellationToken);
-            if (result == PutActionStatus.Created)
+            if (result == PutAction.Created)
             {
-                return CreatedAtAction(nameof(GetGroupMember), new { id, userId }, user);
+                return CreatedAtAction(nameof(GetGroupMember), new { id, userId }, null);
             }
 
-            return Ok(user);
+            return NoContent();
         }
         catch (GroupDoesNotExistException)
         {

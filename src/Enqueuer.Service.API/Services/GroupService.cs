@@ -56,7 +56,7 @@ public class GroupService : IGroupService
             : _mapper.Map<Group[]>(user.Groups);
     }
 
-    public Task<GroupInfo> AddOrUpdateAsync(long groupId, Group group, CancellationToken cancellationToken)
+    public Task<PutActionResponse> AddOrUpdateGroupAsync(long groupId, Group group, CancellationToken cancellationToken)
     {
         if (group == null)
         {
@@ -66,7 +66,7 @@ public class GroupService : IGroupService
         return AddOrUpdateAsyncInternal(groupId, group, cancellationToken);
     }
 
-    private async Task<GroupInfo> AddOrUpdateAsyncInternal(long groupId, Group group, CancellationToken cancellationToken)
+    private async Task<PutActionResponse> AddOrUpdateAsyncInternal(long groupId, Group group, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
@@ -77,18 +77,22 @@ public class GroupService : IGroupService
 
         if (existingGroup == null)
         {
-            enqueuerContext.Groups.Add(_mapper.Map<Persistence.Models.Group>(group));
+            existingGroup = _mapper.Map<Persistence.Models.Group>(group);
+
+            enqueuerContext.Groups.Add(existingGroup);
             await enqueuerContext.SaveChangesAsync(cancellationToken);
-            return _mapper.Map<GroupInfo>(group);
+
+            return PutAction.Created;
         }
 
         if (existingGroup.Title != group.Title)
         {
             existingGroup.Title = group.Title;
             enqueuerContext.Update(group);
+            return PutAction.Updated;
         }
 
-        return _mapper.Map<GroupInfo>(existingGroup);
+        return PutAction.NoAction;
     }
 
     public async Task<User?> GetGroupMemberAsync(long groupId, long userId, CancellationToken cancellationToken)
@@ -111,7 +115,7 @@ public class GroupService : IGroupService
             : _mapper.Map<User>(user);
     }
 
-    public Task<PutActionStatus> AddOrUpdateGroupMemberAsync(long id, long userId, User user, CancellationToken cancellationToken)
+    public Task<PutAction> AddOrUpdateGroupMemberAsync(long id, long userId, User user, CancellationToken cancellationToken)
     {
         if (user == null)
         {
@@ -121,7 +125,7 @@ public class GroupService : IGroupService
         return AddOrUpdateMemberAsyncInternal(id, userId, user, cancellationToken);
     }
 
-    private async Task<PutActionStatus> AddOrUpdateMemberAsyncInternal(long id, long userId, User user, CancellationToken cancellationToken)
+    private async Task<PutAction> AddOrUpdateMemberAsyncInternal(long id, long userId, User user, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
@@ -140,19 +144,21 @@ public class GroupService : IGroupService
         {
             // TODO: consider throwing exception, if user does not exist in db at all
             existingUser = _mapper.Map<Persistence.Models.User>(user);
-            group.Members.Add(existingUser);
 
+            group.Members.Add(existingUser);
             await enqueuerContext.SaveChangesAsync(cancellationToken);
-            return PutActionStatus.Created;
+
+            return PutAction.Created;
         }
 
         if (UpdateUserIfNeeded(existingUser, user))
         {
+            enqueuerContext.Update(group);
             await enqueuerContext.SaveChangesAsync(cancellationToken);
-            return PutActionStatus.Updated;
+            return PutAction.Updated;
         }
 
-        return PutActionStatus.None;
+        return PutAction.NoAction;
 
         static bool UpdateUserIfNeeded(Persistence.Models.User existingUser, User newUser)
         {
