@@ -17,12 +17,15 @@ public interface IQueueService
     /// Creates a queue with the specified queue name in a chat with the specified group ID on behalf of user with the creator ID.
     /// </summary>
     /// <returns>The <see cref="QueueInfo"/> of the created queue.</returns>
+    /// <exception cref="UserDoesNotExistException" />
+    /// <exception cref="GroupDoesNotExistException" />
     /// <exception cref="QueueAlreadyExistsException" />
     Task<QueueInfo> CreateQueueAsync(CreateQueueRequest request, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes a queue with the specified <paramref name="queueId"/>.
     /// </summary>
+    /// <exception cref="QueueDoesNotExistException" />
     Task DeleteQueueAsync(int queueId, CancellationToken cancellationToken);
 
     /// <summary>

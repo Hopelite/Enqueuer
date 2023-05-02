@@ -56,6 +56,16 @@ public class QueuesController : ControllerBase
             var queue = await _queueService.CreateQueueAsync(request, cancellationToken);
             return CreatedAtAction(nameof(GetQueue), new { id = queue.Id }, queue);
         }
+        catch (UserDoesNotExistException)
+        {
+            ModelState.AddModelError(nameof(request.CreatorId), $"User with the \"{request.CreatorId}\" ID does not exist.");
+            return UnprocessableEntity(ModelState);
+        }
+        catch (GroupDoesNotExistException)
+        {
+            ModelState.AddModelError(nameof(request.GroupId), $"Group with the \"{request.GroupId}\" ID does not exist.");
+            return UnprocessableEntity(ModelState);
+        }
         catch (QueueAlreadyExistsException)
         {
             ModelState.AddModelError(nameof(request.QueueName), $"Queue \"{request.QueueName}\" already exists in the group with the \"{request.GroupId}\" ID.");

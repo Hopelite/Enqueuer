@@ -50,6 +50,12 @@ public class QueueService : IQueueService
             throw new UserDoesNotExistException($"User with the \"{request.CreatorId}\" ID does not exist.");
         }
 
+        var group = await enqueuerContext.Groups.FindAsync(new object[] { request.GroupId }, cancellationToken);
+        if (group == null)
+        {
+            throw new GroupDoesNotExistException($"Group with the \"{request.GroupId}\" ID does not exist.");
+        }
+
         if (enqueuerContext.Queues.Any(q => q.GroupId == request.GroupId && q.Name.Equals(request.QueueName)))
         {
             throw new QueueAlreadyExistsException($"Queue \"{request.QueueName}\" already exists in the group with the \"{request.GroupId}\" ID.");
@@ -58,7 +64,7 @@ public class QueueService : IQueueService
         var queue = new Persistence.Models.Queue
         {
             Name = request.QueueName,
-            GroupId = request.GroupId,
+            Group = group,
             Creator = creator,
             Members = new List<Persistence.Models.QueueMember>(),
         };

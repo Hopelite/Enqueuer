@@ -33,6 +33,7 @@ public class Program
 
         builder.Services.AddTransient<IGroupService, GroupService>();
         builder.Services.AddTransient<IQueueService, QueueService>();
+        builder.Services.AddTransient<IUserService, UserService>();
         builder.Services.AddAutoMapper(configAction => configAction.AddProfile(new MessagesMappingProfile()));
 
         var app = builder.Build();

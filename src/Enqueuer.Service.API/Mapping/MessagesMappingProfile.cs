@@ -8,11 +8,12 @@ public class MessagesMappingProfile : Profile
     {
         CreateMap<Messages.Models.User, Persistence.Models.User>();
         CreateMap<Persistence.Models.User, Messages.Models.User>();
-        CreateMap<Persistence.Models.User, Messages.Models.UserInfo>()
-            .ForMember(i => i.Groups, opts => opts.MapFrom(u => u.ParticipatesIn));
+        CreateMap<Persistence.Models.User, Messages.Models.UserInfo>();
+            //.ForMember(i => i.Groups, opts => opts.MapFrom(u => u.Groups));
 
         CreateMap<Messages.Models.Group, Persistence.Models.Group>();
         CreateMap<Persistence.Models.Group, Messages.Models.Group>();
+        CreateMap<Persistence.Models.Group, Messages.Models.GroupInfo>();
 
         CreateMap<Messages.Models.Queue, Persistence.Models.Queue>();
         CreateMap<Persistence.Models.Queue, Messages.Models.Queue>();
