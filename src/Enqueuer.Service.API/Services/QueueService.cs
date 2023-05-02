@@ -171,4 +171,28 @@ public class QueueService : IQueueService
             return firstAvailablePosition;
         }
     }
+
+    public async Task DequeueUserAsync(int queueId, long userId, CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var queue = await enqueuerContext.Queues
+            .Include(q => q.Members)
+            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+
+        if (queue == null)
+        {
+            throw new QueueDoesNotExistException($"Queue with the \"{queueId}\" ID does not exist.");
+        }
+
+        var queueMember = queue.Members.FirstOrDefault(m => m.UserId == userId);
+        if (queueMember == null)
+        {
+            throw new UserDoesNotParticipateException($"User with the \"{userId}\" ID does not participate in the queue with the \"{queueId}\" ID.");
+        }
+
+        queue.Members.Remove(queueMember);
+        await enqueuerContext.SaveChangesAsync(cancellationToken);
+    }
 }

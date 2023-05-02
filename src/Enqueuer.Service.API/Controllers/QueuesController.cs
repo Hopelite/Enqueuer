@@ -135,4 +135,27 @@ public class QueuesController : ControllerBase
             return Conflict($"User with the \"{user.Id}\" ID already participates in the queue with the \"{id}\" ID.");
         }
     }
+
+    /// <summary>
+    /// Remove Telegram user with the specified <paramref name="userId"/> from a queue with the specified <paramref name="id"/>.
+    /// </summary>
+    [HttpDelete("{id}/members/{userId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DequeueUser(int id, long userId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _queueService.DequeueUserAsync(id, userId, cancellationToken);
+            return Ok();
+        }
+        catch (QueueDoesNotExistException)
+        {
+            return NotFound($"Queue with the \"{id}\" ID does not exist.");
+        }
+        catch (UserDoesNotParticipateException)
+        {
+            return NotFound($"User with the \"{userId}\" ID does not participate in the queue with the \"{id}\" ID.");
+        }
+    }
 }

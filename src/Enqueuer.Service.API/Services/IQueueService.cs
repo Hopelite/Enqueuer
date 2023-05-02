@@ -37,4 +37,11 @@ public interface IQueueService
     /// <exception cref="QueueDoesNotExistException" />
     /// <exception cref="UserAlreadyParticipatesException" />
     Task<int> EnqueueUserAsync(int queueId, User user, int? position, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Removes a user with the specified <paramref name="userId"/> to a queue with the <paramref name="queueId"/>.
+    /// </summary>
+    /// <exception cref="QueueDoesNotExistException" />
+    /// <exception cref="UserDoesNotParticipateException" />
+    Task DequeueUserAsync(int queueId, long userId, CancellationToken cancellationToken);
 }
