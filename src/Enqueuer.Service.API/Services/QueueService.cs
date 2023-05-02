@@ -24,7 +24,7 @@ public class QueueService : IQueueService
         _mapper = mapper;
     }
 
-    public async Task<QueueInfo?> GetQueueAsync(int queueId, CancellationToken cancellationToken)
+    public async Task<QueueInfo?> GetQueueAsync(long groupId, int queueId, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
@@ -32,14 +32,14 @@ public class QueueService : IQueueService
         var queue = await enqueuerContext.Queues
             .Include(q => q.Creator)
             .Include(q => q.Members)
-            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+            .FirstOrDefaultAsync(q => q.GroupId == groupId && q.Id == queueId, cancellationToken);
 
         return queue == null
             ? null
             : _mapper.Map<QueueInfo>(queue);
     }
 
-    public async Task<QueueInfo> CreateQueueAsync(CreateQueueRequest request, CancellationToken cancellationToken)
+    public async Task<QueueInfo> CreateQueueAsync(long groupId, CreateQueueRequest request, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
@@ -50,15 +50,15 @@ public class QueueService : IQueueService
             throw new UserDoesNotExistException($"User with the \"{request.CreatorId}\" ID does not exist.");
         }
 
-        var group = await enqueuerContext.Groups.FindAsync(new object[] { request.GroupId }, cancellationToken);
+        var group = await enqueuerContext.Groups.FindAsync(new object[] { groupId }, cancellationToken);
         if (group == null)
         {
-            throw new GroupDoesNotExistException($"Group with the \"{request.GroupId}\" ID does not exist.");
+            throw new GroupDoesNotExistException($"Group with the \"{groupId}\" ID does not exist.");
         }
 
-        if (enqueuerContext.Queues.Any(q => q.GroupId == request.GroupId && q.Name.Equals(request.QueueName)))
+        if (enqueuerContext.Queues.Any(q => q.GroupId == groupId && q.Name.Equals(request.QueueName)))
         {
-            throw new QueueAlreadyExistsException($"Queue \"{request.QueueName}\" already exists in the group with the \"{request.GroupId}\" ID.");
+            throw new QueueAlreadyExistsException($"Queue \"{request.QueueName}\" already exists in the group with the \"{groupId}\" ID.");
         }
 
         var queue = new Persistence.Models.Queue
@@ -75,12 +75,12 @@ public class QueueService : IQueueService
         return _mapper.Map<QueueInfo>(queue);
     }
 
-    public async Task DeleteQueueAsync(int queueId, CancellationToken cancellationToken)
+    public async Task DeleteQueueAsync(long groupId, int queueId, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
-        var queue = await enqueuerContext.Queues.FindAsync(new object[] { queueId }, cancellationToken);
+        var queue = await enqueuerContext.Queues.FindAsync(new object[] { groupId, queueId }, cancellationToken);
         if (queue == null)
         {
             throw new QueueDoesNotExistException($"Queue with the \"{queueId}\" ID does not exist.");
@@ -90,44 +90,44 @@ public class QueueService : IQueueService
         await enqueuerContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<QueueMember?> GetQueueMemberAsync(int queueId, long userId, CancellationToken cancellationToken)
+    public async Task<QueueMember?> GetQueueMemberAsync(long groupId, int queueId, long userId, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
         var queueMember = await enqueuerContext.QueueMembers
             .Include(m => m.User)
-            .FirstOrDefaultAsync(m => m.UserId == userId && m.QueueId == queueId, cancellationToken);
+            .FirstOrDefaultAsync(m => m.UserId == userId && m.GroupId == groupId && m.QueueId == queueId, cancellationToken);
 
         return queueMember == null
             ? null
             : _mapper.Map<QueueMember>(queueMember);
     }
 
-    public async Task<int> EnqueueUserAsync(int queueId, User user, int? position, CancellationToken cancellationToken)
+    public async Task<int> EnqueueUserAsync(long groupId, int queueId, EnqueueUserRequest request, int? position, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
         
         var queue = await enqueuerContext.Queues
             .Include(q => q.Members)
-            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+            .FirstOrDefaultAsync(q => q.GroupId == groupId && q.Id == queueId, cancellationToken);
 
         if (queue == null)
         {
             throw new QueueDoesNotExistException($"Queue with the \"{queueId}\" ID does not exist.");
         }
 
-        var existingUser = await enqueuerContext.Users.FindAsync(new object[] { user.Id }, cancellationToken);
+        var existingUser = await enqueuerContext.Users.FindAsync(new object[] { request.User.Id }, cancellationToken);
         if (existingUser == null)
         {
-            existingUser = _mapper.Map<Persistence.Models.User>(user);
+            existingUser = _mapper.Map<Persistence.Models.User>(request.User);
             enqueuerContext.Users.Add(existingUser);
         }
 
-        if (queue.Members.Any(m => m.UserId == user.Id))
+        if (queue.Members.Any(m => m.UserId == request.User.Id))
         {
-            throw new UserAlreadyParticipatesException($"User with the \"{user.Id}\" ID already participates in the \"{queue.Name}\" queue.");
+            throw new UserAlreadyParticipatesException($"User with the \"{request.User.Id}\" ID already participates in the \"{queue.Name}\" queue.");
         }
 
         return position.HasValue
@@ -178,14 +178,14 @@ public class QueueService : IQueueService
         }
     }
 
-    public async Task DequeueUserAsync(int queueId, long userId, CancellationToken cancellationToken)
+    public async Task DequeueUserAsync(long groupId, int queueId, long userId, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
         var queue = await enqueuerContext.Queues
             .Include(q => q.Members)
-            .FirstOrDefaultAsync(q => q.Id == queueId, cancellationToken);
+            .FirstOrDefaultAsync(q => q.GroupId == groupId && q.Id == queueId, cancellationToken);
 
         if (queue == null)
         {

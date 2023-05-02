@@ -4,10 +4,10 @@ namespace Enqueuer.Service.Messages;
 
 public class CreateQueueRequest
 {
-    /// <summary>
-    /// ID of the group to which this queue belongs.
-    /// </summary>
-    public long GroupId { get; set; }
+    ///// <summary>
+    ///// ID of the group to which this queue belongs.
+    ///// </summary>
+    //public long GroupId { get; set; }
 
     /// <summary>
     /// Queue name.

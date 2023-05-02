@@ -9,42 +9,44 @@ namespace Enqueuer.Service.API.Services;
 public interface IQueueService
 {
     /// <summary>
-    /// Gets the <see cref="QueueInfo"/> of an existing queue with the specified <paramref name="queueId"/> if exists.
+    /// Gets the <see cref="QueueInfo"/> of an existing queue with the specified <paramref name="queueId"/>
+    /// if it exists in a group with the specified <paramref name="groupId"/>.
     /// </summary>
-    Task<QueueInfo?> GetQueueAsync(int queueId, CancellationToken cancellationToken);
+    Task<QueueInfo?> GetQueueAsync(long groupId, int queueId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Creates a queue with the specified queue name in a chat with the specified group ID on behalf of user with the creator ID.
+    /// Creates a queue with the specified queue name in a chat with the specified <paramref name="groupId"/> on behalf of user with the creator ID.
     /// </summary>
     /// <returns>The <see cref="QueueInfo"/> of the created queue.</returns>
     /// <exception cref="UserDoesNotExistException" />
     /// <exception cref="GroupDoesNotExistException" />
     /// <exception cref="QueueAlreadyExistsException" />
-    Task<QueueInfo> CreateQueueAsync(CreateQueueRequest request, CancellationToken cancellationToken);
+    Task<QueueInfo> CreateQueueAsync(long groupId, CreateQueueRequest request, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes a queue with the specified <paramref name="queueId"/>.
     /// </summary>
     /// <exception cref="QueueDoesNotExistException" />
-    Task DeleteQueueAsync(int queueId, CancellationToken cancellationToken);
+    Task DeleteQueueAsync(long groupId, int queueId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Get a participant info with the specified <paramref name="userId"/> which participates in a queue with the specified <paramref name="queueId"/>.
+    /// Get a participant info with the specified <paramref name="userId"/> which participates in a queue with the specified <paramref name="queueId"/>
+    /// in a group with the specified <paramref name="groupId"/>.
     /// </summary>
-    Task<QueueMember?> GetQueueMemberAsync(int queueId, long userId, CancellationToken cancellationToken);
+    Task<QueueMember?> GetQueueMemberAsync(long groupId, int queueId, long userId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Adds <paramref name="user"/> to a queue with the <paramref name="queueId"/>.
+    /// Adds user to a queue with the <paramref name="queueId"/>.
     /// If <paramref name="position"/> is specified, add user on it; otherwise adds on the first available position.
     /// </summary>
     /// <exception cref="QueueDoesNotExistException" />
     /// <exception cref="UserAlreadyParticipatesException" />
-    Task<int> EnqueueUserAsync(int queueId, User user, int? position, CancellationToken cancellationToken);
+    Task<int> EnqueueUserAsync(long groupId, int queueId, EnqueueUserRequest request, int? position, CancellationToken cancellationToken);
 
     /// <summary>
     /// Removes a user with the specified <paramref name="userId"/> to a queue with the <paramref name="queueId"/>.
     /// </summary>
     /// <exception cref="QueueDoesNotExistException" />
     /// <exception cref="UserDoesNotParticipateException" />
-    Task DequeueUserAsync(int queueId, long userId, CancellationToken cancellationToken);
+    Task DequeueUserAsync(long groupId, int queueId, long userId, CancellationToken cancellationToken);
 }

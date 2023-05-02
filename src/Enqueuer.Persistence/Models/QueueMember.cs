@@ -29,4 +29,14 @@ public class QueueMember
     /// Queue in which user participates.
     /// </summary>
     public Queue Queue { get; set; }
+
+    /// <summary>
+    /// ID of the group to which queue is related.
+    /// </summary>
+    public long GroupId { get; set; }
+
+    /// <summary>
+    /// Group related to the queue.
+    /// </summary>
+    public Group Group { get; set; }
 }
