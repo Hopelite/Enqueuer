@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Enqueuer.Persistence;
 using Enqueuer.Service.API.Services.Exceptions;
+using Enqueuer.Service.API.Services.Types;
 using Enqueuer.Service.Messages.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

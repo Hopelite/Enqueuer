@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Enqueuer.Service.API.Services;
 using Enqueuer.Service.API.Services.Exceptions;
+using Enqueuer.Service.API.Services.Types;
 using Enqueuer.Service.Messages.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

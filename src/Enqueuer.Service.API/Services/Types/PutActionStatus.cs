@@ -1,4 +1,4 @@
-﻿namespace Enqueuer.Service.API.Services;
+﻿namespace Enqueuer.Service.API.Services.Types;
 
 public enum PutActionStatus
 {
