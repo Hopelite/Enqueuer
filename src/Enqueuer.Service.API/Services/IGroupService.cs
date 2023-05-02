@@ -22,5 +22,16 @@ public interface IGroupService
     /// Adds a new or updates an existing <paramref name="group"/>.
     /// </summary>
     /// <returns><see cref="GroupInfo"/> of the newly added or existing <paramref name="group"/>.</returns>
-    Task<GroupInfo> AddOrUpdateAsync(Group group, CancellationToken cancellationToken);
+    Task<GroupInfo> AddOrUpdateAsync(long groupId, Group group, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets a user with the specified <paramref name="userId"/>, who participates in a group with the <paramref name="groupId"/> ID.
+    /// </summary>
+    Task<User?> GetGroupMemberAsync(long groupId, long userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Adds a <paramref name="user"/> to a group with the specified <paramref name="id"/>.
+    /// </summary>
+    /// <returns><see cref="PutActionStatus"/>, which indicates, whether the <paramref name="user"/> was added or updated.</returns>
+    Task<PutActionStatus> AddOrUpdateGroupMemberAsync(long id, long userId, User user, CancellationToken cancellationToken);
 }

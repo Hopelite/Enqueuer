@@ -64,6 +64,25 @@ public class QueuesController : ControllerBase
     }
 
     /// <summary>
+    /// Delete a queue with the specified <paramref name="id"/>.
+    /// </summary>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteQueue(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _queueService.DeleteQueueAsync(id, cancellationToken);
+            return NoContent();
+        }
+        catch (QueueDoesNotExistException)
+        {
+            return NotFound($"Queue with the \"{id}\" ID does not exist.");
+        }
+    }
+
+    /// <summary>
     /// Get a participant info with the specified <paramref name="userId"/> which participates in a queue with the specified <paramref name="id"/>.
     /// </summary>
     [HttpGet("{id}/members/{userId}")]

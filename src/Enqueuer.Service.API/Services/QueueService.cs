@@ -69,6 +69,21 @@ public class QueueService : IQueueService
         return _mapper.Map<QueueInfo>(queue);
     }
 
+    public async Task DeleteQueueAsync(int queueId, CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var queue = await enqueuerContext.Queues.FindAsync(new object[] { queueId }, cancellationToken);
+        if (queue == null)
+        {
+            throw new QueueDoesNotExistException($"Queue with the \"{queueId}\" ID does not exist.");
+        }
+
+        enqueuerContext.Queues.Remove(queue);
+        await enqueuerContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<QueueMember?> GetQueueMemberAsync(int queueId, long userId, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();

@@ -21,13 +21,20 @@ public interface IQueueService
     Task<QueueInfo> CreateQueueAsync(CreateQueueRequest request, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Deletes a queue with the specified <paramref name="queueId"/>.
+    /// </summary>
+    Task DeleteQueueAsync(int queueId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Get a participant info with the specified <paramref name="userId"/> which participates in a queue with the specified <paramref name="queueId"/>.
     /// </summary>
     Task<QueueMember?> GetQueueMemberAsync(int queueId, long userId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Adds <paramref name="user"/> to a queue with the <paramref name="queueId"/>.
-    /// on the specified <paramref name="position"/> in
+    /// If <paramref name="position"/> is specified, add user on it; otherwise adds on the first available position.
     /// </summary>
+    /// <exception cref="QueueDoesNotExistException" />
+    /// <exception cref="UserAlreadyParticipatesException" />
     Task<int> EnqueueUserAsync(int queueId, User user, int? position, CancellationToken cancellationToken);
 }

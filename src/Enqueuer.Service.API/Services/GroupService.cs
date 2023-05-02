@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -28,7 +29,7 @@ public class GroupService : IGroupService
 
         var group = await enqueuerContext.Groups
             .Include(g => g.Queues)
-            .SingleOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
 
         return group == null 
             ? null 
@@ -40,8 +41,9 @@ public class GroupService : IGroupService
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
-        var user = await enqueuerContext.Users.Include(u => u.Groups)
-            .SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        var user = await enqueuerContext.Users
+            .Include(u => u.Groups)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
         if (user == null)
         {
@@ -53,24 +55,24 @@ public class GroupService : IGroupService
             : _mapper.Map<Group[]>(user.Groups);
     }
 
-    public Task<GroupInfo> AddOrUpdateAsync(Group group, CancellationToken cancellationToken)
+    public Task<GroupInfo> AddOrUpdateAsync(long groupId, Group group, CancellationToken cancellationToken)
     {
         if (group == null)
         {
             throw new ArgumentNullException(nameof(group));
         }
 
-        return AddOrUpdateAsyncInternal(group, cancellationToken);
+        return AddOrUpdateAsyncInternal(groupId, group, cancellationToken);
     }
 
-    private async Task<GroupInfo> AddOrUpdateAsyncInternal(Group group, CancellationToken cancellationToken)
+    private async Task<GroupInfo> AddOrUpdateAsyncInternal(long groupId, Group group, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
         var existingGroup = await enqueuerContext.Groups
             .Include(g => g.Queues)
-            .SingleOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(g => g.Id == groupId, cancellationToken);
 
         if (existingGroup == null)
         {
@@ -86,5 +88,82 @@ public class GroupService : IGroupService
         }
 
         return _mapper.Map<GroupInfo>(existingGroup);
+    }
+
+    public async Task<User?> GetGroupMemberAsync(long groupId, long userId, CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var group = await enqueuerContext.Groups
+            .Include(g => g.Members)
+            .FirstOrDefaultAsync(g => g.Id == groupId, cancellationToken);
+
+        if (group == null)
+        {
+            throw new GroupDoesNotExistException($"Group with the \"{groupId}\" ID does not exist.");
+        }
+
+        var user = group.Members.FirstOrDefault(m => m.Id == userId);
+        return user == null
+            ? null
+            : _mapper.Map<User>(user);
+    }
+
+    public Task<PutActionStatus> AddOrUpdateGroupMemberAsync(long id, long userId, User user, CancellationToken cancellationToken)
+    {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user));
+        }
+
+        return AddOrUpdateMemberAsyncInternal(id, userId, user, cancellationToken);
+    }
+
+    private async Task<PutActionStatus> AddOrUpdateMemberAsyncInternal(long id, long userId, User user, CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var group = await enqueuerContext.Groups
+            .Include(g => g.Members)
+            .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+
+        if (group == null)
+        {
+            throw new GroupDoesNotExistException($"Group with the \"{id}\" ID does not exist.");
+        }
+
+        var existingUser = group.Members.FirstOrDefault(m => m.Id == userId);
+        if (existingUser == null)
+        {
+            // TODO: consider throwing exception, if user does not exist in db at all
+            existingUser = _mapper.Map<Persistence.Models.User>(user);
+            group.Members.Add(existingUser);
+
+            await enqueuerContext.SaveChangesAsync(cancellationToken);
+            return PutActionStatus.Created;
+        }
+
+        if (UpdateUserIfNeeded(existingUser, user))
+        {
+            await enqueuerContext.SaveChangesAsync(cancellationToken);
+            return PutActionStatus.Updated;
+        }
+
+        return PutActionStatus.None;
+
+        static bool UpdateUserIfNeeded(Persistence.Models.User existingUser, User newUser)
+        {
+            if (string.Equals(existingUser.FirstName, newUser.FirstName) && string.Equals(existingUser.LastName, newUser.LastName))
+            {
+                return false;
+            }
+
+            existingUser.FirstName = newUser.FirstName;
+            existingUser.LastName = newUser.LastName;
+
+            return true;
+        }
     }
 }
