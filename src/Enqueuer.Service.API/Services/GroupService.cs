@@ -23,14 +23,14 @@ public class GroupService : IGroupService
         _mapper = mapper;
     }
 
-    public async Task<GroupInfo?> GetGroupAsync(long id, CancellationToken cancellationToken)
+    public async Task<GroupInfo?> GetGroupAsync(long groupId, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
 
         var group = await enqueuerContext.Groups
             .Include(g => g.Queues)
-            .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(g => g.Id == groupId, cancellationToken);
 
         return group == null 
             ? null 
@@ -115,7 +115,7 @@ public class GroupService : IGroupService
             : _mapper.Map<User>(user);
     }
 
-    public Task<PutAction> AddOrUpdateGroupMemberAsync(long id, long userId, User user, CancellationToken cancellationToken)
+    public Task<PutActionResponse> AddOrUpdateGroupMemberAsync(long id, long userId, User user, CancellationToken cancellationToken)
     {
         if (user == null)
         {
@@ -125,7 +125,7 @@ public class GroupService : IGroupService
         return AddOrUpdateMemberAsyncInternal(id, userId, user, cancellationToken);
     }
 
-    private async Task<PutAction> AddOrUpdateMemberAsyncInternal(long id, long userId, User user, CancellationToken cancellationToken)
+    private async Task<PutActionResponse> AddOrUpdateMemberAsyncInternal(long id, long userId, User user, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();

@@ -9,9 +9,9 @@ namespace Enqueuer.Service.API.Services;
 public interface IGroupService
 {
     /// <summary>
-    /// Gets the <see cref="GroupInfo"/> of a group with the specified <paramref name="id"/> or null, if doesn't exist.
+    /// Gets the <see cref="GroupInfo"/> of a group with the specified <paramref name="groupId"/> or null, if doesn't exist.
     /// </summary>
-    Task<GroupInfo?> GetGroupAsync(long id, CancellationToken cancellationToken);
+    Task<GroupInfo?> GetGroupAsync(long groupId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
@@ -22,7 +22,7 @@ public interface IGroupService
     /// <summary>
     /// Adds a new or updates an existing <paramref name="group"/>.
     /// </summary>
-    /// <returns><see cref="GroupInfo"/> of the newly added or existing <paramref name="group"/>.</returns>
+    /// <returns><see cref="PutActionResponse"/>, which indicates, whether the <paramref name="group"/> was added or updated.</returns>
     Task<PutActionResponse> AddOrUpdateGroupAsync(long groupId, Group group, CancellationToken cancellationToken);
 
     /// <summary>
@@ -33,6 +33,6 @@ public interface IGroupService
     /// <summary>
     /// Adds a <paramref name="user"/> to a group with the specified <paramref name="id"/>.
     /// </summary>
-    /// <returns><see cref="PutAction"/>, which indicates, whether the <paramref name="user"/> was added or updated.</returns>
+    /// <returns><see cref="PutActionResponse"/>, which indicates, whether the <paramref name="user"/> was added or updated.</returns>
     Task<PutActionResponse> AddOrUpdateGroupMemberAsync(long id, long userId, User user, CancellationToken cancellationToken);
 }
