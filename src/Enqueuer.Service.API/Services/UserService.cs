@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Enqueuer.Persistence;
+using Enqueuer.Service.API.Services.Exceptions;
 using Enqueuer.Service.API.Services.Types;
 using Enqueuer.Service.Messages.Models;
 using Microsoft.EntityFrameworkCore;
@@ -85,5 +86,24 @@ public class UserService : IUserService
 
             return true;
         }
+    }
+
+    public async Task<Group[]> GetUserGroupsAsync(long userId, CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
+
+        var user = await enqueuerContext.Users
+            .Include(u => u.Groups)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+        if (user == null)
+        {
+            throw new UserDoesNotExistException($"User with the \"{userId}\" ID does not exist.");
+        }
+
+        return user.Groups == null
+            ? Array.Empty<Group>()
+            : _mapper.Map<Group[]>(user.Groups);
     }
 }

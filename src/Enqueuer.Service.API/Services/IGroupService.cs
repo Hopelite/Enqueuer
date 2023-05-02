@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Service.API.Services.Exceptions;
 using Enqueuer.Service.API.Services.Types;
 using Enqueuer.Service.Messages.Models;
 
@@ -12,12 +11,6 @@ public interface IGroupService
     /// Gets the <see cref="GroupInfo"/> of a group with the specified <paramref name="groupId"/> or null, if doesn't exist.
     /// </summary>
     Task<GroupInfo?> GetGroupAsync(long groupId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
-    /// </summary>
-    /// <exception cref="UserDoesNotExistException" />
-    Task<Group[]> GetUserGroupsAsync(long userId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Adds a new or updates an existing <paramref name="group"/>.

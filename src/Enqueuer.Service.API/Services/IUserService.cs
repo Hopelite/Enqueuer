@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Service.API.Services.Exceptions;
 using Enqueuer.Service.API.Services.Types;
 using Enqueuer.Service.Messages.Models;
 
@@ -17,4 +18,10 @@ public interface IUserService
     /// </summary>
     /// <returns><see cref="PutActionResponse"/>, which indicates, whether the <paramref name="user"/> was added or updated.</returns>
     Task<PutActionResponse> AddOrUpdateUserAsync(long userId, User user, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets all <see cref="Group"/>s in which the user with the specified <paramref name="userId"/> participates.
+    /// </summary>
+    /// <exception cref="UserDoesNotExistException" />
+    Task<Group[]> GetUserGroupsAsync(long userId, CancellationToken cancellationToken);
 }

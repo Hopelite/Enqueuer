@@ -37,25 +37,6 @@ public class GroupService : IGroupService
             : _mapper.Map<GroupInfo>(group);
     }
 
-    public async Task<Group[]> GetUserGroupsAsync(long userId, CancellationToken cancellationToken)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        var enqueuerContext = scope.ServiceProvider.GetRequiredService<EnqueuerContext>();
-
-        var user = await enqueuerContext.Users
-            .Include(u => u.Groups)
-            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-
-        if (user == null)
-        {
-            throw new UserDoesNotExistException($"User with the \"{userId}\" ID does not exist.");
-        }
-
-        return user.Groups == null 
-            ? Array.Empty<Group>()
-            : _mapper.Map<Group[]>(user.Groups);
-    }
-
     public Task<PutActionResponse> AddOrUpdateGroupAsync(long groupId, Group group, CancellationToken cancellationToken)
     {
         if (group == null)

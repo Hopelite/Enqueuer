@@ -13,12 +13,10 @@ namespace Enqueuer.Service.API.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IGroupService _groupService;
     private readonly IUserService _userService;
 
-    public UsersController(IGroupService groupService, IUserService userService)
+    public UsersController(IUserService userService)
     {
-        _groupService = groupService;
         _userService = userService;
     }
 
@@ -78,8 +76,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            // TODO: move to user service
-            return await _groupService.GetUserGroupsAsync(id, cancellationToken);
+            return await _userService.GetUserGroupsAsync(id, cancellationToken);
         }
         catch (UserDoesNotExistException)
         {
