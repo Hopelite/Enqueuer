@@ -7,6 +7,7 @@ using Enqueuer.Telegram.Configuration;
 using Enqueuer.Telegram.Core.Configuration;
 using Enqueuer.Telegram.Core.Exceptions;
 using Enqueuer.Telegram.Core.Localization;
+using Enqueuer.Telegram.Core.Types.Messages;
 using Enqueuer.Telegram.Extensions;
 using Enqueuer.Telegram.Messages;
 using Enqueuer.Telegram.Messages.Factories;
@@ -14,6 +15,7 @@ using Enqueuer.Telegram.Middleware;
 using Enqueuer.Telegram.UpdateHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +37,12 @@ public class Program
         app.UseMiddleware<LogExceptionsMiddleware>();
 
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
+        app.MapPost($"/messages", async Task<IResult> (MessageContext context) =>
+        {
+            await Task.Delay(1000);
+            return Results.Ok();
+        });
+
         app.MapPost($"/bot{botConfiguration.AccessToken}", async Task<IResult> (HttpContext context) =>
         {
             if (!context.Request.HasJsonContentType())

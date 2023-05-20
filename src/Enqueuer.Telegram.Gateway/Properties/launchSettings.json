@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Enqueuer.Telegram.Gateway": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 32262,
+      "useSSL": false
+    }
+  }
+}

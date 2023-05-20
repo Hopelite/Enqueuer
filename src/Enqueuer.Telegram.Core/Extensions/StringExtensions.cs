@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using Enqueuer.Telegram.Core.Types.Common;
 
-namespace Enqueuer.Telegram.Messages.Extensions;
+namespace Enqueuer.Telegram.Core.Extensions;
 
 public static class StringExtensions
 {
@@ -13,6 +15,12 @@ public static class StringExtensions
     public static string[] SplitToWords(this string messageText)
     {
         return messageText.Split(separator: Whitespace, StringSplitOptions.RemoveEmptyEntries);
+    }
+    
+    public static bool TryGetCommand(this string messageText, [NotNullWhen(returnValue: true)] out CommandContext? command)
+    {
+        command = null;
+        return true;
     }
 
     public static bool TryGetCommand(this string messageText, out string command)

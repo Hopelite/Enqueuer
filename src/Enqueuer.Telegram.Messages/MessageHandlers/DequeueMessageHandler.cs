@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
+using Enqueuer.Telegram.Core.Extensions;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;

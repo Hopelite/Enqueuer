@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
+using Enqueuer.Telegram.Core.Extensions;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Enqueuer.Telegram.Messages.Extensions;

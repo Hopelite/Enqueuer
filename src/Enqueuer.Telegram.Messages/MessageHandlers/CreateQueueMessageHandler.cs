@@ -4,6 +4,7 @@ using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
 using Enqueuer.Telegram.Core.Configuration;
+using Enqueuer.Telegram.Core.Extensions;
 using Enqueuer.Telegram.Core.Localization;
 using Enqueuer.Telegram.Core.Serialization;
 using Enqueuer.Telegram.Messages.Extensions;
