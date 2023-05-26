@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Telegram.Core.Constants;
 using Enqueuer.Telegram.Core.Extensions;
+using Enqueuer.Telegram.Core.Types.Messages;
 using Enqueuer.Telegram.Messages.MessageHandlers;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types;
@@ -17,15 +18,15 @@ namespace Enqueuer.Telegram.Messages.Factories
             _serviceProvider = serviceProvider;
         }
 
-        public bool TryCreateMessageHandler(Message message, [NotNullWhen(returnValue: true)] out IMessageHandler? messageHandler)
+        public bool TryCreateMessageHandler(MessageContext messageContext, [NotNullWhen(returnValue: true)] out IMessageHandler? messageHandler)
         {
             messageHandler = null;
-            if (message == null || string.IsNullOrWhiteSpace(message.Text) || !message.Text.TryGetCommand(out string command))
+            if (messageContext.Command == null)
             {
                 return false;
             }
 
-            return TryCreateMessageHandler(command, out messageHandler);
+            return TryCreateMessageHandler(messageContext.Command.Command, out messageHandler);
         }
 
         private bool TryCreateMessageHandler(string command, out IMessageHandler? messageHandler)

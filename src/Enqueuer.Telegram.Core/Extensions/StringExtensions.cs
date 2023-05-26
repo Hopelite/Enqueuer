@@ -17,15 +17,33 @@ public static class StringExtensions
         return messageText.Split(separator: Whitespace, StringSplitOptions.RemoveEmptyEntries);
     }
     
-    public static bool TryGetCommand(this string messageText, [NotNullWhen(returnValue: true)] out CommandContext? command)
+    /// <summary>
+    /// Tries to create <paramref name="commandContext"/> from <paramref name="messageText"/>.
+    /// </summary>
+    public static bool TryGetCommand(this string messageText, [NotNullWhen(returnValue: true)] out CommandContext? commandContext)
     {
-        command = null;
-        return true;
+        commandContext = null;
+        if (TryGetCommand(messageText, out var command, out var parameters))
+        {
+            commandContext = new CommandContext(command, parameters);
+            return true;
+        }
+
+        return false;
     }
 
-    public static bool TryGetCommand(this string messageText, out string command)
+    private static bool TryGetCommand(this string messageText, [NotNullWhen(returnValue: true)] out string? command, [NotNullWhen(returnValue: true)] out string[]? parameters)
     {
-        command = messageText.SplitToWords()[0];
+        command = null;
+        parameters = null;
+
+        var commandWords = messageText.SplitToWords();
+        if (commandWords.Length == 0)
+        {
+            return false;
+        }
+
+        command = commandWords[0];
         if (command[0] != '/')
         {
             return false;
@@ -37,6 +55,7 @@ public static class StringExtensions
             command = command[..botNamePosition];
         }
 
+        parameters = commandWords[1..];
         return true;
     }
 }

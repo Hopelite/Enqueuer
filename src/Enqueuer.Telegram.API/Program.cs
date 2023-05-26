@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
 using Enqueuer.Telegram.Callbacks;
@@ -15,7 +16,6 @@ using Enqueuer.Telegram.Middleware;
 using Enqueuer.Telegram.UpdateHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,9 +37,14 @@ public class Program
         app.UseMiddleware<LogExceptionsMiddleware>();
 
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
-        app.MapPost($"/messages", async Task<IResult> (MessageContext context) =>
+        app.MapPost($"/messages", async Task<IResult> (MessageContext context, IMessageDistributor messageDistributor, CancellationToken cancellationToken) =>
         {
-            await Task.Delay(1000);
+            if (context == null)
+            {
+                return Results.BadRequest();
+            }
+
+            await messageDistributor.DistributeAsync(context, cancellationToken);
             return Results.Ok();
         });
 

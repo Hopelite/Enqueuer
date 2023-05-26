@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Enqueuer.Telegram.Core.Types.Common;
 
@@ -22,6 +23,7 @@ public class CommandContext
     {
     }
 
+    [JsonConstructor]
     public CommandContext(string command, string[] parameters)
     {
         Command = string.IsNullOrWhiteSpace(command)
