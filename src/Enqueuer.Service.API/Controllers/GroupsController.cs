@@ -108,7 +108,7 @@ public class GroupsController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        if (user.Id != id)
+        if (user.Id != userId)
         {
             ModelState.AddModelError(nameof(user.Id), "The user ID must match the one specified in the URL.");
             return UnprocessableEntity(ModelState);
