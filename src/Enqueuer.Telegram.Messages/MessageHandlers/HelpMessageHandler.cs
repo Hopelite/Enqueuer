@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Telegram.Messages.MessageHandlers;
@@ -18,10 +18,10 @@ public class HelpMessageHandler : IMessageHandler
         _localizationProvider = localizationProvider;
     }
 
-    public Task HandleAsync(Message message, CancellationToken cancellationToken)
+    public Task HandleAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
         return _botClient.SendTextMessageAsync(
-            message.Chat,
+            messageContext.Chat.Id,
             _localizationProvider.GetMessage(MessageKeys.HelpMessageHandler.Message_HelpCommand_Message, MessageParameters.None),
             ParseMode.Html,
             cancellationToken: cancellationToken);

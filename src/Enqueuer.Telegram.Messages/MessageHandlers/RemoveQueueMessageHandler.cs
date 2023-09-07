@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core.Extensions;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
-using Enqueuer.Messaging.Core.Extensions;
-using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using User = Enqueuer.Persistence.Models.User;
 
@@ -29,39 +29,39 @@ public class RemoveQueueMessageHandler : IMessageHandler
         _queueService = queueService;
     }
 
-    public Task HandleAsync(Message message, CancellationToken cancellationToken)
+    public Task HandleAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        if (message.IsFromPrivateChat())
+        if (messageContext.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
-                message.Chat,
+                messageContext.Chat.Id,
                 _localizationProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandlePublicChatAsync(message, cancellationToken);
+        return HandlePublicChatAsync(messageContext, cancellationToken);
     }
 
-    private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
+    private async Task HandlePublicChatAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, cancellationToken);
+        (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(messageContext.Chat, messageContext.Sender!, includeQueues: true, cancellationToken);
 
-        var messageWords = message.Text!.SplitToWords();
+        var messageWords = messageContext.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(messageWords, message, group, user, cancellationToken);
+            await HandleMessageWithParameters(messageWords, messageContext, group, user, cancellationToken);
             return;
         }
 
         await _botClient.SendTextMessageAsync(
-                message.Chat.Id,
+                messageContext.Chat.Id,
                 _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_QueueNameIsNotProvided_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(string[] messageWords, Message message, Group group, User user, CancellationToken cancellationToken)
+    private async Task HandleMessageWithParameters(string[] messageWords, MessageContext messageContext, Group group, User user, CancellationToken cancellationToken)
     {
         var queueName = messageWords.GetQueueName();
         var queue = group.GetQueueByName(queueName);
@@ -71,7 +71,7 @@ public class RemoveQueueMessageHandler : IMessageHandler
                 group.Id,
                 _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_QueueDoesNotExist_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId,
+                replyToMessageId: messageContext.MessageId,
                 cancellationToken: cancellationToken);
 
             return;
@@ -83,7 +83,7 @@ public class RemoveQueueMessageHandler : IMessageHandler
                 group.Id,
                 _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_UserHasNoRightToDelete_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId,
+                replyToMessageId: messageContext.MessageId,
                 cancellationToken: cancellationToken);
 
             return;
@@ -94,7 +94,7 @@ public class RemoveQueueMessageHandler : IMessageHandler
                 group.Id,
                 _localizationProvider.GetMessage(MessageKeys.RemoveQueueMessageHandler.Message_RemoveQueueCommand_PublicChat_SuccessfullyRemovedQueue_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId,
+                replyToMessageId: messageContext.MessageId,
                 cancellationToken: cancellationToken);
     }
 

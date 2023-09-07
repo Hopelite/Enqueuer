@@ -1,4 +1,5 @@
-﻿using Telegram.Bot.Types;
+﻿using Enqueuer.Messaging.Core.Types.Messages;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Telegram.Messages.Extensions;
@@ -9,12 +10,12 @@ namespace Enqueuer.Telegram.Messages.Extensions;
 public static class MessageExtensions
 {
     /// <summary>
-    /// Checks if <paramref name="message"/> was sent in private chat.
+    /// Checks if <paramref name="messageContext"/> was sent in private chat.
     /// </summary>
-    /// <param name="message"><see cref="Message"/> to check.</param>
+    /// <param name="messageContext"><see cref="Message"/> to check.</param>
     /// <returns>True, if message came from private chat; false otherwise.</returns>
-    public static bool IsFromPrivateChat(this Message message)
+    public static bool IsFromPrivateChat(this MessageContext messageContext)
     {
-        return message.Chat.Type == ChatType.Private;
+        return messageContext.Chat.Type == ChatType.Private;
     }
 }

@@ -18,8 +18,7 @@ public class MessageDistributor : IMessageDistributor
     {
         if (_messageHandlersFactory.TryCreateMessageHandler(messageContext, out var handler))
         {
-            await Task.Delay(1000);
-            //await handler.HandleAsync(messageContext, cancellationToken);
+            await handler.HandleAsync(messageContext, cancellationToken);
         }
     }
 }

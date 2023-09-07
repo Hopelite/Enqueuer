@@ -10,4 +10,12 @@ public class User : Group
 
     [JsonIgnore]
     public string FullName => string.IsNullOrWhiteSpace(LastName) ? FirstName : $"{FirstName} {LastName}";
+
+    // TODO: remove
+    public static implicit operator Telegram.Bot.Types.User(User user) => new Telegram.Bot.Types.User()
+    {
+        FirstName = user.FirstName,
+        LastName = user.LastName,
+        Id = user.Id
+    };
 }

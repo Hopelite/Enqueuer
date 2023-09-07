@@ -13,6 +13,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Enqueuer.Messaging.Core.Types.Messages;
 
 namespace Enqueuer.Telegram.Messages.MessageHandlers;
 
@@ -30,35 +31,35 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         _queueService = queueService;
     }
 
-    public override Task HandleAsync(Message message, CancellationToken cancellationToken)
+    public override Task HandleAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        if (message.IsFromPrivateChat())
+        if (messageContext.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
-                message.Chat,
+                messageContext.Chat.Id,
                 LocalizationProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandlePublicChatAsync(message, cancellationToken);
+        return HandlePublicChatAsync(messageContext, cancellationToken);
     }
 
-    private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
+    private async Task HandlePublicChatAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, cancellationToken);
+        (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(messageContext.Chat, messageContext.Sender!, includeQueues: true, cancellationToken);
 
-        var messageWords = message.Text!.SplitToWords();
+        var messageWords = messageContext.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(message, messageWords, group, cancellationToken);
+            await HandleMessageWithParameters(messageContext, messageWords, group, cancellationToken);
             return;
         }
 
         await HandleMessageWithoutParameters(group, cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group, CancellationToken cancellationToken)
+    private async Task HandleMessageWithParameters(MessageContext messageContext, string[] messageWords, Group group, CancellationToken cancellationToken)
     {
         var queueName = messageWords.GetQueueName();
         var queue = await _queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, cancellationToken);
@@ -68,7 +69,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
                 group.Id,
                 LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueDoesNotExist_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId,
+                replyToMessageId: messageContext.MessageId,
                 cancellationToken: cancellationToken);
 
             return;

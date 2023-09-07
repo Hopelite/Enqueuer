@@ -18,6 +18,11 @@ public class MessageContext
         : MessageType.Command;
 
     /// <summary>
+    /// 
+    /// </summary>
+    public int MessageId { get; set; }
+
+    /// <summary>
     /// Optional. The command specified in the message. 
     /// </summary>
     public CommandContext? Command { get; set; }
@@ -30,7 +35,7 @@ public class MessageContext
     /// <summary>
     /// 
     /// </summary>
-    public Group From { get; set; } = null!;
+    public Group Chat { get; set; } = null!;
 
     /// <summary>
     /// The entire message text, including the command, if is specified.
@@ -47,6 +52,7 @@ public class MessageContext
 
         messageContext = new MessageContext
         {
+            MessageId = message.MessageId,
             Text = message.Text,
         };
 
@@ -62,10 +68,11 @@ public class MessageContext
             LastName = message.From.LastName,
         };
 
-        messageContext.From = new Group
+        messageContext.Chat = new Group
         {
             Id = message.Chat.Id,
-            Title = message.Chat.Title!
+            Title = message.Chat.Title!,
+            Type = message.Chat.Type,
         };
 
         return true;
