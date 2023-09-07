@@ -1,10 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Core;
-using Enqueuer.Telegram.Core.Constants;
-using Enqueuer.Telegram.Core.Localization;
-using Enqueuer.Telegram.Core.Serialization;
+using Enqueuer.Messaging.Core;
+using Enqueuer.Messaging.Core.Constants;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;

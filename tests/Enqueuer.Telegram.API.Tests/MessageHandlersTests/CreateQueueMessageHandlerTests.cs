@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Tests.Utilities;
-using Enqueuer.Telegram.Core.Constants;
+using Enqueuer.Messaging.Core.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types;

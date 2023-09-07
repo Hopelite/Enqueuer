@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Telegram.Core.Types.Messages;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Telegram.Messages.Factories;
 
 namespace Enqueuer.Telegram.Messages;

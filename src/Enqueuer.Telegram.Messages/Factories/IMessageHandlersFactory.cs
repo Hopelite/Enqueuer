@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Telegram.Core.Types.Messages;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Telegram.Messages.MessageHandlers;
 
 namespace Enqueuer.Telegram.Messages.Factories;

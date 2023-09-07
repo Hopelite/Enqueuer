@@ -15,7 +15,7 @@
     <PackageReference Include="Telegram.Bot" Version="18.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Enqueuer.Telegram.Core\Enqueuer.Telegram.Core.csproj" />
+    <ProjectReference Include="..\Enqueuer.Messaging.Core\Enqueuer.Messaging.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

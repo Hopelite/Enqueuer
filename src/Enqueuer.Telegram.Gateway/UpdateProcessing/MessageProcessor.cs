@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
-using Enqueuer.Telegram.Core.Types.Messages;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Telegram.Gateway.Configuration;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
-using Enqueuer.Telegram.Core.Configuration;
-using Enqueuer.Telegram.Core.Extensions;
-using Enqueuer.Telegram.Core.Localization;
-using Enqueuer.Telegram.Core.Serialization;
+using Enqueuer.Messaging.Core.Configuration;
+using Enqueuer.Messaging.Core.Extensions;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -85,7 +85,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         var queueName = messageWords.GetQueueName();
         try
         {
-            var response = await _queueService.CreateQueueAsync(user.Id, group.Id, queueName, GetSpecifiedPosition(messageWords), cancellationToken);
+            var response = await _queueService.CreateQueueAsync(user.Id, group.Id, queueName, position: GetSpecifiedPosition(messageWords), cancellationToken);
 
             await _botClient.SendTextMessageAsync(
                 group.Id,

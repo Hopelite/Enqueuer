@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Telegram.Core.Constants;
-using Enqueuer.Telegram.Core.Extensions;
-using Enqueuer.Telegram.Core.Types.Messages;
+using Enqueuer.Messaging.Core.Constants;
+using Enqueuer.Messaging.Core.Extensions;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Telegram.Messages.MessageHandlers;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types;
