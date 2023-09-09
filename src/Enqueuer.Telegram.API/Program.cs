@@ -37,7 +37,7 @@ public class Program
         app.UseMiddleware<LogExceptionsMiddleware>();
 
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
-        app.MapPost($"/messages", async Task<IResult> (MessageContext context, IMessageDistributor messageDistributor, CancellationToken cancellationToken) =>
+        app.MapPost("/messages", async Task<IResult> (MessageContext context, IMessageDistributor messageDistributor, CancellationToken cancellationToken) =>
         {
             if (context == null)
             {

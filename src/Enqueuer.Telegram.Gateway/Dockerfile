@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
 # Copy the source code
-COPY ["src/Enqueuer.Telegram.Gateway/Enqueuer.Telegram.Gateway.csproj", "Enqueuer.Telegram.Gateway/" ]
+COPY ["src/Enqueuer.Telegram.Gateway/Enqueuer.Telegram.Gateway.csproj", "Enqueuer.Telegram.Gateway/"]
 
 # Restore project dependencies
 RUN dotnet restore "Enqueuer.Telegram.Gateway/Enqueuer.Telegram.Gateway.csproj"
