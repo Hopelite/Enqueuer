@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Services;
 using Enqueuer.Messaging.Core.Extensions;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Messages;
+using Enqueuer.Persistence.Models;
+using Enqueuer.Services;
 using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using Enqueuer.Messaging.Core.Types.Messages;
 
 namespace Enqueuer.Telegram.Messages.MessageHandlers;
 
@@ -111,6 +111,8 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
     private string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)
     {
         var replyMessage = new StringBuilder(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_Message, MessageParameters.None));
+        replyMessage.Append(Environment.NewLine);
+
         foreach (var queue in chatQueues)
         {
             replyMessage.AppendLine(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueue_Message, new MessageParameters(queue.Name)));
@@ -123,6 +125,8 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
     private string BuildResponseMessageWithQueueParticipants(Queue queue)
     {
         var responseMessage = new StringBuilder(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueueParticipants_Message, new MessageParameters(queue.Name)));
+        responseMessage.Append(Environment.NewLine);
+
         var queueParticipants = queue.Members.OrderBy(queueUser => queueUser.Position)
             .Select(queueUser => (queueUser.Position, queueUser.User));
 

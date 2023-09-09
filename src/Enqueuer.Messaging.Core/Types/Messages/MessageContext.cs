@@ -72,7 +72,7 @@ public class MessageContext
         {
             Id = message.Chat.Id,
             Title = message.Chat.Title!,
-            Type = message.Chat.Type,
+            Type = (ChatType)message.Chat.Type,
         };
 
         return true;

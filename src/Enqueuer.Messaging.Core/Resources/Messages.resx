@@ -175,7 +175,7 @@
     <value>This chat has no queues. Are you thinking of creating one?</value>
   </data>
   <data name="Callback_GetChat_DisplayQueueList_PostScriptum_Message" xml:space="preserve">
-    <value>\n&lt;i&gt;Currently, you can create queues only by writting the '&lt;b&gt;/createqueue&lt;/b&gt;' command in this chat, but I'll learn how to create them in direct messages soon!&lt;/i&gt;</value>
+    <value>&lt;i&gt;Currently, you can create queues only by writting the '&lt;b&gt;/createqueue&lt;/b&gt;' command in this chat, but I'll learn how to create them in direct messages soon!&lt;/i&gt;</value>
   </data>
   <data name="Callback_GetChat_DisplayQueuesList_Message" xml:space="preserve">
     <value>This chat has these queues. You can manage any one of them by selecting it.</value>
@@ -187,7 +187,7 @@
     <value>Enqueue me</value>
   </data>
   <data name="Callback_GetQueue_ListQueueMembers_Message" xml:space="preserve">
-    <value>Queue &lt;b&gt;'{0}'&lt;/b&gt; has these participants:\n</value>
+    <value>Queue &lt;b&gt;'{0}'&lt;/b&gt; has these participants:</value>
   </data>
   <data name="Callback_GetQueue_ListQueueMembers_QueueIsDynamic_PostScriptum_Message" xml:space="preserve">
     <value>Queue is &lt;i&gt;dynamic&lt;/i&gt;</value>
@@ -366,10 +366,10 @@ To get slightly more detailed info about one of them, write the appropriate comm
     <value>• {0}</value>
   </data>
   <data name="Message_QueueCommand_PublicChat_ListQueueParticipants_Message" xml:space="preserve">
-    <value>'&lt;b&gt;{0}&lt;/b&gt;' has these participants:\n</value>
+    <value>'&lt;b&gt;{0}&lt;/b&gt;' has these participants:</value>
   </data>
   <data name="Message_QueueCommand_PublicChat_ListQueues_Message" xml:space="preserve">
-    <value>This chat has these queues:\n</value>
+    <value>This chat has these queues:</value>
   </data>
   <data name="Message_QueueCommand_PublicChat_ListQueues_NoQueues_Message" xml:space="preserve">
     <value>This chat has no queues. To create new one write '&lt;b&gt;/createqueue&lt;/b&gt; &lt;i&gt;queue_name&lt;/i&gt;'.</value>

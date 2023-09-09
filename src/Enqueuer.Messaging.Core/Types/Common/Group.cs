@@ -12,6 +12,6 @@ public class Group : Chat
     {
         Id = group.Id,
         Title = group.Title,
-        Type = group.Type,
+        Type = (Telegram.Bot.Types.Enums.ChatType)group.Type,
     };
 }

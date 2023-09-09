@@ -16,6 +16,6 @@ public static class MessageExtensions
     /// <returns>True, if message came from private chat; false otherwise.</returns>
     public static bool IsFromPrivateChat(this MessageContext messageContext)
     {
-        return messageContext.Chat.Type == ChatType.Private;
+        return (int)messageContext.Chat.Type == (int)ChatType.Private;
     }
 }

@@ -232,7 +232,7 @@ namespace Enqueuer.Messaging.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \n&lt;i&gt;Currently, you can create queues only by writting the &apos;&lt;b&gt;/createqueue&lt;/b&gt;&apos; command in this chat, but I&apos;ll learn how to create them in direct messages soon!&lt;/i&gt;.
+        ///   Looks up a localized string similar to &lt;i&gt;Currently, you can create queues only by writting the &apos;&lt;b&gt;/createqueue&lt;/b&gt;&apos; command in this chat, but I&apos;ll learn how to create them in direct messages soon!&lt;/i&gt;.
         /// </summary>
         internal static string Callback_GetChat_DisplayQueueList_PostScriptum_Message {
             get {
@@ -268,7 +268,7 @@ namespace Enqueuer.Messaging.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Queue &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; has these participants:\n.
+        ///   Looks up a localized string similar to Queue &lt;b&gt;&apos;{0}&apos;&lt;/b&gt; has these participants:.
         /// </summary>
         internal static string Callback_GetQueue_ListQueueMembers_Message {
             get {
@@ -789,7 +789,7 @@ namespace Enqueuer.Messaging.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; has these participants:\n.
+        ///   Looks up a localized string similar to &apos;&lt;b&gt;{0}&lt;/b&gt;&apos; has these participants:.
         /// </summary>
         internal static string Message_QueueCommand_PublicChat_ListQueueParticipants_Message {
             get {
@@ -798,7 +798,7 @@ namespace Enqueuer.Messaging.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This chat has these queues:\n.
+        ///   Looks up a localized string similar to This chat has these queues:.
         /// </summary>
         internal static string Message_QueueCommand_PublicChat_ListQueues_Message {
             get {
