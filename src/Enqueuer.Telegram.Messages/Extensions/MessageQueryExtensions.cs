@@ -8,7 +8,7 @@ public static class MessageQueryExtensions
     /// Gets queue name from <paramref name="query"/>.
     /// </summary>
     /// <param name="startIndex">Start index where queue name starts.</param>
-    public static string GetQueueName(this string[] query, int startIndex = 1)
+    public static string GetQueueName(this string[] query, int startIndex = 1) // TODO: add unit tests
     {
         if (query.Length == 2 && int.TryParse(query[^1], out var _))
         {
