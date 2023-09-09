@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Enqueuer.Telegram.Gateway.UpdateProcessing.Exceptions;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,7 @@ public static class UpdateProcessingOrchestrator
         if (telegramUpdate == null)
         {
             logger.LogError("Orchestrator received a null update from the entry point function.");
-            throw new UpdateProccessingException("An error occurred while proccessing the update.");
+            return;
         }
 
         if (telegramUpdate.Type == UpdateType.Message)

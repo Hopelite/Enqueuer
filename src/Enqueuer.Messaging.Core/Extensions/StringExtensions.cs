@@ -7,6 +7,8 @@ namespace Enqueuer.Messaging.Core.Extensions;
 public static class StringExtensions
 {
     private const char Whitespace = ' ';
+    private const char CommandDeclaration = '/';
+    private const char BotNameSeparator = '@';
 
     /// <summary>
     /// Splits <paramref name="messageText"/> to words by removing whitespaces.
@@ -44,12 +46,12 @@ public static class StringExtensions
         }
 
         command = commandWords[0];
-        if (command[0] != '/')
+        if (command[0] != CommandDeclaration)
         {
             return false;
         }
 
-        var botNamePosition = messageText.IndexOf('@');
+        var botNamePosition = messageText.IndexOf(BotNameSeparator);
         if (botNamePosition > 0)
         {
             command = command[..botNamePosition];

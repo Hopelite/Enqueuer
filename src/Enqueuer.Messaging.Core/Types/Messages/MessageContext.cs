@@ -18,7 +18,7 @@ public class MessageContext
         : MessageType.Command;
 
     /// <summary>
-    /// 
+    /// The unique identifier of the message within the boundaries of the chat.
     /// </summary>
     public int MessageId { get; set; }
 
@@ -28,12 +28,12 @@ public class MessageContext
     public CommandContext? Command { get; set; }
 
     /// <summary>
-    /// 
+    /// The user who sent this message.
     /// </summary>
     public User Sender { get; set; } = null!;
 
     /// <summary>
-    /// 
+    /// The group to which this message was sent.
     /// </summary>
     public Group Chat { get; set; } = null!;
 
@@ -42,6 +42,10 @@ public class MessageContext
     /// </summary>
     public string Text { get; set; } = null!;
 
+    /// <summary>
+    /// Tries to create a <paramref name="messageContext"/> from <paramref name="message"/>.
+    /// </summary>
+    /// <returns>True, if <paramref name="messageContext"/> created successfully; otherwise false.</returns>
     public static bool TryCreate(Message message, [NotNullWhen(returnValue: true)] out MessageContext? messageContext)
     {
         messageContext = null;

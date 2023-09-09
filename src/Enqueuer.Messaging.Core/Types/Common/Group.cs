@@ -1,14 +1,22 @@
-﻿using Telegram.Bot.Types.Enums;
+﻿namespace Enqueuer.Messaging.Core.Types.Common;
 
-namespace Enqueuer.Messaging.Core.Types.Common;
-
+/// <summary>
+/// Represents a Telegram group.
+/// </summary>
 public class Group : Chat
 {
+    /// <summary>
+    /// Optional. The title of this group. Null, if the chat is private.
+    /// </summary>
     public string? Title { get; set; }
 
+    /// <summary>
+    /// The type of this chat.
+    /// </summary>
     public ChatType Type { get; set; }
 
-    public static implicit operator Telegram.Bot.Types.Chat(Group group) => new Telegram.Bot.Types.Chat()
+    // TODO: remove
+    public static implicit operator Telegram.Bot.Types.Chat(Group group) => new()
     {
         Id = group.Id,
         Title = group.Title,
