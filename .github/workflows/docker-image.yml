@@ -13,8 +13,13 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Extract Branch Name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
+
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: hopelite/enqueuer-bot:${{GITHUB_REF#refs/heads/}}
+        tags: hopelite/enqueuer-bot:${{ steps.extract_branch.outputs.branch }}
