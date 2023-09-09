@@ -25,18 +25,19 @@ public static class EntryPoint
         using var streamReader = new StreamReader(request.Body);
         var json = await streamReader.ReadToEndAsync();
 
-        Update update; // TODO: refactor
+        Update? update;
         try
         {
             update = JsonConvert.DeserializeObject<Update>(json);
-            if (update == null)
-            {
-                return new BadRequestResult();
-            }
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex.Message);
+            logger.LogWarning(ex, "An exception was thrown when deserializing an incoming request.");
+            return new BadRequestResult();
+        }
+
+        if (update == null)
+        {
             return new BadRequestResult();
         }
 
