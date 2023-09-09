@@ -15,7 +15,7 @@ namespace Enqueuer.Services;
 
 public class QueueService : IQueueService
 {
-    private readonly EnqueuerContext _enqueuerContext;
+    private readonly EnqueuerContext _enqueuerContext; // TODO: remove
     private readonly IServiceScopeFactory _scopeFactory;
 
     public QueueService(EnqueuerContext enqueuerContext, IServiceScopeFactory scopeFactory)
@@ -143,7 +143,6 @@ public class QueueService : IQueueService
             User = user,
             Queue = queue,
         });
-
         
         await enqueuerContext.SaveChangesAsync(cancellationToken);
         return new EnqueueResponse(queue, firstAvailablePosition);
@@ -201,7 +200,7 @@ public class QueueService : IQueueService
             Queue = queue,
         });
 
-        await _enqueuerContext.SaveChangesAsync(cancellationToken);
+        await enqueuerContext.SaveChangesAsync(cancellationToken);
         return new EnqueueResponse(queue, position);
     }
 
