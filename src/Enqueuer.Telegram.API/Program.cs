@@ -1,12 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Enqueuer.Persistence;
 using Enqueuer.Telegram.API.Extensions;
 using Enqueuer.Telegram.Callbacks;
 using Enqueuer.Telegram.Callbacks.Factories;
 using Enqueuer.Telegram.Configuration;
-using Enqueuer.Telegram.Core.Configuration;
-using Enqueuer.Telegram.Core.Exceptions;
-using Enqueuer.Telegram.Core.Localization;
+using Enqueuer.Messaging.Core.Configuration;
+using Enqueuer.Messaging.Core.Exceptions;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Telegram.Extensions;
 using Enqueuer.Telegram.Messages;
 using Enqueuer.Telegram.Messages.Factories;
@@ -35,6 +37,17 @@ public class Program
         app.UseMiddleware<LogExceptionsMiddleware>();
 
         var botConfiguration = app.Services.GetRequiredService<IBotConfiguration>();
+        app.MapPost($"/messages", async Task<IResult> (MessageContext context, IMessageDistributor messageDistributor, CancellationToken cancellationToken) =>
+        {
+            if (context == null)
+            {
+                return Results.BadRequest();
+            }
+
+            await messageDistributor.DistributeAsync(context, cancellationToken);
+            return Results.Ok();
+        });
+
         app.MapPost($"/bot{botConfiguration.AccessToken}", async Task<IResult> (HttpContext context) =>
         {
             if (!context.Request.HasJsonContentType())

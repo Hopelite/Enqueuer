@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core.Extensions;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Core.Localization;
-using Enqueuer.Telegram.Core.Serialization;
 using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -29,35 +31,35 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         _queueService = queueService;
     }
 
-    public override Task HandleAsync(Message message, CancellationToken cancellationToken)
+    public override Task HandleAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        if (message.IsFromPrivateChat())
+        if (messageContext.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
-                message.Chat,
+                messageContext.Chat.Id,
                 LocalizationProvider.GetMessage(MessageKeys.Message_UnsupportedCommand_PrivateChat_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandlePublicChatAsync(message, cancellationToken);
+        return HandlePublicChatAsync(messageContext, cancellationToken);
     }
 
-    private async Task HandlePublicChatAsync(Message message, CancellationToken cancellationToken)
+    private async Task HandlePublicChatAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(message.Chat, message.From!, includeQueues: true, cancellationToken);
+        (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(messageContext.Chat, messageContext.Sender!, includeQueues: true, cancellationToken);
 
-        var messageWords = message.Text!.SplitToWords();
+        var messageWords = messageContext.Text!.SplitToWords();
         if (messageWords.HasParameters())
         {
-            await HandleMessageWithParameters(message, messageWords, group, cancellationToken);
+            await HandleMessageWithParameters(messageContext, messageWords, group, cancellationToken);
             return;
         }
 
         await HandleMessageWithoutParameters(group, cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(Message message, string[] messageWords, Group group, CancellationToken cancellationToken)
+    private async Task HandleMessageWithParameters(MessageContext messageContext, string[] messageWords, Group group, CancellationToken cancellationToken)
     {
         var queueName = messageWords.GetQueueName();
         var queue = await _queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, cancellationToken);
@@ -67,7 +69,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
                 group.Id,
                 LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueDoesNotExist_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
-                replyToMessageId: message.MessageId,
+                replyToMessageId: messageContext.MessageId,
                 cancellationToken: cancellationToken);
 
             return;
@@ -77,7 +79,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueEmpty_Message, new MessageParameters(queueName)),
+                LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueIsEmpty_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue.Id)),
                 cancellationToken: cancellationToken);
@@ -109,6 +111,8 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
     private string BuildResponseMessageWithChatQueues(IEnumerable<Queue> chatQueues)
     {
         var replyMessage = new StringBuilder(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueues_Message, MessageParameters.None));
+        replyMessage.Append(Environment.NewLine);
+
         foreach (var queue in chatQueues)
         {
             replyMessage.AppendLine(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_DisplayQueue_Message, new MessageParameters(queue.Name)));
@@ -121,6 +125,8 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
     private string BuildResponseMessageWithQueueParticipants(Queue queue)
     {
         var responseMessage = new StringBuilder(LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_ListQueueParticipants_Message, new MessageParameters(queue.Name)));
+        responseMessage.Append(Environment.NewLine);
+
         var queueParticipants = queue.Members.OrderBy(queueUser => queueUser.Position)
             .Select(queueUser => (queueUser.Position, queueUser.User));
 

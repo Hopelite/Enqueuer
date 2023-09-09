@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
-using Enqueuer.Telegram.Core.Localization;
+using Enqueuer.Messaging.Core.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 

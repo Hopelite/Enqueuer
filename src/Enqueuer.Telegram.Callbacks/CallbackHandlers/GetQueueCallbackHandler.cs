@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core;
+using Enqueuer.Messaging.Core.Constants;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Callbacks.Extensions;
-using Enqueuer.Telegram.Core;
-using Enqueuer.Telegram.Core.Constants;
-using Enqueuer.Telegram.Core.Localization;
-using Enqueuer.Telegram.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -160,6 +161,8 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
         }
 
         var responseMessage = new StringBuilder(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_ListQueueMembers_Message, new MessageParameters(queue.Name)));
+        responseMessage.Append(Environment.NewLine);
+
         foreach (var queueParticipant in queue.Members.OrderBy(userInQueue => userInQueue.Position))
         {
             responseMessage.AppendLine($"{queueParticipant.Position}) <b>{queueParticipant.User.FullName}</b>");

@@ -1,13 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core;
+using Enqueuer.Messaging.Core.Constants;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Core;
-using Enqueuer.Telegram.Core.Constants;
-using Enqueuer.Telegram.Core.Localization;
-using Enqueuer.Telegram.Core.Serialization;
 using Enqueuer.Telegram.Messages.Extensions;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -28,23 +28,23 @@ public class StartMessageHandler : IMessageHandler
         _dataSerializer = dataSerializer;
     }
 
-    public Task HandleAsync(Message message, CancellationToken cancellationToken)
+    public Task HandleAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        if (!message.IsFromPrivateChat())
+        if (!messageContext.IsFromPrivateChat())
         {
             return _botClient.SendTextMessageAsync(
-                message.Chat,
+                messageContext.Chat.Id,
                 _localizationProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PublicChat_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandlePrivateChatAsync(message, cancellationToken);
+        return HandlePrivateChatAsync(messageContext, cancellationToken);
     }
 
-    private async Task HandlePrivateChatAsync(Message message, CancellationToken cancellationToken)
+    private async Task HandlePrivateChatAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        await _userService.GetOrStoreUserAsync(message.From!, cancellationToken);
+        await _userService.GetOrStoreUserAsync(messageContext.Sender!, cancellationToken);
 
         var callbackButtonData = new CallbackData()
         {
@@ -59,7 +59,7 @@ public class StartMessageHandler : IMessageHandler
         });
 
         await _botClient.SendTextMessageAsync(
-            message.Chat,
+            messageContext.Chat.Id,
             _localizationProvider.GetMessage(MessageKeys.StartMessageHandler.Message_StartCommand_PrivateChat_Message, MessageParameters.None),
             ParseMode.Html,
             replyMarkup: viewChatsButton,

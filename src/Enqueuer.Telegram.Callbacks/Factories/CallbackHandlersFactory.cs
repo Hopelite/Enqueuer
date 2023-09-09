@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Telegram.Callbacks.CallbackHandlers;
-using Enqueuer.Telegram.Core.Constants;
+using Enqueuer.Messaging.Core.Constants;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enqueuer.Telegram.Callbacks.Factories;
