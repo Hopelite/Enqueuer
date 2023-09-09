@@ -20,7 +20,7 @@ public static class MessageKeys
     {
         public const string Message_QueueCommand_PublicChat_QueueDoesNotExist_Message = nameof(Message_QueueCommand_PublicChat_QueueDoesNotExist_Message);
 
-        public const string Message_QueueCommand_PublicChat_QueueEmpty_Message = nameof(Message_QueueCommand_PublicChat_QueueEmpty_Message);
+        public const string Message_QueueCommand_PublicChat_QueueIsEmpty_Message = nameof(Message_QueueCommand_PublicChat_QueueIsEmpty_Message);
 
         public const string Message_QueueCommand_PublicChat_ListQueueParticipants_Message = nameof(Message_QueueCommand_PublicChat_ListQueueParticipants_Message);
 

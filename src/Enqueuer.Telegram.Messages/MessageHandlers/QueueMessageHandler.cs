@@ -79,7 +79,7 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
         {
             await _botClient.SendTextMessageAsync(
                 group.Id,
-                LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueEmpty_Message, new MessageParameters(queueName)),
+                LocalizationProvider.GetMessage(MessageKeys.QueueMessageHandler.Message_QueueCommand_PublicChat_QueueIsEmpty_Message, new MessageParameters(queueName)),
                 ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(GetEnqueueMeButton(group, queue.Id)),
                 cancellationToken: cancellationToken);
