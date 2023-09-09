@@ -17,4 +17,4 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: hopelite/enqueuer-bot:${{GITHUB_REF##*/}}
+        tags: hopelite/enqueuer-bot:${{GITHUB_REF##refs/heads/}}
