@@ -54,6 +54,11 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
                 replyMarkup: GetReturnToQueueButton(callback.CallbackData),
                 cancellationToken: cancellationToken);
         }
+        catch (UserDoesNotExistException)
+        {
+            // TODO: handle this case
+            throw;
+        }
         catch (QueueDoesNotExistException)
         {
             await TelegramBotClient.EditMessageTextAsync(
