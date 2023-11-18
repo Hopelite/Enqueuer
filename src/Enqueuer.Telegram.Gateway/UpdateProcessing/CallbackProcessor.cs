@@ -34,7 +34,7 @@ public class CallbackProcessor
         return ProcessMessageInternalAsync(update!, logger);
     }
 
-    private async Task ProcessMessageInternalAsync(Update update/*CallbackQuery callbackQuery*/, ILogger logger)
+    private async Task ProcessMessageInternalAsync(Update update, ILogger logger)
     {
         try
         {
@@ -44,22 +44,5 @@ public class CallbackProcessor
         {
             logger.LogError(ex, "An exception was thrown when processing a callback with the \"{CallbackID}\" ID.", update.CallbackQuery.Id);
         }
-
-
-        // TODO:implement following endpoint:
-
-        //if (!CallbackContext.TryCreate(callbackQuery, out var callbackContext))
-        //{
-        //    return;
-        //}
-
-        //try
-        //{
-        //    await _apiClient.PostAsync("/callbacks", callbackContext, new JsonMediaTypeFormatter());
-        //}
-        //catch (Exception ex)
-        //{
-        //    logger.LogError(ex, "An exception was thrown when processing a callback with the \"{CallbackID}\" ID.", callbackQuery.Id);
-        //}
     }
 }
