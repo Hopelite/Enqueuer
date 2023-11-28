@@ -14,11 +14,13 @@ public class MessageDistributor : IMessageDistributor
         _messageHandlersFactory = messageHandlersFactory;
     }
 
-    public async Task DistributeAsync(MessageContext messageContext, CancellationToken cancellationToken)
+    public Task DistributeAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
         if (_messageHandlersFactory.TryCreateMessageHandler(messageContext, out var handler))
         {
-            await handler.HandleAsync(messageContext, cancellationToken);
+            return handler.HandleAsync(messageContext, cancellationToken);
         }
+
+        return Task.CompletedTask;
     }
 }

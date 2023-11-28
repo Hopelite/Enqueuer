@@ -1,59 +1,26 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Telegram.Callbacks.Factories;
-using Enqueuer.Messaging.Core;
-using Enqueuer.Messaging.Core.Exceptions;
-using Enqueuer.Messaging.Core.Localization;
-using Enqueuer.Messaging.Core.Serialization;
-using Telegram.Bot;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Telegram.Callbacks;
 
 public class CallbackDistributor : ICallbackDistributor
 {
     private readonly ICallbackHandlersFactory _callbackHandlersFactory;
-    private readonly ICallbackDataDeserializer _callbackDataDeserializer;
-    private readonly ITelegramBotClient _telegramBotClient;
-    private readonly ILocalizationProvider _localizationProvider;
 
-    public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory, ICallbackDataDeserializer callbackDataDeserializer, ITelegramBotClient telegramBotClient, ILocalizationProvider localizationProvider)
+    public CallbackDistributor(ICallbackHandlersFactory callbackHandlersFactory)
     {
         _callbackHandlersFactory = callbackHandlersFactory;
-        _callbackDataDeserializer = callbackDataDeserializer;
-        _telegramBotClient = telegramBotClient;
-        _localizationProvider = localizationProvider;
     }
 
-    public async Task DistributeAsync(CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    public Task DistributeAsync(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callbackQuery.Message == null)
+        if (_callbackHandlersFactory.TryCreateCallbackHandler(callbackContext, out var callbackHandler))
         {
-            return;
+            return callbackHandler.HandleAsync(callbackContext, cancellationToken);
         }
 
-        CallbackData? callbackData;
-        try
-        {
-            callbackData = _callbackDataDeserializer.Deserialize(callbackQuery.Data);
-        }
-        catch (OutdatedCallbackException)
-        {
-            await _telegramBotClient.EditMessageTextAsync(
-                callbackQuery.Message.Chat,
-                callbackQuery.Message.MessageId,
-                _localizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
-                ParseMode.Html,
-                cancellationToken: cancellationToken);
-
-            return;
-        }
-
-        var callback = new Callback(callbackQuery, callbackData);
-        if (_callbackHandlersFactory.TryCreateCallbackHandler(callback, out var callbackHandler))
-        {
-            await callbackHandler.HandleAsync(callback, cancellationToken);
-        }
+        return Task.CompletedTask;
     }
 }

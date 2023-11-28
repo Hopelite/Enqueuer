@@ -12,6 +12,7 @@ using Enqueuer.Messaging.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
@@ -27,60 +28,60 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         _queueService = queueService;
     }
 
-    protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
+    protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callback.CallbackData?.QueueData == null)
+        if (callbackContext.CallbackData.QueueData == null)
         {
             return TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback, cancellationToken);
+        return HandleAsyncInternal(callbackContext, cancellationToken);
     }
 
-    private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
+    private async Task HandleAsyncInternal(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        var queueId = callback.CallbackData!.QueueData!.QueueId;
+        var queueId = callbackContext.CallbackData!.QueueData!.QueueId;
         var queue = await _queueService.GetQueueAsync(queueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
             await TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnToChatButton(callback.CallbackData),
+                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData),
                 cancellationToken: cancellationToken);
 
             return;
         }
 
-        await HandleCallbackWithExistingQueueAsync(queue, callback, cancellationToken);
+        await HandleCallbackWithExistingQueueAsync(queue, callbackContext, cancellationToken);
     }
 
-    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback, CancellationToken cancellationToken)
+    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, CallbackContext callbackContext, CancellationToken cancellationToken)
     {
         InlineKeyboardMarkup replyButtons;
         if (queue.IsDynamic)
         {
             replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[2][]
             {
-                new InlineKeyboardButton[] { GetEnqueueAtButton(callback.CallbackData!, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None)) },
-                new InlineKeyboardButton[] {  GetReturnToQueueButton(callback.CallbackData!) }
+                new InlineKeyboardButton[] { GetEnqueueAtButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None)) },
+                new InlineKeyboardButton[] {  GetReturnToQueueButton(callbackContext.CallbackData) }
             });
         }
         else
         {
             var availablePositions = queue.GetAvailablePositions(PositionsToDisplay);
-            replyButtons = BuildKeyboardMarkup(availablePositions, callback.CallbackData!);
+            replyButtons = BuildKeyboardMarkup(availablePositions, callbackContext.CallbackData);
         }
 
         await TelegramBotClient.EditMessageTextAsync(
-            callback.Message.Chat,
-            callback.Message.MessageId,
+            callbackContext.Chat.Id,
+            callbackContext.MessageId,
             LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_SelectPosition_Message, new MessageParameters(queue.Name)),
             ParseMode.Html,
             replyMarkup: replyButtons,

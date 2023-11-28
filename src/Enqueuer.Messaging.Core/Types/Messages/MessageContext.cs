@@ -38,11 +38,6 @@ public class MessageContext
     public Group Chat { get; set; } = null!;
 
     /// <summary>
-    /// The entire message text, including the command, if is specified.
-    /// </summary>
-    public string Text { get; set; } = null!;
-
-    /// <summary>
     /// Tries to create a <paramref name="messageContext"/> from <paramref name="message"/>.
     /// </summary>
     /// <returns>True, if <paramref name="messageContext"/> created successfully; otherwise false.</returns>
@@ -57,7 +52,6 @@ public class MessageContext
         messageContext = new MessageContext
         {
             MessageId = message.MessageId,
-            Text = message.Text,
         };
 
         if (message.Text.TryGetCommand(out CommandContext? command))

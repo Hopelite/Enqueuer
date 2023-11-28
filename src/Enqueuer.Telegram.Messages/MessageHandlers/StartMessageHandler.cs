@@ -44,7 +44,7 @@ public class StartMessageHandler : IMessageHandler
 
     private async Task HandlePrivateChatAsync(MessageContext messageContext, CancellationToken cancellationToken)
     {
-        await _userService.GetOrStoreUserAsync(messageContext.Sender!, cancellationToken);
+        await _userService.GetOrStoreUserAsync(messageContext.Sender, cancellationToken);
 
         var callbackButtonData = new CallbackData()
         {

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Telegram.Callbacks.CallbackHandlers;
 using Enqueuer.Messaging.Core.Constants;
 using Microsoft.Extensions.DependencyInjection;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.Factories;
 
@@ -15,15 +16,15 @@ public class CallbackHandlersFactory : ICallbackHandlersFactory
         _serviceProvider = serviceProvider;
     }
 
-    public bool TryCreateCallbackHandler(Callback callback, [NotNullWhen(returnValue: true)] out ICallbackHandler? callbackHandler)
+    public bool TryCreateCallbackHandler(Messaging.Core.Types.Callbacks.CallbackContext callbackContext, [NotNullWhen(true)] out ICallbackHandler? callbackHandler)
     {
         callbackHandler = null;
-        if (callback == null || callback.CallbackData == null)
+        if (callbackContext == null || callbackContext.CallbackData == null)
         {
             return false;
         }
 
-        return TryCreateCallbackHandler(callback.CallbackData.Command, out callbackHandler);
+        return TryCreateCallbackHandler(callbackContext.CallbackData.Command, out callbackHandler);
     }
 
     private bool TryCreateCallbackHandler(string command, out ICallbackHandler? callbackHandler)

@@ -8,6 +8,7 @@ using Enqueuer.Messaging.Core;
 using Enqueuer.Messaging.Core.Constants;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Services;
 using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
@@ -32,30 +33,30 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
         _userService = userService;
     }
 
-    protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
+    protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callback.CallbackData?.QueueData == null)
+        if (callbackContext.CallbackData?.QueueData == null)
         {
             return TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback, cancellationToken);
+        return HandleAsyncInternal(callbackContext, cancellationToken);
     }
 
-    private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
+    private async Task HandleAsyncInternal(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData.QueueId, includeMembers: true, cancellationToken);
+        var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData.QueueData!.QueueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
-            var returnButton = GetReturnToChatButton(callback.CallbackData);
+            var returnButton = GetReturnToChatButton(callbackContext.CallbackData);
             await TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message, MessageParameters.None),
                 replyMarkup: returnButton,
                 cancellationToken: cancellationToken);
@@ -63,19 +64,19 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
             return;
         }
 
-        await HandleCallbackWithExistingQueueAsync(callback, queue, cancellationToken);
+        await HandleCallbackWithExistingQueueAsync(callbackContext, queue, cancellationToken);
     }
 
-    private async Task HandleCallbackWithExistingQueueAsync(Callback callback, Queue queue, CancellationToken cancellationToken)
+    private async Task HandleCallbackWithExistingQueueAsync(CallbackContext callbackContext, Queue queue, CancellationToken cancellationToken)
     {
-        var user = await _userService.GetOrStoreUserAsync(callback.From, cancellationToken);
+        var user = await _userService.GetOrStoreUserAsync(callbackContext.Sender, cancellationToken);
 
-        var replyMarkup = await BuildReplyMarkup(user, queue, callback.CallbackData!);
+        var replyMarkup = await BuildReplyMarkup(user, queue, callbackContext.CallbackData!);
         var responseMessage = BuildResponseMessage(queue);
 
         await TelegramBotClient.EditMessageTextAsync(
-            callback.Message.Chat,
-            callback.Message.MessageId,
+            callbackContext.Chat.Id,
+            callbackContext.MessageId,
             responseMessage,
             ParseMode.Html,
             replyMarkup: replyMarkup,
@@ -109,22 +110,6 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
         replyMarkupButtons.Add(new InlineKeyboardButton[] { GetRefreshButton(callbackData) });
         replyMarkupButtons.Add(new InlineKeyboardButton[] { GetReturnToChatButton(callbackData) });
         return new InlineKeyboardMarkup(replyMarkupButtons);
-    }
-
-    private InlineKeyboardButton GetQueueRelatedButton(string buttonText, string command, CallbackData callbackData, int queueId)
-    {
-        var buttonCallbackData = new CallbackData()
-        {
-            Command = command,
-            TargetChatId = callbackData.TargetChatId,
-            QueueData = new QueueData()
-            {
-                QueueId = queueId,
-            }
-        };
-
-        var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData(buttonText, serializedCallbackData);
     }
 
     private InlineKeyboardButton GetDynamicQueueButton(string command, CallbackData callbackData, Queue queue)

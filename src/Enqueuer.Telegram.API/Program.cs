@@ -1,14 +1,14 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Persistence;
-using Enqueuer.Telegram.API.Extensions;
-using Enqueuer.Telegram.Callbacks;
-using Enqueuer.Telegram.Callbacks.Factories;
-using Enqueuer.Telegram.Configuration;
 using Enqueuer.Messaging.Core.Configuration;
 using Enqueuer.Messaging.Core.Exceptions;
 using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Messaging.Core.Types.Messages;
+using Enqueuer.Persistence;
+using Enqueuer.Telegram.Callbacks;
+using Enqueuer.Telegram.Callbacks.Factories;
+using Enqueuer.Telegram.Configuration;
 using Enqueuer.Telegram.Extensions;
 using Enqueuer.Telegram.Messages;
 using Enqueuer.Telegram.Messages.Factories;
@@ -21,7 +21,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
 namespace Enqueuer.Telegram.API;
 
@@ -48,21 +47,14 @@ public class Program
             return Results.Ok();
         });
 
-        app.MapPost($"/bot{botConfiguration.AccessToken}", async Task<IResult> (HttpContext context) =>
+        app.MapPost("/callbacks", async Task<IResult> (CallbackContext context, ICallbackDistributor callbackDistributor, CancellationToken cancellationToken) =>
         {
-            if (!context.Request.HasJsonContentType())
-            {
-                return Results.StatusCode(StatusCodes.Status415UnsupportedMediaType);
-            }
-
-            var update = await context.DeserializeBodyAsync<Update>();
-            if (update == null)
+            if (context == null)
             {
                 return Results.BadRequest();
             }
 
-            var handler = context.RequestServices.GetRequiredService<IUpdateHandler>();
-            await handler.HandleAsync(update);
+            await callbackDistributor.DistributeAsync(context, cancellationToken);
             return Results.Ok();
         });
 

@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Messaging.Core.Configuration;
-using Enqueuer.Messaging.Core.Extensions;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Messages;
@@ -50,10 +49,9 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
     {
         (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(messageContext.Chat, messageContext.Sender!, includeQueues: true, cancellationToken);
 
-        var messageWords = messageContext.Text!.SplitToWords();
-        if (messageWords.HasParameters())
+        if (messageContext.HasParameters())
         {
-            await HandleMessageWithParameters(messageWords, messageContext, group, user, cancellationToken);
+            await HandleMessageWithParameters(messageContext, group, user, cancellationToken);
             return;
         }
 
@@ -65,7 +63,7 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
                 cancellationToken: cancellationToken);
     }
 
-    private Task HandleMessageWithParameters(string[] messageWords, MessageContext messageContext, Group group, User user, CancellationToken cancellationToken)
+    private Task HandleMessageWithParameters(MessageContext messageContext, Group group, User user, CancellationToken cancellationToken)
     {
         if (group.Queues.Count >= _botConfiguration.QueuesPerChat)
         {
@@ -77,15 +75,15 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
                 cancellationToken: cancellationToken);
         }
 
-        return HandleMessageWithQueueName(messageWords, messageContext, user, group, cancellationToken);
+        return HandleMessageWithQueueName(messageContext, user, group, cancellationToken);
     }
 
-    private async Task HandleMessageWithQueueName(string[] messageWords, MessageContext messageContext, User user, Group group, CancellationToken cancellationToken)
+    private async Task HandleMessageWithQueueName(MessageContext messageContext, User user, Group group, CancellationToken cancellationToken)
     {
-        var queueName = messageWords.GetQueueName();
+        var queueName = messageContext.Command!.GetQueueName();
         try
         {
-            var response = await _queueService.CreateQueueAsync(user.Id, group.Id, queueName, position: GetSpecifiedPosition(messageWords), cancellationToken);
+            var response = await _queueService.CreateQueueAsync(user.Id, group.Id, queueName, position: GetSpecifiedPosition(messageContext.Command!.Parameters), cancellationToken);
 
             await _botClient.SendTextMessageAsync(
                 group.Id,
@@ -132,9 +130,9 @@ public class CreateQueueMessageHandler : MessageHandlerWithEnqueueMeButton
         }
     }
 
-    private static int? GetSpecifiedPosition(string[] messageWords)
+    private static int? GetSpecifiedPosition(string[] commandParameters)
     {
-        if (int.TryParse(messageWords[^1], out var positionValue))
+        if (int.TryParse(commandParameters[^1], out var positionValue))
         {
             return positionValue;
         }

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Messaging.Core.Constants;
-using Enqueuer.Messaging.Core.Extensions;
 using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Telegram.Messages.MessageHandlers;
 using Microsoft.Extensions.DependencyInjection;
-using Telegram.Bot.Types;
 
 namespace Enqueuer.Telegram.Messages.Factories
 {

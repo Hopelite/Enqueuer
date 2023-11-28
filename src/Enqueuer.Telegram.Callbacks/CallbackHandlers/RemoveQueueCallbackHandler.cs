@@ -11,6 +11,7 @@ using Enqueuer.Messaging.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
@@ -28,76 +29,76 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
         _queueService = queueService;
     }
 
-    protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
+    protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callback.CallbackData?.QueueData == null)
+        if (callbackContext.CallbackData?.QueueData == null)
         {
             return TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback, cancellationToken);
+        return HandleAsyncInternal(callbackContext, cancellationToken);
     }
 
-    private async Task HandleAsyncInternal(Callback callback, CancellationToken cancellationToken)
+    private async Task HandleAsyncInternal(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData!.QueueId, includeMembers: false, cancellationToken);
+        var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData!.QueueData!.QueueId, includeMembers: false, cancellationToken);
         if (queue == null)
         {
             await TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnToChatButton(callback.CallbackData),
+                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData),
                 cancellationToken: cancellationToken);
 
             return;
         }
 
-        await HandleCallbackWithExistingQueueAsync(queue, callback, cancellationToken);
+        await HandleCallbackWithExistingQueueAsync(queue, callbackContext, cancellationToken);
     }
 
-    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback, CancellationToken cancellationToken)
+    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callback.CallbackData.HasUserAgreement)
+        if (callbackContext.CallbackData.HasUserAgreement)
         {
-            await HandleCallbackWithUserAgreementAsync(callback, queue, cancellationToken);
+            await HandleCallbackWithUserAgreementAsync(callbackContext, queue, cancellationToken);
             return;
         }
 
         var replyMarkup = new InlineKeyboardButton[][]
         {
-            new InlineKeyboardButton[] { GetRemoveQueueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_AgreeToDelete_Button, MessageParameters.None), callback.CallbackData, true) },
-            new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
+            new InlineKeyboardButton[] { GetRemoveQueueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_AgreeToDelete_Button, MessageParameters.None), callbackContext.CallbackData, true) },
+            new InlineKeyboardButton[] { GetReturnToQueueButton(callbackContext.CallbackData) }
         };
 
         await TelegramBotClient.EditMessageTextAsync(
-            callback.Message.Chat,
-            callback.Message.MessageId,
+            callbackContext.Chat.Id,
+            callbackContext.MessageId,
             LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_AreYouSureToDeleteQueue_Message, new MessageParameters(queue.Name)),
             ParseMode.Html,
             replyMarkup: replyMarkup,
             cancellationToken: cancellationToken);
     }
 
-    private async Task HandleCallbackWithUserAgreementAsync(Callback callback, Queue queue, CancellationToken cancellationToken)
+    private async Task HandleCallbackWithUserAgreementAsync(CallbackContext callbackContext, Queue queue, CancellationToken cancellationToken)
     {
-        var user = await _userService.GetOrStoreUserAsync(callback.From, cancellationToken);
-        if (callback.CallbackData.HasUserAgreement)
+        var user = await _userService.GetOrStoreUserAsync(callbackContext.Sender, cancellationToken);
+        if (callbackContext.CallbackData.HasUserAgreement)
         {
-            var userId = callback.From.Id;
+            var userId = callbackContext.Sender.Id;
             if (!queue.IsQueueCreator(userId) && !await TelegramBotClient.IsChatAdmin(userId, queue.GroupId))
             {
                 await TelegramBotClient.EditMessageTextAsync(
-                    callback.Message.Chat,
-                    callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                     LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_UserHasNoRightsToDelete_Message, new MessageParameters(queue.Name)),
                     ParseMode.Html,
-                    replyMarkup: GetReturnToQueueButton(callback.CallbackData),
+                    replyMarkup: GetReturnToQueueButton(callbackContext.CallbackData),
                     cancellationToken: cancellationToken);
                 return;
             }
@@ -111,11 +112,11 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
                 cancellationToken: cancellationToken);
 
             await TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_Success_Message, new MessageParameters(queue.Name)),
                 ParseMode.Html,
-                replyMarkup: GetReturnToChatButton(callback.CallbackData),
+                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData),
                 cancellationToken: cancellationToken);
 
             return;

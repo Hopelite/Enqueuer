@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messaging.Core.Extensions;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Persistence.Constants;
@@ -47,8 +46,7 @@ public class EnqueueMessageHandler : IMessageHandler
     {
         (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(messageContext.Chat, messageContext.Sender!, includeQueues: true, CancellationToken.None);
 
-        var messageWords = messageContext.Text!.SplitToWords();
-        if (!messageWords.HasParameters())
+        if (!messageContext.HasParameters())
         {
             await _botClient.SendTextMessageAsync(
                 messageContext.Chat.Id,
@@ -60,12 +58,12 @@ public class EnqueueMessageHandler : IMessageHandler
             return;
         }
 
-        await HandleMessageWithParameters(messageWords, messageContext, user, group, cancellationToken);
+        await HandleMessageWithParameters(messageContext, user, group, cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(string[] messageWords, MessageContext messageContext, User user, Group group, CancellationToken cancellationToken)
+    private async Task HandleMessageWithParameters(MessageContext messageContext, User user, Group group, CancellationToken cancellationToken)
     {
-        var (queueName, userPosition) = GetQueueNameAndPosition(messageWords);
+        var (queueName, userPosition) = GetQueueNameAndPosition(messageContext.Command!);
         if (IsUserPositionInvalid(userPosition))
         {
             await _botClient.SendTextMessageAsync(
@@ -152,14 +150,14 @@ public class EnqueueMessageHandler : IMessageHandler
             cancellationToken: cancellationToken);
     }
 
-    private static (string QueueName, int? UserPosition) GetQueueNameAndPosition(string[] messageWords)
+    private static (string QueueName, int? UserPosition) GetQueueNameAndPosition(Enqueuer.Messaging.Core.Types.Common.CommandContext commandContext)
     {
-        if (int.TryParse(messageWords[^1], out var position))
+        if (int.TryParse(commandContext.Parameters[^1], out var position))
         {
-            return (messageWords.GetQueueNameWithoutUserPosition(), position);
+            return (commandContext.Parameters.GetQueueNameWithoutUserPosition(), position);
         }
 
-        return (messageWords.GetQueueName(), null);
+        return (commandContext.GetQueueName(), null);
     }
 
     private static bool IsUserPositionInvalid(int? userPosition)

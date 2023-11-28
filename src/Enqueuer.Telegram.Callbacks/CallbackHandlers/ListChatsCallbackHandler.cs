@@ -12,6 +12,7 @@ using Enqueuer.Messaging.Core.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
@@ -26,17 +27,17 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
         _groupService = groupService;
     }
 
-    protected override async Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
+    protected override async Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        var groups = (await _groupService.GetUserGroups(callback.From.Id, CancellationToken.None)).ToList();
+        var groups = (await _groupService.GetUserGroups(callbackContext.Sender.Id, CancellationToken.None)).ToList();
         if (groups.Count == 0)
         {
             await TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_UserDoesNotParticipateInAnyGroup_Message, MessageParameters.None),
                 ParseMode.Html,
-                replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] { GetRefreshButton(callback.CallbackData) }),
+                replyMarkup: new InlineKeyboardMarkup(new InlineKeyboardButton[] { GetRefreshButton(callbackContext.CallbackData) }),
                 cancellationToken: cancellationToken);
 
             return;
@@ -44,8 +45,8 @@ public class ListChatsCallbackHandler : CallbackHandlerBase
 
         var replyMarkup = BuildReplyMarkup(groups);
         await TelegramBotClient.EditMessageTextAsync(
-            callback.Message.Chat,
-            callback.Message.MessageId,
+            callbackContext.Chat.Id,
+            callbackContext.MessageId,
             LocalizationProvider.GetMessage(CallbackMessageKeys.ListChatsCallbackHandler.Callback_ListChats_DisplayChatsList_Message, MessageParameters.None),
             ParseMode.Html,
             replyMarkup: replyMarkup,

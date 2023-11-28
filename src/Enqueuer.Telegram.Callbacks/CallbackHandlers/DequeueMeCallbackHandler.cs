@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
@@ -28,74 +29,77 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
         _logger = logger;
     }
 
-    protected override Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken)
+    protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callback.CallbackData?.QueueData == null)
+        if (callbackContext.CallbackData.QueueData == null)
         {
             _logger.LogWarning("Handled outdated callback.");
             return TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
 
-        return HandleAsyncInternal(callback);
+        return HandleAsyncInternal(callbackContext);
     }
 
-    private async Task HandleAsyncInternal(Callback callback)
+    private async Task HandleAsyncInternal(CallbackContext callbackContext)
     {
-        var queue = await _queueService.GetQueueAsync(callback.CallbackData!.QueueData.QueueId, includeMembers: false, CancellationToken.None);
+        var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData.QueueData!.QueueId, includeMembers: false, CancellationToken.None);
         if (queue == null)
         {
             await TelegramBotClient.EditMessageTextAsync(
-                callback.Message.Chat,
-                callback.Message.MessageId,
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnToChatButton(callback.CallbackData));
+                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData));
 
             return;
         }
 
-        await HandleCallbackWithExistingQueueAsync(queue, callback);
+        await HandleCallbackWithExistingQueueAsync(queue, callbackContext);
     }
 
-    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, Callback callback)
+    private async Task HandleCallbackWithExistingQueueAsync(Queue queue, CallbackContext callbackContext)
     {
-        if (callback.CallbackData.HasUserAgreement)
+        if (callbackContext.CallbackData.HasUserAgreement)
         {
-            await HandleCallbackWithUserAgreementAsync(queue, callback);
+            await HandleCallbackWithUserAgreementAsync(queue, callbackContext);
             return;
         }
 
         var replyMarkup = new InlineKeyboardButton[][]
         {
-            new InlineKeyboardButton[] { GetDequeueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AgreeToDequeue_Button, MessageParameters.None), callback.CallbackData, true) },
-            new InlineKeyboardButton[] { GetReturnToQueueButton(callback.CallbackData) }
+            new InlineKeyboardButton[] { GetDequeueButton(
+                LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AgreeToDequeue_Button, MessageParameters.None),
+                callbackContext.CallbackData,
+                isAgreed: true) },
+            new InlineKeyboardButton[] { GetReturnToQueueButton(callbackContext.CallbackData) }
         };
 
         await TelegramBotClient.EditMessageTextAsync(
-            callback.Message.Chat,
-            callback.Message.MessageId,
+            callbackContext.Chat.Id,
+            callbackContext.MessageId,
             LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AreYouSureToBeDequeued_Message, new MessageParameters(queue.Name)),
             ParseMode.Html,
             replyMarkup: replyMarkup);
     }
 
-    private async Task HandleCallbackWithUserAgreementAsync(Queue queue, Callback callback)
+    private async Task HandleCallbackWithUserAgreementAsync(Queue queue, CallbackContext callbackContext)
     {
-        var user = await _userService.GetOrStoreUserAsync(callback.From, CancellationToken.None);
+        var user = await _userService.GetOrStoreUserAsync(callbackContext.Sender, CancellationToken.None);
         var responseMessage = await _queueService.TryDequeueUserAsync(user, queue.Id, CancellationToken.None)
             ? LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_Success_Message, new MessageParameters(queue.Name))
             : LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_UserDoesNotParticipate_Message, new MessageParameters(queue.Name));
 
         await TelegramBotClient.EditMessageTextAsync(
-            callback.Message.Chat,
-            callback.Message.MessageId,
+            callbackContext.Chat.Id,
+            callbackContext.MessageId,
             responseMessage,
             ParseMode.Html,
-            replyMarkup: GetReturnToQueueButton(callback.CallbackData!));
+            replyMarkup: GetReturnToQueueButton(callbackContext.CallbackData));
     }
 
     private InlineKeyboardButton GetDequeueButton(string buttonText, CallbackData callbackData, bool? isAgreed = null)
@@ -107,7 +111,7 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             UserAgreement = isAgreed,
             QueueData = new QueueData()
             {
-                QueueId = callbackData.QueueData.QueueId,
+                QueueId = callbackData.QueueData!.QueueId,
             }
         };
 

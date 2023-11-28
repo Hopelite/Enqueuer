@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messaging.Core.Extensions;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Messages;
@@ -49,19 +48,18 @@ public class QueueMessageHandler : MessageHandlerWithEnqueueMeButton
     {
         (var group, var _) = await _groupService.AddOrUpdateUserAndGroupAsync(messageContext.Chat, messageContext.Sender!, includeQueues: true, cancellationToken);
 
-        var messageWords = messageContext.Text!.SplitToWords();
-        if (messageWords.HasParameters())
+        if (messageContext.HasParameters())
         {
-            await HandleMessageWithParameters(messageContext, messageWords, group, cancellationToken);
+            await HandleMessageWithParameters(messageContext, group, cancellationToken);
             return;
         }
 
         await HandleMessageWithoutParameters(group, cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(MessageContext messageContext, string[] messageWords, Group group, CancellationToken cancellationToken)
+    private async Task HandleMessageWithParameters(MessageContext messageContext, Group group, CancellationToken cancellationToken)
     {
-        var queueName = messageWords.GetQueueName();
+        var queueName = messageContext.Command!.GetQueueName();
         var queue = await _queueService.GetQueueByNameAsync(group.Id, queueName, includeMembers: true, cancellationToken);
         if (queue == null)
         {

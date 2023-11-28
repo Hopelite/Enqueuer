@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Messaging.Core.Extensions;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Persistence.Models;
@@ -46,10 +45,9 @@ public class DequeueMessageHandler : IMessageHandler
     {
         (var group, var user) = await _groupService.AddOrUpdateUserAndGroupAsync(messageContext.Chat, messageContext.Sender!, includeQueues: true, cancellationToken);
 
-        var messageWords = messageContext.Text!.SplitToWords();
-        if (messageWords.HasParameters())
+        if (messageContext.HasParameters())
         {
-            await HandleMessageWithParameters(messageContext, messageWords, group, user, cancellationToken);
+            await HandleMessageWithParameters(messageContext, group, user, cancellationToken);
             return;
         }
 
@@ -61,9 +59,9 @@ public class DequeueMessageHandler : IMessageHandler
             cancellationToken: cancellationToken);
     }
 
-    private async Task HandleMessageWithParameters(MessageContext messageContext, string[] messageWords, Group group, User user, CancellationToken cancellationToken)
+    private async Task HandleMessageWithParameters(MessageContext messageContext, Group group, User user, CancellationToken cancellationToken)
     {
-        var queueName = messageWords.GetQueueName();
+        var queueName = messageContext.Command!.GetQueueName();
         var queue = group.GetQueueByName(queueName);
         if (queue == null)
         {

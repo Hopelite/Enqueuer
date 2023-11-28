@@ -4,7 +4,9 @@ using Enqueuer.Messaging.Core;
 using Enqueuer.Messaging.Core.Exceptions;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
@@ -25,26 +27,38 @@ public abstract class CallbackHandlerBase : ICallbackHandler
         LocalizationProvider = localizationProvider;
     }
 
-    public async Task HandleAsync(Callback callback, CancellationToken cancellationToken)
+    public async Task HandleAsync(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
         try
         {
-            await HandleAsyncImplementation(callback, cancellationToken);
-            await TelegramBotClient.AnswerCallbackQueryAsync(callback.Id);
+            await HandleAsyncImplementation(callbackContext, cancellationToken);
         }
         catch (MessageNotModifiedException)
         {
             await TelegramBotClient.AnswerCallbackQueryAsync(
-                callback.Id,
+                callbackContext.QueryId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_EverythingIsUpToDate_Message, MessageParameters.None),
                 cancellationToken: cancellationToken);
+        }
+        catch (OutdatedCallbackException)
+        {
+            await TelegramBotClient.EditMessageTextAsync(
+                callbackContext.Chat.Id,
+                callbackContext.MessageId,
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
+                ParseMode.Html,
+                cancellationToken: cancellationToken);
+        }
+        finally
+        {
+            await TelegramBotClient.AnswerCallbackQueryAsync(callbackContext.QueryId, cancellationToken: cancellationToken);
         }
     }
 
     /// <summary>
-    /// Contains the implementation of <paramref name="callback"/> handling.
+    /// Contains the implementation of <paramref name="callbackContext"/> handling.
     /// </summary>
-    protected abstract Task HandleAsyncImplementation(Callback callback, CancellationToken cancellationToken);
+    protected abstract Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates the refresh button with the <paramref name="callbackData"/>.

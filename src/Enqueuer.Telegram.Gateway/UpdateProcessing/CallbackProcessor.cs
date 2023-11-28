@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Telegram.Gateway.Configuration;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -31,18 +32,23 @@ public class CallbackProcessor
             throw new ArgumentException($"Callback processor received a non-callback type update with the \"{update.Id}\" ID.");
         }
 
-        return ProcessMessageInternalAsync(update!, logger);
+        return ProcessMessageInternalAsync(update.CallbackQuery!, logger);
     }
 
-    private async Task ProcessMessageInternalAsync(Update update, ILogger logger)
+    private async Task ProcessMessageInternalAsync(CallbackQuery callbackQuery, ILogger logger)
     {
+        if (!CallbackContext.TryCreate(callbackQuery, out var callbackContext))
+        {
+            return;
+        }
+
         try
         {
-            await _apiClient.PostAsync($"/bot{_configuration["EnqueuerBotToken"]}", update, new JsonMediaTypeFormatter());
+            await _apiClient.PostAsync("/callbacks", callbackContext, new JsonMediaTypeFormatter());
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception was thrown when processing a callback with the \"{CallbackID}\" ID.", update.CallbackQuery.Id);
+            logger.LogError(ex, "An exception was thrown when processing a callback with the \"{CallbackID}\" ID.", callbackQuery.Id);
         }
     }
 }
