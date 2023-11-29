@@ -1,30 +1,30 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
-using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Messaging.Core;
-using Enqueuer.Messaging.Core.Constants;
-using Enqueuer.Messaging.Core.Localization;
-using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Telegram.Callbacks.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
-public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
+public class EnqueueCallbackHandler : CallbackHandlerBase
 {
     private const int PositionsToDisplay = 20;
     private const int PositionsInRow = 4;
+    private readonly ICallbackDataSerializer _dataSerializer;
     private readonly IQueueService _queueService;
 
     public EnqueueCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, IQueueService queueService)
-        : base(telegramBotClient, dataSerializer, localizationProvider)
+        : base(telegramBotClient, localizationProvider)
     {
+        _dataSerializer = dataSerializer;
         _queueService = queueService;
     }
 
@@ -49,11 +49,15 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         var queue = await _queueService.GetQueueAsync(queueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
+            var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+                .WithReturnToChatButton(callbackContext.CallbackData)
+                .Build();
+
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData),
+                replyMarkup: replyMarkup,
                 cancellationToken: cancellationToken);
 
             return;
@@ -67,11 +71,11 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
         InlineKeyboardMarkup replyButtons;
         if (queue.IsDynamic)
         {
-            replyButtons = new InlineKeyboardMarkup(new InlineKeyboardButton[2][]
-            {
-                new InlineKeyboardButton[] { GetEnqueueAtButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None)) },
-                new InlineKeyboardButton[] {  GetReturnToQueueButton(callbackContext.CallbackData) }
-            });
+            replyButtons = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+                .WithEnqueueAtButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None))
+                .FromNewRow()
+                .WithReturnToQueueButton(callbackContext.CallbackData)
+                .Build();
         }
         else
         {
@@ -90,44 +94,32 @@ public class EnqueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
 
     private InlineKeyboardMarkup BuildKeyboardMarkup(int[] availablePositions, CallbackData callbackData)
     {
+        var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+            .WithEnqueueAtButton(
+                callbackData,
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None));
+
         var numberOfRows = availablePositions.Length / PositionsInRow;
-        var positionButtons = new InlineKeyboardButton[numberOfRows + 3][];
+        AddPositionButtons(availablePositions, replyMarkup, numberOfRows, callbackData);
 
-        positionButtons[0] = new InlineKeyboardButton[] { GetEnqueueAtButton(callbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None)) };
-        AddPositionButtons(availablePositions, positionButtons, numberOfRows, callbackData);
-        positionButtons[numberOfRows + 1] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
-        positionButtons[numberOfRows + 2] = new InlineKeyboardButton[] { GetReturnToQueueButton(callbackData) };
+        replyMarkup.FromNewRow()
+            .WithRefreshButton(callbackData)
+            .FromNewRow()
+            .WithReturnToQueueButton(callbackData);
 
-        return new InlineKeyboardMarkup(positionButtons);
+        return replyMarkup.Build();
     }
 
-    private void AddPositionButtons(int[] availablePositions, InlineKeyboardButton[][] positionButtons, int numberOfRows, CallbackData callbackData)
+    private void AddPositionButtons(int[] availablePositions, ReplyMarkupBuilder markupBuilder, int numberOfRows, CallbackData callbackData)
     {
         for (int i = 1, positionIndex = 0; i < numberOfRows + 1; i++)
         {
-            positionButtons[i] = new InlineKeyboardButton[PositionsInRow];
+            markupBuilder.FromNewRow();
             for (var j = 0; j < PositionsInRow; j++, positionIndex++)
             {
                 var position = availablePositions[positionIndex];
-                positionButtons[i][j] = GetEnqueueAtButton(callbackData, position: position);
+                markupBuilder.WithEnqueueAtButton(callbackData, position: position);
             }
         }
-    }
-
-    private InlineKeyboardButton GetEnqueueAtButton(CallbackData callbackData, string? buttonText = null, int? position = null)
-    {
-        var buttonCallbackData = new CallbackData()
-        {
-            Command = CallbackCommands.EnqueueAtCommand,
-            TargetChatId = callbackData.TargetChatId,
-            QueueData = new QueueData()
-            {
-                QueueId = callbackData.QueueData!.QueueId,
-                Position = position,
-            },
-        };
-
-        var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData($"{buttonText ?? position?.ToString() ?? throw new ArgumentNullException(nameof(buttonText))}", serializedCallbackData);
     }
 }

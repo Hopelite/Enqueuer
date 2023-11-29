@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,8 +10,8 @@ using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Callbacks.Extensions;
+using Enqueuer.Telegram.Callbacks.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -21,16 +20,18 @@ using User = Enqueuer.Persistence.Models.User;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
-public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
+public class GetQueueCallbackHandler : CallbackHandlerBase
 {
     private readonly IQueueService _queueService;
     private readonly IUserService _userService;
+    private readonly ICallbackDataSerializer _dataSerializer;
 
     public GetQueueCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IUserService userService, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider)
-        : base(telegramBotClient, dataSerializer, localizationProvider)
+        : base(telegramBotClient, localizationProvider)
     {
         _queueService = queueService;
         _userService = userService;
+        _dataSerializer = dataSerializer;
     }
 
     protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
@@ -53,7 +54,10 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
         var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData.QueueData!.QueueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
-            var returnButton = GetReturnToChatButton(callbackContext.CallbackData);
+            var returnButton = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+                .WithReturnToChatButton(callbackContext.CallbackData)
+                .Build();
+
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
@@ -86,50 +90,47 @@ public class GetQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
     private async Task<InlineKeyboardMarkup> BuildReplyMarkup(User user, Queue queue, CallbackData callbackData)
     {
         var doesUserParticipate = user.IsParticipatingIn(queue);
-        var replyMarkupButtons = new List<InlineKeyboardButton[]>()
+
+        var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider);
+        if (doesUserParticipate)
         {
-            doesUserParticipate
-            ? new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_DequeueMe_Button, MessageParameters.None), CallbackCommands.DequeueMeCommand, callbackData, queue.Id) }
-            : new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_EnqueueMe_Button, MessageParameters.None), CallbackCommands.EnqueueCommand, callbackData, queue.Id) }
-        };
+            replyMarkup.WithQueueRelatedButton(
+                LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_DequeueMe_Button, MessageParameters.None),
+                CallbackCommands.DequeueMeCommand,
+                callbackData,
+                queue.Id);
+        }
+        else
+        {
+            replyMarkup.WithQueueRelatedButton(
+                LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_EnqueueMe_Button, MessageParameters.None),
+                CallbackCommands.EnqueueCommand,
+                callbackData,
+                queue.Id);
+        }
 
         if (queue.IsQueueCreator(user) || await TelegramBotClient.IsChatAdmin(user.Id, queue.GroupId))
         {
-            replyMarkupButtons.Add(new InlineKeyboardButton[]
-            {
-                GetRemoveQueueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_RemoveQueue_Button, MessageParameters.None), callbackData),
-                GetDynamicQueueButton(CallbackCommands.SwitchQueueDynamicCommand, callbackData, queue)
-            });
+            replyMarkup.FromNewRow()
+                .WithRemoveQueueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_RemoveQueue_Button, MessageParameters.None), callbackData)
+                .WithDynamicQueueButton(CallbackCommands.SwitchQueueDynamicCommand, callbackData, queue);
         }
 
         if (doesUserParticipate)
         {
-            replyMarkupButtons.Add(new InlineKeyboardButton[] { GetQueueRelatedButton(LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_SwapPositions_Button, MessageParameters.None), CallbackCommands.ExchangePositionsCommand, callbackData, queue.Id) });
+            replyMarkup.FromNewRow()
+                .WithQueueRelatedButton(
+                    LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_SwapPositions_Button, MessageParameters.None),
+                    CallbackCommands.ExchangePositionsCommand,
+                    callbackData,
+                    queue.Id);
         }
 
-        replyMarkupButtons.Add(new InlineKeyboardButton[] { GetRefreshButton(callbackData) });
-        replyMarkupButtons.Add(new InlineKeyboardButton[] { GetReturnToChatButton(callbackData) });
-        return new InlineKeyboardMarkup(replyMarkupButtons);
-    }
-
-    private InlineKeyboardButton GetDynamicQueueButton(string command, CallbackData callbackData, Queue queue)
-    {
-        var buttonCallbackData = new CallbackData()
-        {
-            Command = command,
-            TargetChatId = callbackData.TargetChatId,
-            QueueData = new QueueData()
-            {
-                QueueId = queue.Id,
-            }
-        };
-
-        var buttonText = queue.IsDynamic
-            ? LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_MakeQueueStatic_Button, MessageParameters.None)
-            : LocalizationProvider.GetMessage(CallbackMessageKeys.GetQueueCallbackHandler.Callback_GetQueue_MakeQueueDynamic_Button, MessageParameters.None);
-
-        var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData(buttonText, serializedCallbackData);
+        return replyMarkup.FromNewRow()
+            .WithRefreshButton(callbackData)
+            .FromNewRow()
+            .WithReturnToChatButton(callbackData)
+            .Build();
     }
 
     private string BuildResponseMessage(Queue queue)

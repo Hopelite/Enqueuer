@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Enqueuer.Messaging.Core;
-using Enqueuer.Messaging.Core.Constants;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
+using Enqueuer.Telegram.Callbacks.Helpers;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -21,13 +20,15 @@ public class GetChatCallbackHandler : CallbackHandlerBase
 {
     private readonly IQueueService _queueService;
     private readonly IGroupService _groupService;
+    private readonly ICallbackDataSerializer _dataSerializer;
     private readonly ILogger<EnqueueMeCallbackHandler> _logger;
 
     public GetChatCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, ILogger<EnqueueMeCallbackHandler> logger)
-        : base(telegramBotClient, dataSerializer, localizationProvider)
+        : base(telegramBotClient, localizationProvider)
     {
         _queueService = queueService;
         _groupService = groupService;
+        _dataSerializer = dataSerializer;
         _logger = logger;
     }
 
@@ -55,7 +56,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_ChatHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnButton(),
+                replyMarkup: ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider).WithReturnToChatListButton().Build(),
                 cancellationToken: cancellationToken);
 
             return;
@@ -79,36 +80,17 @@ public class GetChatCallbackHandler : CallbackHandlerBase
 
     private InlineKeyboardMarkup BuildReplyMarkup(List<Queue> chatQueues, CallbackData callbackData, long chatId)
     {
-        var replyButtons = new InlineKeyboardButton[chatQueues.Count + 2][];
-        for (var i = 0; i < chatQueues.Count; i++)
+        var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider);
+        foreach (var queue in chatQueues)
         {
-            var newCallbackData = new CallbackData()
-            {
-                Command = CallbackCommands.GetQueueCommand,
-                TargetChatId = chatId,
-                QueueData = new QueueData()
-                {
-                    QueueId = chatQueues[i].Id,
-                },
-            };
-
-            var serializedCallbackData = DataSerializer.Serialize(newCallbackData);
-            replyButtons[i] = new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData($"'{chatQueues[i].Name}'", serializedCallbackData) };
+            replyMarkup.FromNewRow()
+                .WithOpenQueueButton(chatId, queue);
         }
 
-        replyButtons[^2] = new InlineKeyboardButton[] { GetRefreshButton(callbackData) };
-        replyButtons[^1] = new InlineKeyboardButton[] { GetReturnButton() };
-        return new InlineKeyboardMarkup(replyButtons);
-    }
-
-    private InlineKeyboardButton GetReturnButton()
-    {
-        var callbackData = new CallbackData()
-        {
-            Command = CallbackCommands.ListChatsCommand,
-        };
-
-        var serializedCallbackData = DataSerializer.Serialize(callbackData);
-        return InlineKeyboardButton.WithCallbackData(LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None), serializedCallbackData);
+        return replyMarkup.FromNewRow()
+            .WithRefreshButton(callbackData)
+            .FromNewRow()
+                .WithReturnToChatListButton()
+            .Build();
     }
 }

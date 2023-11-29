@@ -1,29 +1,28 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Enqueuer.Persistence.Models;
-using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
-using Enqueuer.Messaging.Core;
-using Enqueuer.Messaging.Core.Constants;
 using Enqueuer.Messaging.Core.Localization;
 using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Callbacks;
+using Enqueuer.Persistence.Models;
+using Enqueuer.Services;
+using Enqueuer.Telegram.Callbacks.Helpers;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
-using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
-public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
+public class DequeueMeCallbackHandler : CallbackHandlerBase
 {
+    private readonly ICallbackDataSerializer _dataSerializer;
     private readonly IUserService _userService;
     private readonly IQueueService _queueService;
     private readonly ILogger<DequeueMeCallbackHandler> _logger;
 
     public DequeueMeCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, IUserService userService, IQueueService queueService, ILogger<DequeueMeCallbackHandler> logger)
-        : base(telegramBotClient, dataSerializer, localizationProvider)
+        : base(telegramBotClient, localizationProvider)
     {
+        _dataSerializer = dataSerializer;
         _userService = userService;
         _queueService = queueService;
         _logger = logger;
@@ -50,11 +49,15 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
         var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData.QueueData!.QueueId, includeMembers: false, CancellationToken.None);
         if (queue == null)
         {
+            var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+                .WithReturnToChatButton(callbackContext.CallbackData)
+                .Build();
+
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData));
+                replyMarkup: replyMarkup);
 
             return;
         }
@@ -70,14 +73,14 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             return;
         }
 
-        var replyMarkup = new InlineKeyboardButton[][]
-        {
-            new InlineKeyboardButton[] { GetDequeueButton(
+        var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+            .WithDequeueButton(
                 LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_AgreeToDequeue_Button, MessageParameters.None),
                 callbackContext.CallbackData,
-                isAgreed: true) },
-            new InlineKeyboardButton[] { GetReturnToQueueButton(callbackContext.CallbackData) }
-        };
+                isAgreed: true)
+            .FromNewRow()
+            .WithReturnToQueueButton(callbackContext.CallbackData)
+            .Build();
 
         await TelegramBotClient.EditMessageTextAsync(
             callbackContext.Chat.Id,
@@ -94,28 +97,15 @@ public class DequeueMeCallbackHandler : CallbackHandlerBaseWithReturnToQueueButt
             ? LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_Success_Message, new MessageParameters(queue.Name))
             : LocalizationProvider.GetMessage(CallbackMessageKeys.DequeueMeCallbackHandler.Callback_DequeueMe_UserDoesNotParticipate_Message, new MessageParameters(queue.Name));
 
+        var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+            .WithReturnToQueueButton(callbackContext.CallbackData)
+            .Build();
+
         await TelegramBotClient.EditMessageTextAsync(
             callbackContext.Chat.Id,
             callbackContext.MessageId,
             responseMessage,
             ParseMode.Html,
-            replyMarkup: GetReturnToQueueButton(callbackContext.CallbackData));
-    }
-
-    private InlineKeyboardButton GetDequeueButton(string buttonText, CallbackData callbackData, bool? isAgreed = null)
-    {
-        var buttonCallbackData = new CallbackData()
-        {
-            Command = CallbackCommands.DequeueMeCommand,
-            TargetChatId = callbackData.TargetChatId,
-            UserAgreement = isAgreed,
-            QueueData = new QueueData()
-            {
-                QueueId = callbackData.QueueData!.QueueId,
-            }
-        };
-
-        var serializedCallbackData = DataSerializer.Serialize(buttonCallbackData);
-        return InlineKeyboardButton.WithCallbackData(buttonText, serializedCallbackData);
+            replyMarkup: replyMarkup);
     }
 }

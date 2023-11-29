@@ -5,27 +5,29 @@ using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
+using Enqueuer.Telegram.Callbacks.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
-public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueButton
+public class SwitchQueueCallbackHandler : CallbackHandlerBase
 {
+    private readonly ICallbackDataSerializer _dataSerializer;
     private readonly IUserService _userService;
     private readonly IQueueService _queueService;
 
     public SwitchQueueCallbackHandler(ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider, IUserService userService, IQueueService queueService)
-        : base(telegramBotClient, dataSerializer, localizationProvider)
+        : base(telegramBotClient, localizationProvider)
     {
+        _dataSerializer = dataSerializer;
         _userService = userService;
         _queueService = queueService;
     }
 
     protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callbackContext.CallbackData?.QueueData == null)
+        if (callbackContext.CallbackData.QueueData == null)
         {
             return TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
@@ -43,11 +45,15 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
         var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData.QueueData!.QueueId, includeMembers: false, cancellationToken);
         if (queue == null)
         {
+            var replyButton = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+                .WithReturnToChatButton(callbackContext.CallbackData)
+                .Build();
+
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData),
+                replyMarkup: replyButton,
                 cancellationToken: cancellationToken);
 
             return;
@@ -62,6 +68,10 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
         var isDynamic = queue.IsDynamic;
         await _queueService.SwitchQueueStatusAsync(queue.Id, cancellationToken);
 
+        var replyButton = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+            .WithReturnToQueueButton(callbackContext.CallbackData)
+            .Build();
+
         if (isDynamic)
         {
             await TelegramBotClient.EditMessageTextAsync(
@@ -69,7 +79,7 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.Callback_SwitchQueue_QueueIsNotDynamicNow_Message, new MessageParameters(queue.Name)),
                 ParseMode.Html,
-                replyMarkup: GetReturnToQueueButton(callbackContext.CallbackData),
+                replyMarkup: replyButton,
                 cancellationToken: cancellationToken);
 
             return;
@@ -86,7 +96,7 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBaseWithReturnToQueueBu
             callbackContext.MessageId,
             LocalizationProvider.GetMessage(CallbackMessageKeys.SwitchQueueCallbackHandler.Callback_SwitchQueue_QueueIsDynamicNow_Message, new MessageParameters(queue.Name)),
             ParseMode.Html,
-            replyMarkup: GetReturnToQueueButton(callbackContext.CallbackData),
+            replyMarkup: replyButton,
             cancellationToken: cancellationToken);
     }
 }

@@ -1,30 +1,31 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core.Localization;
+using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Extensions;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.CallbackHandlers.BaseClasses;
 using Enqueuer.Telegram.Callbacks.Extensions;
-using Enqueuer.Messaging.Core.Localization;
-using Enqueuer.Messaging.Core.Serialization;
+using Enqueuer.Telegram.Callbacks.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
-using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
-public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButton
+public class RemoveQueueCallbackHandler : CallbackHandlerBase
 {
+    private readonly ICallbackDataSerializer _dataSerializer;
     private readonly IUserService _userService;
     private readonly IQueueService _queueService;
 
     public RemoveQueueCallbackHandler(
         ITelegramBotClient telegramBotClient, ICallbackDataSerializer dataSerializer,
         ILocalizationProvider localizationProvider, IUserService userService, IQueueService queueService)
-        : base(telegramBotClient, dataSerializer, localizationProvider)
+        : base(telegramBotClient, localizationProvider)
     {
+        _dataSerializer = dataSerializer;
         _userService = userService;
         _queueService = queueService;
     }
@@ -49,11 +50,15 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
         var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData!.QueueData!.QueueId, includeMembers: false, cancellationToken);
         if (queue == null)
         {
+            var returnButton = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+                .WithReturnToChatButton(callbackContext.CallbackData)
+                .Build();
+
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData),
+                replyMarkup: returnButton,
                 cancellationToken: cancellationToken);
 
             return;
@@ -70,11 +75,14 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
             return;
         }
 
-        var replyMarkup = new InlineKeyboardButton[][]
-        {
-            new InlineKeyboardButton[] { GetRemoveQueueButton(LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_AgreeToDelete_Button, MessageParameters.None), callbackContext.CallbackData, true) },
-            new InlineKeyboardButton[] { GetReturnToQueueButton(callbackContext.CallbackData) }
-        };
+        var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
+            .WithRemoveQueueButton(
+                LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_AgreeToDelete_Button, MessageParameters.None),
+                callbackContext.CallbackData,
+                isAgreed: true)
+            .FromNewRow()
+                .WithReturnToQueueButton(callbackContext.CallbackData)
+            .Build();
 
         await TelegramBotClient.EditMessageTextAsync(
             callbackContext.Chat.Id,
@@ -90,15 +98,19 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
         var user = await _userService.GetOrStoreUserAsync(callbackContext.Sender, cancellationToken);
         if (callbackContext.CallbackData.HasUserAgreement)
         {
+            var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider);
+
             var userId = callbackContext.Sender.Id;
             if (!queue.IsQueueCreator(userId) && !await TelegramBotClient.IsChatAdmin(userId, queue.GroupId))
             {
+                replyMarkup.WithReturnToQueueButton(callbackContext.CallbackData);
+
                 await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                     LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_UserHasNoRightsToDelete_Message, new MessageParameters(queue.Name)),
                     ParseMode.Html,
-                    replyMarkup: GetReturnToQueueButton(callbackContext.CallbackData),
+                    replyMarkup: replyMarkup.Build(),
                     cancellationToken: cancellationToken);
                 return;
             }
@@ -111,12 +123,14 @@ public class RemoveQueueCallbackHandler : CallbackHandlerBaseWithRemoveQueueButt
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
 
+            replyMarkup.WithReturnToChatButton(callbackContext.CallbackData);
+
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.RemoveQueueCallbackHandler.Callback_RemoveQueue_Success_Message, new MessageParameters(queue.Name)),
                 ParseMode.Html,
-                replyMarkup: GetReturnToChatButton(callbackContext.CallbackData),
+                replyMarkup: replyMarkup.Build(),
                 cancellationToken: cancellationToken);
 
             return;

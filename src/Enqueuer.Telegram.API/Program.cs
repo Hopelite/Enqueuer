@@ -13,7 +13,6 @@ using Enqueuer.Telegram.Extensions;
 using Enqueuer.Telegram.Messages;
 using Enqueuer.Telegram.Messages.Factories;
 using Enqueuer.Telegram.Middleware;
-using Enqueuer.Telegram.UpdateHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -84,8 +83,6 @@ public class Program
 
         builder.Services.ConfigureSerialization()
             .ConfigureServices();
-
-        builder.Services.AddScoped<IUpdateHandler, UpdateHandler>();
 
         builder.Services.AddHttpClient(nameof(TelegramBotClient))
             .AddTypedClient<ITelegramBotClient>((httpClient, serviceProvider) =>

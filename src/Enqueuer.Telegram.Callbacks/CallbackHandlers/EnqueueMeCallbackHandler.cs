@@ -9,29 +9,26 @@ using Enqueuer.Messaging.Core.Types.Callbacks;
 
 namespace Enqueuer.Telegram.Callbacks.CallbackHandlers;
 
-public class EnqueueMeCallbackHandler : ICallbackHandler
+public class EnqueueMeCallbackHandler : CallbackHandlerBase
 {
-    private readonly ITelegramBotClient _telegramBotClient;
     private readonly IQueueService _queueService;
     private readonly IGroupService _groupService;
-    private readonly ILocalizationProvider _localizationProvider;
 
     public EnqueueMeCallbackHandler(ITelegramBotClient telegramBotClient, IQueueService queueService, IGroupService groupService, ILocalizationProvider localizationProvider)
+        : base(telegramBotClient, localizationProvider)
     {
-        _telegramBotClient = telegramBotClient;
         _queueService = queueService;
         _groupService = groupService;
-        _localizationProvider = localizationProvider;
     }
 
-    public Task HandleAsync(CallbackContext callbackContext, CancellationToken cancellationToken)
+    protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
         if (callbackContext.CallbackData.QueueData == null)
         {
-            return _telegramBotClient.EditMessageTextAsync(
+            return TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
-                _localizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_OutdatedCallback_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
         }
@@ -46,34 +43,34 @@ public class EnqueueMeCallbackHandler : ICallbackHandler
         try
         {
             var response = await _queueService.EnqueueOnFirstAvailablePositionAsync(callbackContext.Sender.Id, queueId, cancellationToken);
-            await _telegramBotClient.AnswerCallbackQueryAsync(
+            await TelegramBotClient.AnswerCallbackQueryAsync(
                 callbackContext.QueryId,
-                _localizationProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_SuccessfullyEnqueued_Alert, new MessageParameters(response.Queue.Name, response.Position.ToString())),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_SuccessfullyEnqueued_Alert, new MessageParameters(response.Queue.Name, response.Position.ToString())),
                 cancellationToken: cancellationToken);
         }
         catch (QueueDoesNotExistException)
         {
-            await _telegramBotClient.EditMessageTextAsync(
+            await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
-                _localizationProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_QueueHasBeenDeleted_Message, MessageParameters.None),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_QueueHasBeenDeleted_Message, MessageParameters.None),
                 ParseMode.Html,
                 cancellationToken: cancellationToken);
 
-            await _telegramBotClient.AnswerCallbackQueryAsync(callbackContext.QueryId, cancellationToken: cancellationToken);
+            await TelegramBotClient.AnswerCallbackQueryAsync(callbackContext.QueryId, cancellationToken: cancellationToken);
         }
         catch (UserAlreadyParticipatesException ex)
         {
-            await _telegramBotClient.AnswerCallbackQueryAsync(
+            await TelegramBotClient.AnswerCallbackQueryAsync(
                 callbackContext.QueryId,
-                _localizationProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_UserAlreadyParticipates_Alert, new MessageParameters(ex.QueueName)),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueMeCallbackHandler.Callback_EnqueueMe_UserAlreadyParticipates_Alert, new MessageParameters(ex.QueueName)),
                 cancellationToken: cancellationToken);
         }
         catch (QueueIsFullException ex)
         {
-            await _telegramBotClient.AnswerCallbackQueryAsync(
+            await TelegramBotClient.AnswerCallbackQueryAsync(
                 callbackContext.QueryId,
-                _localizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsFull_Message, new MessageParameters(ex.QueueName)),
+                LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueAtCallbackHandler.Callback_EnqueueAt_QueueIsFull_Message, new MessageParameters(ex.QueueName)),
                 cancellationToken: cancellationToken);
         }
     }
