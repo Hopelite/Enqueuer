@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Enqueuer.Messaging.Core.Exceptions;
 using Enqueuer.Messaging.Core.Localization;
-using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;

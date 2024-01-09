@@ -8,7 +8,7 @@ using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.Helpers;
+using Enqueuer.Telegram.Callbacks.Helpers.Markup;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;

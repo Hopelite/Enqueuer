@@ -5,7 +5,7 @@ using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.Helpers;
+using Enqueuer.Telegram.Callbacks.Helpers.Markup;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -45,15 +45,14 @@ public class SwitchQueueCallbackHandler : CallbackHandlerBase
         var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData.QueueData!.QueueId, includeMembers: false, cancellationToken);
         if (queue == null)
         {
-            var replyButton = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
-                .WithReturnToChatButton(callbackContext.CallbackData)
-                .Build();
+            var replyMarkup = new ReturnToChatMarkup(_dataSerializer, LocalizationProvider)
+                .Create(callbackContext.CallbackData);
 
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
                 callbackContext.MessageId,
                 LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_QueueHasBeenDeleted_Message, MessageParameters.None),
-                replyMarkup: replyButton,
+                replyMarkup: replyMarkup,
                 cancellationToken: cancellationToken);
 
             return;

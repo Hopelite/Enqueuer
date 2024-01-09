@@ -6,7 +6,7 @@ using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Services;
 using Enqueuer.Services.Exceptions;
-using Enqueuer.Telegram.Callbacks.Helpers;
+using Enqueuer.Telegram.Callbacks.Helpers.Markup;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -49,7 +49,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBase
                 : await _queueService.EnqueueOnFirstAvailablePositionAsync(callbackContext.Sender.Id, queueId, cancellationToken);
 
             var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
-                .WithReturnToQueueButton(callbackContext.CallbackData)
+                .WithReturnToQueueButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None))
                 .Build();
 
             await TelegramBotClient.EditMessageTextAsync(
@@ -68,7 +68,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBase
         catch (QueueDoesNotExistException)
         {
             var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
-                .WithReturnToQueueButton(callbackContext.CallbackData)
+                .WithReturnToQueueButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None))
                 .Build();
 
             await TelegramBotClient.EditMessageTextAsync(
@@ -81,7 +81,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBase
         catch (UserAlreadyParticipatesException ex)
         {
             var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
-                .WithReturnToQueueButton(callbackContext.CallbackData)
+                .WithReturnToQueueButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None))
                 .Build();
 
             await TelegramBotClient.EditMessageTextAsync(
@@ -95,7 +95,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBase
         catch (QueueIsFullException ex)
         {
             var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
-                .WithReturnToQueueButton(callbackContext.CallbackData)
+                .WithReturnToQueueButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None))
                 .Build();
 
             await TelegramBotClient.EditMessageTextAsync(
@@ -132,7 +132,7 @@ public class EnqueueAtCallbackHandler : CallbackHandlerBase
                     CallbackCommands.EnqueueAtCommand,
                     callbackContext.CallbackData,
                     queueId)
-                .WithReturnToQueueButton(callbackContext.CallbackData)
+                .WithReturnToQueueButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None))
                 .Build();
 
             await TelegramBotClient.EditMessageTextAsync(

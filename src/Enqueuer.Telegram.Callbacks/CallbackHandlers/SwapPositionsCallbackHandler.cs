@@ -7,7 +7,7 @@ using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Messaging.Core.Types.Callbacks;
 using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
-using Enqueuer.Telegram.Callbacks.Helpers;
+using Enqueuer.Telegram.Callbacks.Helpers.Markup;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -47,9 +47,8 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBase
         var queue = await _queueService.GetQueueAsync(callbackContext.CallbackData!.QueueData!.QueueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
-            var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
-                .WithReturnToChatButton(callbackContext.CallbackData)
-                .Build();
+            var replyMarkup = new ReturnToChatMarkup(_dataSerializer, LocalizationProvider)
+                .Create(callbackContext.CallbackData);
 
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
@@ -232,6 +231,7 @@ public class SwapPositionsCallbackHandler : CallbackHandlerBase
 
         var replyButtons = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider);
         var replyButtonsCount = 0;
+
         foreach (var member in membersToDisplay)
         {
             replyButtons.WithExchangeRequestButton(member, exchangeRequester.Position)

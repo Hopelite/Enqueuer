@@ -7,9 +7,12 @@ using Enqueuer.Messaging.Core.Serialization;
 using Enqueuer.Persistence.Models;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Enqueuer.Telegram.Callbacks.Helpers;
+namespace Enqueuer.Telegram.Callbacks.Helpers.Markup;
 
-public class ReplyMarkupBuilder
+/// <summary>
+/// 
+/// </summary>
+internal class ReplyMarkupBuilder : IMarkupBuilder
 {
     private readonly ICallbackDataSerializer _dataSerializer;
     private readonly ILocalizationProvider _localizationProvider;
@@ -29,13 +32,53 @@ public class ReplyMarkupBuilder
         _row = new Queue<InlineKeyboardButton>();
     }
 
+    /// <summary>
+    /// Creates a new instance of the <see cref="ReplyMarkupBuilder"/>.
+    /// </summary>
     public static ReplyMarkupBuilder Create(ICallbackDataSerializer dataSerializer, ILocalizationProvider localizationProvider)
-        => new ReplyMarkupBuilder(dataSerializer, localizationProvider);
+        => new(dataSerializer, localizationProvider);
 
-    public ReplyMarkupBuilder FromNewRow()
+    /// <summary>
+    /// Specifies that the following buttons will be added to a new row.
+    /// </summary>
+    public IMarkupBuilder FromNewRow()
     {
+        if (_row.Count == 0)
+        {
+            return this;
+        }
+
         _markup.Enqueue(_row);
         return new ReplyMarkupBuilder(_dataSerializer, _localizationProvider, _markup);
+    }
+
+    public IMarkupBuilder Add(CreateMarkupButtonDelegate createMarkupButton)
+    {
+        var button = createMarkupButton(_dataSerializer) ?? throw new ArgumentNullException("Markup button created returned null.");
+        _row.Enqueue(button);
+        return this;
+    }
+
+    public IMarkupBuilder FromNewRow(CreateMarkupButtonDelegate createMarkupButton)
+    {
+        if (_row.Count == 0)
+        {
+            throw new InvalidOperationException("Cannot create an empty markup line while the current one is empty.");
+        }
+
+        _markup.Enqueue(_row.ToArray());
+        _row.Clear();
+
+        var button = createMarkupButton(_dataSerializer) ?? throw new ArgumentNullException("Markup button created returned null.");
+        _row.Enqueue(button);
+        return this;
+    }
+
+    public ReplyMarkupBuilder AddButton()
+    {
+
+
+        return this;
     }
 
     public ReplyMarkupBuilder ForEach()
@@ -48,6 +91,12 @@ public class ReplyMarkupBuilder
         _markup.Enqueue(_row);
         return new InlineKeyboardMarkup(_markup);
     }
+
+
+
+
+
+
 
     /// <summary>
     /// Adds the refresh button with the <paramref name="callbackData"/>.
@@ -121,24 +170,6 @@ public class ReplyMarkupBuilder
         return this;
     }
 
-    /// <summary>
-    /// Adds the return to queue button.
-    /// </summary>
-    public ReplyMarkupBuilder WithReturnToQueueButton(CallbackData callbackData)
-    {
-        var buttonCallbackData = new CallbackData()
-        {
-            Command = CallbackCommands.GetQueueCommand,
-            TargetChatId = callbackData.TargetChatId,
-            QueueData = callbackData.QueueData,
-        };
-
-        var serializedCallbackData = _dataSerializer.Serialize(buttonCallbackData);
-        var button = InlineKeyboardButton.WithCallbackData(_localizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None), serializedCallbackData);
-        _row.Enqueue(button);
-        return this;
-    }
-
     public ReplyMarkupBuilder WithQueueRelatedButton(string buttonText, string command, CallbackData callbackData, int queueId)
     {
         var buttonCallbackData = new CallbackData()
@@ -170,7 +201,7 @@ public class ReplyMarkupBuilder
             }
         };
 
-        var serializedCallbackData =_dataSerializer.Serialize(buttonCallbackData);
+        var serializedCallbackData = _dataSerializer.Serialize(buttonCallbackData);
         var button = InlineKeyboardButton.WithCallbackData(buttonText, serializedCallbackData);
         _row.Enqueue(button);
         return this;

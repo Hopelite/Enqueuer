@@ -8,6 +8,7 @@ using Enqueuer.Persistence.Models;
 using Enqueuer.Services;
 using Enqueuer.Services.Extensions;
 using Enqueuer.Telegram.Callbacks.Helpers;
+using Enqueuer.Telegram.Callbacks.Helpers.Markup;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -49,9 +50,8 @@ public class EnqueueCallbackHandler : CallbackHandlerBase
         var queue = await _queueService.GetQueueAsync(queueId, includeMembers: true, cancellationToken);
         if (queue == null)
         {
-            var replyMarkup = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
-                .WithReturnToChatButton(callbackContext.CallbackData)
-                .Build();
+            var replyMarkup = new ReturnToChatMarkup(_dataSerializer, LocalizationProvider)
+                .Create(callbackContext.CallbackData);
 
             await TelegramBotClient.EditMessageTextAsync(
                 callbackContext.Chat.Id,
@@ -74,7 +74,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBase
             replyButtons = ReplyMarkupBuilder.Create(_dataSerializer, LocalizationProvider)
                 .WithEnqueueAtButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.EnqueueCallbackHandler.Callback_Enqueue_FirstAvailable_Button, MessageParameters.None))
                 .FromNewRow()
-                .WithReturnToQueueButton(callbackContext.CallbackData)
+                .WithReturnToQueueButton(callbackContext.CallbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_Return_Button, MessageParameters.None))
                 .Build();
         }
         else
@@ -103,7 +103,7 @@ public class EnqueueCallbackHandler : CallbackHandlerBase
         AddPositionButtons(availablePositions, replyMarkup, numberOfRows, callbackData);
 
         replyMarkup.FromNewRow()
-            .WithRefreshButton(callbackData)
+            .WithRefreshButton(callbackData, LocalizationProvider.GetMessage(CallbackMessageKeys.Callback_RefreshMessage_Button, MessageParameters.None))
             .FromNewRow()
             .WithReturnToQueueButton(callbackData);
 
