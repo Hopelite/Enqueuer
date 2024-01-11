@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Enqueuer.Messaging.Core.Helpers;
 
 namespace Enqueuer.Messaging.Core.Types.Common;
 
@@ -22,6 +23,11 @@ public class User : Chat
     /// </summary>
     [JsonIgnore]
     public string FullName => string.IsNullOrWhiteSpace(LastName) ? FirstName : $"{FirstName} {LastName}";
+
+    /// <summary>
+    /// The language of the user's interface.
+    /// </summary>
+    public string InterfaceLanguage { get; set; } = ChatConfigurationHelper.DefaultChatCulture;
 
     // TODO: remove
     public static implicit operator Telegram.Bot.Types.User(User user) => new()

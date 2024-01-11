@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Enqueuer.Messaging.Core.Types.Common;
 
-namespace Enqueuer.Messaging.Core.Extensions;
+namespace Enqueuer.Messaging.Core.Helpers;
 
 public static class StringExtensions
 {

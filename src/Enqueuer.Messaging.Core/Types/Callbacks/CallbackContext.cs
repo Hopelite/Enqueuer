@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Enqueuer.Messaging.Core.Helpers;
 using Enqueuer.Messaging.Core.Types.Common;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
@@ -39,14 +40,13 @@ public class CallbackContext
     /// <returns>True, if <paramref name="callbackContext"/> created successfully; otherwise false.</returns>
     public static bool TryCreate(CallbackQuery callbackQuery, [NotNullWhen(returnValue: true)] out CallbackContext? callbackContext)
     {
-
         callbackContext = null;
         if (callbackQuery.From == null || callbackQuery.Message == null || callbackQuery.Data == null)
         {
             return false;
         }
 
-        CallbackData? callbackData = JsonConvert.DeserializeObject<CallbackData?>(callbackQuery.Data);
+        var callbackData = JsonConvert.DeserializeObject<CallbackData?>(callbackQuery.Data);
         if (callbackData == null)
         {
             return false;
@@ -64,6 +64,7 @@ public class CallbackContext
             Id = callbackQuery.From.Id,
             FirstName = callbackQuery.From.FirstName,
             LastName = callbackQuery.From.LastName,
+            InterfaceLanguage = ChatConfigurationHelper.GetCultureNameFromIetfTag(callbackQuery.From.LanguageCode),
         };
 
         callbackContext.Chat = new Group

@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Enqueuer.Messaging.Core.Extensions;
+using Enqueuer.Messaging.Core.Helpers;
 using Enqueuer.Messaging.Core.Types.Common;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
@@ -64,6 +64,7 @@ public class MessageContext
             Id = message.From.Id,
             FirstName = message.From.FirstName,
             LastName = message.From.LastName,
+            InterfaceLanguage = ChatConfigurationHelper.GetCultureNameFromIetfTag(message.From.LanguageCode),
         };
 
         messageContext.Chat = new Group
