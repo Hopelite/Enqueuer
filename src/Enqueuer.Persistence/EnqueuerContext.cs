@@ -39,6 +39,11 @@ public class EnqueuerContext : DbContext
     /// </summary>
     public DbSet<Position> Positions { get; set; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    public DbSet<GroupSettings> GroupSettings { get; set; }
+
     public EnqueuerContext(DbContextOptions<EnqueuerContext> dbContextOptions)
         : base(dbContextOptions)
     {
@@ -51,7 +56,8 @@ public class EnqueuerContext : DbContext
             .ApplyConfiguration(new UserEntityConfiguration())
             .ApplyConfiguration(new QueueEntityConfiguration())
             .ApplyConfiguration(new QueueMemberEntityConfiguration())
-            .ApplyConfiguration(new PositionEntityConfiguration());
+            .ApplyConfiguration(new PositionEntityConfiguration())
+            .ApplyConfiguration(new GroupSettingsEntityConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

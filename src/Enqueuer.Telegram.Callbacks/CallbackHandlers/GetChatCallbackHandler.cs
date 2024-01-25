@@ -34,7 +34,7 @@ public class GetChatCallbackHandler : CallbackHandlerBase
 
     protected override Task HandleAsyncImplementation(CallbackContext callbackContext, CancellationToken cancellationToken)
     {
-        if (callbackContext.CallbackData == null || !callbackContext.CallbackData!.TargetChatId.HasValue)
+        if (callbackContext.CallbackData == null || !callbackContext.CallbackData.TargetChatId.HasValue)
         {
             _logger.LogWarning("Handled outdated callback.");
             return TelegramBotClient.EditMessageTextAsync(
