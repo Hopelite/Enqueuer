@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Enqueuer.Messaging.Core.Types.Messages;
 using Enqueuer.Telegram.Callbacks;
 using Enqueuer.Telegram.Messages;
 using Telegram.Bot.Types;
@@ -20,9 +21,9 @@ public class UpdateHandler : IUpdateHandler
 
     public Task HandleAsync(Update update)
     {
-        if (update?.Type == UpdateType.Message)
+        if (update?.Type == UpdateType.Message && MessageContext.TryCreate(update.Message, out var messageContext))
         {
-            //return _messageDistributor.DistributeAsync(update.Message, CancellationToken.None);
+            return _messageDistributor.DistributeAsync(messageContext, CancellationToken.None);
         }
         else if (update?.Type == UpdateType.CallbackQuery)
         {
